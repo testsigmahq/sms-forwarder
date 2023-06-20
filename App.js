@@ -1,35 +1,51 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import {GoogleSignin} from "react-native-google-signin";
-import GoogleSignupButton from "./components/GoogleSignupButton";
+import { StyleSheet, Text, View, Button } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { GoogleSignin } from 'react-native-google-signin';
+import GoogleSignupButton from './components/google-signup-button';
+import SmsRelay  from './screens/smsRelay';
+const Stack = createStackNavigator();
 
-export default function App() {
-
+const HomeScreen = ({ navigation }) => {
   const handleGoogleSignup = (userInfo) => {
-    // Handle user signup with the received userInfo from Google
     console.log('Google user info:', userInfo);
+      navigation.navigate('SmsRelay');
+
   };
 
+  return (
+      <View style={styles.container}>
+        <Text style={{bottom:10}}>Welcome to RelayMate</Text>
+        <GoogleSignupButton onSignup={handleGoogleSignup} />
+      </View>
+  );
+};
+
+
+export default function App() {
   React.useEffect(() => {
     // Initialize GoogleSignin
     GoogleSignin.configure({
       androidClientId: '473722209735-6i2vv66nd68n49th14dgpaepbbvd0cka.apps.googleusercontent.com',
     });
   }, []);
+
   return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Welcome to My App</Text>
-        {/* Other components */}
-        <GoogleSignupButton onSignup={handleGoogleSignup} />
-      </View>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+          {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
+          <Stack.Screen name="SmsRelay" component={SmsRelay} />
+        </Stack.Navigator>
+      </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });
