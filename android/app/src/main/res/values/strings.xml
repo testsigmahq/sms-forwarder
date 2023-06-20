@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">sms-forwarder</string>
+    <string name="google_signin_web_client_id">473722209735-6i2vv66nd68n49th14dgpaepbbvd0cka.apps.googleusercontent.com</string>
+
 </resources>
