@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "sms-forwarder",
+    "slug": "sms-forwarder",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "sms-forwarder"
+}
