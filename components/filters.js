@@ -1,12 +1,21 @@
-import React, {useState} from 'react';
-import {View, Text, Button, StyleSheet, Switch,Image} from 'react-native';
-import {FontAwesome5} from "@expo/vector-icons";
+import React, { useState } from 'react';
+import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal } from 'react-native';
+import { FontAwesome5 } from "@expo/vector-icons";
 
 const Filters = () => {
     const [toggleValue, setToggleValue] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     const handleToggleChange = (value) => {
         setToggleValue(value);
+    };
+
+    const handleImagePress = () => {
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
     };
 
     return (
@@ -24,9 +33,21 @@ const Filters = () => {
                     />
                 </View>
             </View>
-            <View style={styles.imageContainer}>
-                <Image source={require('../assets/plus.png')} style={styles.image} />
-            </View>
+
+            <TouchableOpacity onPress={handleImagePress}>
+                <View style={styles.imageContainer}>
+                    <Image source={require('../assets/plus.png')} style={styles.image} />
+                </View>
+            </TouchableOpacity>
+
+            <Modal visible={showModal} animationType="slide" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text>Add Filter</Text>
+                        <Button title="Close" onPress={closeModal} />
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -35,6 +56,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
+        justifyContent: 'space-between',
     },
     card: {
         flexDirection: 'row',
@@ -47,36 +69,49 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 4,
-        margin:8,
+        margin: 8,
     },
     cardText: {
         marginRight: 8,
         fontSize: 22,
-        color:'white',
-        fontWeight:'800',
-        letterSpacing:2
+        color: 'white',
+        fontWeight: '800',
+        letterSpacing: 2,
     },
     switchContainer: {
         flex: 1,
         alignItems: 'flex-end',
     },
     switch: {
-        transform: [{ scaleX: 1.2}, { scaleY: 1.2 }],
+        transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
     },
     imageContainer: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         alignItems: 'center',
-        backgroundColor: 'transparent', // Set this to 'transparent' to hide the container background
+        justifyContent: 'flex-end',
+        marginBottom: 15,
     },
     image: {
         width: 45,
         height: 45,
-        marginBottom: 15, // Adjust this value to add spacing between the image and the bottom
     },
-
+    modalContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: '#FFF',
+        padding: 60,
+        paddingHorizontal:130,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalText: {
+        fontSize: 18,
+        marginBottom: 10,
+    },
 });
 
 export default Filters;

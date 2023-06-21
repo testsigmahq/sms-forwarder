@@ -18,11 +18,11 @@ const BottomTabs = () => {
                 options={{
                     tabBarIcon: ({ focused, color, size }) => {
                         let iconName = 'filter';
-                        const iconColor = focused ? 'green' : 'gray';
+                        const iconColor = focused ? '#03A973' : 'gray';
                         return <FontAwesome5 style={{ marginTop: 5 }} name={iconName} size={26} color={iconColor} />;
                     },
                     tabBarLabel: ({ focused, color }) => {
-                        const labelColor = focused ? 'green' : 'gray';
+                        const labelColor = focused ? '#03A973' : 'gray';
                         return <Text style={{ color: labelColor }}>Filters</Text>;
                     },
                 }}

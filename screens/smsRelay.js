@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     },
     line: {
         borderBottomWidth: 2,
-        borderBottomColor: '#80FF80',
+        borderBottomColor: '#03A973',
         width: 30,
         marginTop: 7,
         left: 15,
