@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal } from 'react-native';
 import { FontAwesome5 } from "@expo/vector-icons";
+import {useNavigation} from "@react-navigation/native";
 
 const Filters = () => {
     const [toggleValue, setToggleValue] = useState(false);
@@ -17,6 +18,8 @@ const Filters = () => {
     const closeModal = () => {
         setShowModal(false);
     };
+    const navigation = useNavigation();
+
 
     return (
         <View style={styles.container}>
@@ -39,15 +42,18 @@ const Filters = () => {
                     <Image source={require('../assets/plus.png')} style={styles.image} />
                 </View>
             </TouchableOpacity>
-
             <Modal visible={showModal} animationType="slide" transparent={true}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text>Add Filter</Text>
-                        <Button title="Close" onPress={closeModal} />
-                    </View>
+            <View style={styles.modalContainer}>
+                <View style={[styles.modalContent]}>
+                    <Text style={styles.modalTitle}>Add filter</Text>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('Wrapper')}}>
+                    <Text style={styles.modalText}>Forward SMS</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.modalText}>Forward Notification</Text>
                 </View>
-            </Modal>
+            </View>
+        </Modal>
+
         </View>
     );
 };
@@ -102,16 +108,26 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: '#FFF',
-        padding: 60,
-        paddingHorizontal:130,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
+        borderRadius:5,
+        flexDirection: 'column',
+        marginRight:20,
+        padding:15,
+        paddingRight:185,
     },
     modalText: {
-        fontSize: 18,
-        marginBottom: 10,
+        alignSelf: 'flex-start',
+        textAlign: 'left',
+        marginBottom:20,
+        fontSize:16,
     },
+    modalTitle: {
+        alignSelf: 'flex-start',
+        textAlign: 'left',
+        marginBottom:20,
+        fontWeight:500,
+        fontSize:18,
+    }
+
 });
 
 export default Filters;

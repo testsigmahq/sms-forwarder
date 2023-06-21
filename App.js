@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { GoogleSignin } from 'react-native-google-signin';
 import GoogleSignupButton from './components/google-signup-button';
 import SmsRelay  from './screens/smsRelay';
+import Wrapper from "./screens/wrapper";
 const Stack = createStackNavigator();
 
 const HomeScreen = ({ navigation }) => {
@@ -36,6 +37,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{headerShown: false}}>
           {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
           <Stack.Screen name="SmsRelay" component={SmsRelay} />
+            <Stack.Screen name="Wrapper" component={Wrapper} />
         </Stack.Navigator>
       </NavigationContainer>
   );

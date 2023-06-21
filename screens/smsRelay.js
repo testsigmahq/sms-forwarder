@@ -2,7 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BottomTabs from '../components/bottom-tabs';
 
-const SmsRelay = ({ navigation }) => {
+const SmsRelay = () => {
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
