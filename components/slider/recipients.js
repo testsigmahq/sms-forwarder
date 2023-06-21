@@ -13,28 +13,37 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import {FontAwesome5} from "@expo/vector-icons";
 
 const Recipients = () => {
     const navigation = useNavigation();
 
     const [showModal, setShowModal] = useState(false);
-    const [requestMethod, setRequestMethod] = useState(null);
+    const [requestMethod, setRequestMethod] = useState('');
 
-    const [selectedOption, setSelectedOption] = useState(null);
-    const [recipients, setRecipients] = useState([]);
+    const [selectedOption, setSelectedOption] = useState();
+    const [recipients, setRecipients] = useState(["PhoneNumber"]);
 
     function setContext(contextName) {
         setSelectedOption(contextName);
         setShowModal(false);
-        handleAddRecipient();
+    }
+    
+    useEffect(()=>{
+        if(selectedOption) {
+            setRecipients([...recipients, selectedOption]);
+            setSelectedOption('')
+        }
+        else
+            setRecipients([...recipients]);
+    },[selectedOption])
+
+    function removeTrip(index) {
+        const updatedRecipients = [...recipients];
+        updatedRecipients.splice(index, 1);
+        setRecipients(updatedRecipients);
     }
 
-    function handleAddRecipient() {
-        if (selectedOption) {
-            setRecipients([...recipients, selectedOption]);
-            setSelectedOption(null);
-        }
-    }
 
     function handleSelectPost() {
         setRequestMethod('POST');
@@ -55,52 +64,61 @@ const Recipients = () => {
             <View style={styles.card}>
                 <View>
                     {recipients.map((recipient, index) => (
-                        <TextInput key={index} style={styles.input} placeholder={recipient} />
+                        <React.Fragment key={index}>
+                            <View style={{flexDirection :'row',alignSelf:'center',width:deviceWidth*0.8, justifyContent:"space-between"}}>
+                            <TextInput style={styles.input} placeholder={recipient} />
+                                <View style={styles.imageContainer}>
+                                    <TouchableOpacity onPress={()=>{removeTrip(index)}}>
+                                        <Image source={require('../../assets/minus.png')} style={styles.minus} />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            {recipient ==="URL" && <View style={styles.inputContainer}>
+                                <TouchableOpacity onPress={handleSelectPost} style={styles.radioButton}>
+                                    <View
+                                        style={[
+                                            styles.radioOuterCircle,
+                                            {
+                                                borderColor: requestMethod === 'POST' ? '#1AA874' : '#000',
+                                            },
+                                        ]}
+                                    >
+                                        {requestMethod === 'POST' && <View style={styles.radioInnerCircle} />}
+                                    </View>
+                                    <Text style={styles.radioLabel}>POST</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleSelectGet} style={styles.radioButton}>
+                                    <View
+                                        style={[
+                                            styles.radioOuterCircle,
+                                            {
+                                                borderColor: requestMethod === 'GET' ? '#1AA874' : '#000',
+                                            },
+                                        ]}
+                                    >
+                                        {requestMethod === 'GET' && <View style={styles.radioInnerCircle} />}
+                                    </View>
+                                    <Text style={styles.radioLabel}>GET</Text>
+                                </TouchableOpacity>
+                                {requestMethod && (
+                                    <TextInput style={styles.requestInput} placeholder={`${requestMethod} Data`} />
+                                )}
+                            </View>}
+
+                            <View
+                                style={{
+                                    marginTop: 20,
+                                    borderBottomColor: 'rgba(0, 0, 0, 0.6)',
+                                    borderBottomWidth: StyleSheet.hairlineWidth,
+                                    width: deviceWidth * 0.9,
+                                    marginLeft: 18,
+                                    marginRight: 20,
+                                    marginBottom:10,
+                                }}
+                            />
+                        </React.Fragment>
                     ))}
-                    {selectedOption && (
-                        <TextInput style={styles.input} placeholder={`Enter ${selectedOption}`} />
-                    )}
-                    <View
-                        style={{
-                            marginTop: 20,
-                            borderBottomColor: 'rgba(0, 0, 0, 0.6)',
-                            borderBottomWidth: StyleSheet.hairlineWidth,
-                            width: deviceWidth * 0.9,
-                            marginLeft: 18,
-                            marginRight: 20,
-                        }}
-                    />
-                </View>
-                <View style={styles.inputContainer}>
-                    <TouchableOpacity onPress={handleSelectPost} style={styles.radioButton}>
-                        <View
-                            style={[
-                                styles.radioOuterCircle,
-                                {
-                                    borderColor: requestMethod === 'POST' ? '#1AA874' : '#000',
-                                },
-                            ]}
-                        >
-                            {requestMethod === 'POST' && <View style={styles.radioInnerCircle} />}
-                        </View>
-                        <Text style={styles.radioLabel}>POST</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleSelectGet} style={styles.radioButton}>
-                        <View
-                            style={[
-                                styles.radioOuterCircle,
-                                {
-                                    borderColor: requestMethod === 'GET' ? '#1AA874' : '#000',
-                                },
-                            ]}
-                        >
-                            {requestMethod === 'GET' && <View style={styles.radioInnerCircle} />}
-                        </View>
-                        <Text style={styles.radioLabel}>GET</Text>
-                    </TouchableOpacity>
-                    {requestMethod && (
-                        <TextInput style={styles.requestInput} placeholder={`${requestMethod} Data`} />
-                    )}
+
                 </View>
                 <View style={styles.imageContainer}>
                     <TouchableOpacity onPress={() => setShowModal(true)}>
@@ -169,9 +187,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 5,
         borderWidth: 1,
-        alignSelf: 'center',
         borderColor: 'gray',
-        width: deviceWidth * 0.8,
+        width: deviceWidth * 0.68,
         marginTop: 10,
     },
     requestInput: {
@@ -185,14 +202,20 @@ const styles = StyleSheet.create({
         marginBottom:-3,
     },
     imageContainer: {
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        marginBottom: 15,
+        // alignItems: 'center',
+        // justifyContent: 'flex-end',
+        marginBottom: 10,
     },
     image: {
         width: 32,
         height: 32,
         marginTop: 10,
+    },
+    minus: {
+        width: 40,
+        height: 40,
+        marginTop: 10,
+        left:10,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -200,6 +223,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         alignSelf: 'stretch',
         marginBottom: 10,
+        marginHorizontal:20
     },
     radioButton: {
         flexDirection: 'row',
