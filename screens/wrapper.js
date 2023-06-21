@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     dotStyle: {
-        width: 10,
-        height: 10,
+        width: 26,
+        height: 12,
         borderRadius: 10,
         backgroundColor: 'green', // Adjust the color as needed
     },

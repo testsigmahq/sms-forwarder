@@ -7,7 +7,7 @@ const CustomHeader = props => {
         <View style={styles.container}>
             <TouchableOpacity testID={"go-back"} name={"navigate-back"} onPress={props.onPressBackButton}>
                 <Image
-                    source={require('../../assets/arrow-back.png')}
+                    source={require('../assets/back.png')}
                     style={styles.arrowLeft}
                 />
             </TouchableOpacity>
@@ -28,19 +28,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: 60,
         alignItems: 'center',
+        margin:-10,
     },
     arrowLeft: {
-        width: 20,
-        height: 20,
-        left: 17,
+        width: 25,
+        height: 25,
         resizeMode: 'contain',
     },
     title: {
-        left: 30,
+        left: 20,
         height: 22,
         fontFamily: 'Lato',
         fontStyle: 'normal',
-        // fontWeight: '700',
+        fontWeight: '700',
         fontSize: 20,
         lineHeight: 22,
         //alignItems: 'center',

@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {FontAwesome5} from "@expo/vector-icons";
+import CustomHeader from "../custom-header";
 
 const Recipients = () => {
     const navigation = useNavigation();
@@ -28,7 +29,7 @@ const Recipients = () => {
         setSelectedOption(contextName);
         setShowModal(false);
     }
-    
+
     useEffect(()=>{
         if(selectedOption) {
             setRecipients([...recipients, selectedOption]);
@@ -44,7 +45,6 @@ const Recipients = () => {
         setRecipients(updatedRecipients);
     }
 
-
     function handleSelectPost() {
         setRequestMethod('POST');
     }
@@ -55,6 +55,11 @@ const Recipients = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <View style={{marginBottom:4}}>
+            <CustomHeader
+                title="Add filter"
+                onPressBackButton={() => navigation.goBack()}/>
+            </View>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Set up recipients</Text>
                 <Text style={styles.subtitle}>
@@ -167,6 +172,7 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 18,
+        lineHeight: 26
     },
     card: {
         alignItems: 'center',
@@ -212,8 +218,8 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     minus: {
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         marginTop: 10,
         left:10,
     },
