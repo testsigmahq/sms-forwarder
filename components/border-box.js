@@ -11,15 +11,47 @@ const BorderBox = props => {
     const [enter,setEnter]=useState(false);
     const [openContact,setOpenContact]=useState(false);
     const [number,setNumber]=useState();
+
+    const [messages, setMessages] = useState([]);
+
+    //validation
+    const [inputValidation,setInputValidation]=useState(false);
+
+    function handleCondition() {
+        setShowModal(false);
+
+        const text1 = "If the sender is ";
+        const text2 = "it will be sent.";
+
+        if (number) {
+            setMessages((prevMessages) => [...prevMessages, text1 + number + ", " + text2]);
+        }
+        else {
+            setInputValidation(true);
+
+        }
+        setNumber('');
+    }
+    console.log("msgw", messages);
+
     return (
         <View style={styles.blackCard}>
             <Text style={styles.text}>{props.title}</Text>
             <View style={styles.line}></View>
             {props.content && (
-                <View style={styles.addBorder}>
+                <View>
+                    { messages && messages.map((message, index) => (
+                        <View style={styles.cardGreen} key={index}>
+                            <Text style={{fontSize:13,color:'green',fontWeight:500}}>Rule {index+1}</Text>
+                            <Text style={{fontSize:12}}>{message}</Text>
+                        </View>
+                    ))}
+
+                    <View style={styles.addBorder}>
                     <TouchableOpacity onPress={() => setShowModal(true)}>
                         <Text style={styles.addBorderText}>{props.content}</Text>
                     </TouchableOpacity>
+                </View>
                 </View>
             )}
 
@@ -45,7 +77,7 @@ const BorderBox = props => {
                                     <Text style={styles.bottom}>CANCEL</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {
-                                    setShowModal(false)
+                                   handleCondition()
                                 }}>
                                 <Text style={styles.bottom}>OK</Text>
                                 </TouchableOpacity>
@@ -128,6 +160,18 @@ const BorderBox = props => {
                     </View>
                 </View>
             </Modal>
+
+
+            <Modal visible={inputValidation} animationType="slide-up" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={{marginBottom:1,fontSize:20}}>Please check the input value.</Text>
+                        <TouchableOpacity onPress={()=>{setInputValidation(false)}}>
+                            <Text style={{alignSelf:'flex-end',fontSize:20,margin:10,color:'green',marginBottom:5,right:5}}>OK</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -141,7 +185,7 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderRadius: 4,
         width: 300,
-        height: 120,
+        alignSelf:"flex-start",
         margin: 10,
         marginTop: 18,
     },
@@ -183,7 +227,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: '#FFF',
-        borderRadius: 5,
+        borderRadius: 3,
         padding: 15,
         width:deviceWidth*0.9,
     },
@@ -193,7 +237,7 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Center vertically
         padding: 10,
         backgroundColor: '#FFF',
-        borderRadius: 25,
+        borderRadius:25,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
@@ -202,6 +246,24 @@ const styles = StyleSheet.create({
         elevation: 4,
         margin: 8,
         width: deviceWidth * 0.5,
+    },
+    cardGreen: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start', // Center horizontally
+        alignItems: 'flex-start', // Center vertically
+        padding: 5,
+        backgroundColor: '#B1D8B7',
+        borderRadius:3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        alignSelf: 'center',
+        elevation: 4,
+        margin: 8,
+        borderColor:'green',
+        borderWidth:0.3,
+        width: deviceWidth * 0.7,
     },
     cardText: {
         marginRight: 8,

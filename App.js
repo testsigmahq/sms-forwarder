@@ -35,7 +35,7 @@ export default function App() {
   return (
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="SmsRelay" component={SmsRelay} />
             <Stack.Screen name="Wrapper" component={Wrapper} />
         </Stack.Navigator>

@@ -10,7 +10,6 @@ const SmsRelay = () => {
                     <TouchableOpacity
                         name={'NavigationBar'}
                         style={{ width: 70, height: 70 }}
-                        onPress={() => navigation.openDrawer()}
                     >
                         <View>
                             <View style={[styles.line, { width: 25 }]} />
