@@ -15,7 +15,8 @@ const Filters = ({}) => {
         setShowModal(true);
     };
 
-    const closeModal = () => {
+    const handleForwardSMS = () => {
+        navigation.navigate('Wrapper');
         setShowModal(false);
     };
     const navigation = useNavigation();
@@ -46,7 +47,7 @@ const Filters = ({}) => {
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent]}>
                     <Text style={styles.modalTitle}>Add filter</Text>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('Wrapper')}}>
+                    <TouchableOpacity onPress={handleForwardSMS}>
                     <Text style={styles.modalText}>Forward SMS</Text>
                     </TouchableOpacity>
                     <Text style={styles.modalText}>Forward Notification</Text>

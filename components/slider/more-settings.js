@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import ContactPicker from "../contact-picker";
 
 const MoreSettings = () => {
     const navigation = useNavigation();
@@ -15,8 +16,7 @@ const MoreSettings = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={{ fontSize: 24, marginBottom: 20 }}>MoreSettings</Text>
-            <Button title="Press Me" onPress={handleButtonPress} />
+            <ContactPicker/>
         </View>
     );
 };

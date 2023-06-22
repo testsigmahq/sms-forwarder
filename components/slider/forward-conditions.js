@@ -3,10 +3,11 @@ import { View, Text, Button, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomHeader from "../custom-header";
 import CheckBox from "../../components/checkbox";
+import BorderBox from "../border-box";
 
 const ForwardConditions = () => {
     const navigation = useNavigation();
-    const [isSet, setIsSet] = useState(false);
+    const [forwardCondition, setforwardCondition] = useState(false);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
 
@@ -21,12 +22,12 @@ const ForwardConditions = () => {
 
             <View style={styles.headerCard}>
                 <CheckBox
-                    onPress={() => setIsSet(!isSet)}
-                    isChecked={isSet} />
+                    onPress={() => setforwardCondition(!forwardCondition)}
+                    isChecked={forwardCondition} />
                 <Text style={styles.headerCardText}>Forward all messages</Text>
             </View>
 
-            <View style={styles.card}>
+            {!forwardCondition && <View style={styles.card}>
                 <View style={styles.checkboxRow}>
                     <CheckBox
                         onPress={() => setIgnoreCase(!ignoreCase)}
@@ -39,7 +40,11 @@ const ForwardConditions = () => {
                         isChecked={useWildcards} />
                     <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
                 </View>
+                <BorderBox  title={"From who"} content={"ADD"} />
+                <BorderBox  title={"Rule for text"} content={"ADD"} />
+
             </View>
+            }
         </SafeAreaView>
     );
 };
@@ -101,6 +106,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'black',
         fontWeight: '400',
+    },
+    blackCard: {
+        backgroundColor: 'white',
+        borderColor: '#000',
+        borderWidth: 1,
+        borderRadius: 6,
+        width: 300,
+        height:100,
     },
 });
 

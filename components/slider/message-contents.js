@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import {View, Text, Button, StyleSheet} from 'react-native';
+import {View, Text, Button, StyleSheet, SafeAreaView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import CustomHeader from "../custom-header";
 
 const MessageContents = () => {
     const navigation = useNavigation();
@@ -14,10 +15,13 @@ const MessageContents = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={{ fontSize: 24, marginBottom: 20 }}>MessageContents</Text>
-            <Button title="Press Me" onPress={handleButtonPress} />
-        </View>
+        <SafeAreaView style={styles.container}>
+            <View style={{ marginBottom: 4 }}>
+                <CustomHeader
+                    title="Add filter"
+                    onPressBackButton={() => navigation.goBack()} />
+            </View>
+        </SafeAreaView>
     );
 };
 
