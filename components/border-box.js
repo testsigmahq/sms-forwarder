@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {View, Text, Button, StyleSheet, Dimensions, TouchableOpacity, Modal, TextInput} from 'react-native';
+import {View, Text, Button, StyleSheet, Dimensions, TouchableOpacity, Modal, TextInput, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ContactPicker from "./contact-picker";
 
@@ -9,7 +9,8 @@ const BorderBox = props => {
     const [showModal, setShowModal] = useState(false);
     const [tap, setTap] = useState(false);
     const [enter,setEnter]=useState(false);
-   const [openContact,setOpenContact]=useState(false);
+    const [openContact,setOpenContact]=useState(false);
+    const [number,setNumber]=useState();
     return (
         <View style={styles.blackCard}>
             <Text style={styles.text}>{props.title}</Text>
@@ -22,16 +23,16 @@ const BorderBox = props => {
                 </View>
             )}
 
-            <Modal visible={showModal} animationType="slide" transparent={true}>
+            <Modal visible={showModal} animationType="slide-up" transparent={true}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        {!tap && <View>
+                         <View>
                             <View style={styles.card}>
                                 <Text style={styles.modelText}>If the sender is</Text>
                             </View>
                             <TouchableOpacity onPress={()=>setTap(true)}>
                             <View style={[styles.card, {width: deviceWidth * 0.8}]}>
-                                <Text style={[styles.cardText, styles.underlineText]}>Tap here</Text>
+                                <Text style={[styles.cardText, styles.underlineText]}>{number ? number :"Tap here"}</Text>
                             </View>
                             </TouchableOpacity>
                             <View style={styles.card}>
@@ -43,19 +44,54 @@ const BorderBox = props => {
                                 }}>
                                     <Text style={styles.bottom}>CANCEL</Text>
                                 </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    setShowModal(false)
+                                }}>
                                 <Text style={styles.bottom}>OK</Text>
+                                </TouchableOpacity>
                             </View>
-                        </View>}
-                        {tap && !enter && <View>
-                            <TouchableOpacity onPress={()=>setEnter(true)}>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+
+
+
+            <Modal visible={tap} animationType="slide-up" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                         <View>
+                            <TouchableOpacity onPress={()=> {
+                                setEnter(true)
+                                setTap(false);
+                            }}>
                             <Text style={{fontSize:19,marginVertical:10}}>Enter directly</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setOpenContact(true)}>
-                            <Text style={{fontSize:19,marginVertical:10}}><ContactPicker/></Text>
+                            <TouchableOpacity onPress={()=>{
+                                setOpenContact(true)
+                                setTap(false);
+                            }}
+                            >
+                            <Text style={{fontSize:19,marginVertical:10}}>From contacts</Text>
                             </TouchableOpacity>
-                        </View>}
-                        {enter && <View>
-                            <TextInput style={styles.input}/>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+
+            <Modal visible={enter} animationType="slide-up" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+
+                        <View>
+                            <TextInput
+                                onChangeText={setNumber}
+                                style={styles.input}
+                                value={number}
+
+                            />
 
                             <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
                                 <TouchableOpacity onPress={() => {
@@ -63,9 +99,32 @@ const BorderBox = props => {
                                 }}>
                                     <Text style={styles.bottom}>CANCEL</Text>
                                 </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    setEnter(false)
+                                }}>
                                 <Text style={styles.bottom}>OK</Text>
+                                </TouchableOpacity>
                             </View>
-                        </View> }
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+
+            <Modal visible={openContact} animationType="slide-up" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <View style={{height:700}}>
+                            <View style={{flexDirection:'row',margin:7}}>
+                            <Image
+                                source={require('../assets/back.png')}
+                                style={styles.arrowLeft}
+                            />
+                            <Text style={{fontSize:18,marginLeft:10}}>Select contacts
+                            </Text>
+                            </View>
+                      <ContactPicker/>
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -177,6 +236,11 @@ const styles = StyleSheet.create({
         width: deviceWidth * 0.68,
         alignSelf: 'center',
         margin:10,
+    },
+    arrowLeft: {
+        width: 25,
+        height: 25,
+        resizeMode: 'contain',
     },
 });
 

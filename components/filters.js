@@ -43,7 +43,7 @@ const Filters = ({}) => {
                     <Image source={require('../assets/plus.png')} style={styles.image} />
                 </View>
             </TouchableOpacity>
-            <Modal visible={showModal} animationType="slide" transparent={true}>
+            <Modal visible={showModal} animationType="none" transparent={true}>
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent]}>
                     <Text style={styles.modalTitle}>Add filter</Text>

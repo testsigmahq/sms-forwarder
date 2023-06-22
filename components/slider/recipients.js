@@ -132,7 +132,7 @@ const Recipients = () => {
                 </View>
             </View>
 
-            <Modal visible={showModal} animationType="slide" transparent={true}>
+            <Modal visible={showModal} animationType="none" transparent={true}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Add</Text>
