@@ -1,27 +1,42 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import LottieView from 'lottie-react-native';
 import GoogleSignupButton from './google-signup-button';
+import { useNavigation } from '@react-navigation/native';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const [load,isLoad]=useState(true)
+    const navigation = useNavigation();
 
     const handleGoogleSignup = (userInfo) => {
         setIsLoading(true);
+        isLoad(false)
         console.log('Google user info:', userInfo);
         setTimeout(() => {
             setIsLoading(false);
             navigation.navigate('SmsRelay');
-        }, 2000);
+        }, 5000);
     };
 
     return (
         <SafeAreaView style={styles.container}>
             {isLoading ? (
-                <ActivityIndicator size="large" color="green" />
+                <LottieView
+                    source={require('../assets/msg.json')}
+                    autoPlay
+                    loop
+                    style={styles.animation}
+                />
             ) : (
                 <>
+                    {!isLoading && load && (
+                        <>
                     <Text style={styles.text}>Welcome to RelayMate</Text>
-                    <GoogleSignupButton onSignup={handleGoogleSignup} />
+
+                        <GoogleSignupButton onSignup={handleGoogleSignup} />
+                            </>
+                    )}
                 </>
             )}
         </SafeAreaView>
@@ -37,6 +52,10 @@ const styles = StyleSheet.create({
     },
     text: {
         marginBottom: 10,
+    },
+    animation: {
+        width: 200,
+        height: 200,
     },
 });
 
