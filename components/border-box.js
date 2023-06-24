@@ -162,16 +162,16 @@ const BorderBox = props => {
             </Modal>
 
 
-            <Modal visible={inputValidation} animationType="slide-up" transparent={true}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={{marginBottom:1,fontSize:20}}>Please check the input value.</Text>
-                        <TouchableOpacity onPress={()=>{setInputValidation(false)}}>
-                            <Text style={{alignSelf:'flex-end',fontSize:20,margin:10,color:'green',marginBottom:5,right:5}}>OK</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+            {/*<Modal visible={inputValidation} animationType="slide-up" transparent={true}>*/}
+            {/*    <View style={styles.modalContainer}>*/}
+            {/*        <View style={styles.modalContent}>*/}
+            {/*            <Text style={{marginBottom:1,fontSize:20}}>Please check the input value.</Text>*/}
+            {/*            <TouchableOpacity onPress={()=>{setInputValidation(false)}}>*/}
+            {/*                <Text style={{alignSelf:'flex-end',fontSize:20,margin:10,color:'green',marginBottom:5,right:5}}>OK</Text>*/}
+            {/*            </TouchableOpacity>*/}
+            {/*        </View>*/}
+            {/*    </View>*/}
+            {/*</Modal>*/}
         </View>
     );
 };

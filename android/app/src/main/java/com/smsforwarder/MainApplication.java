@@ -1,5 +1,8 @@
 package com.smsforwarder;
 
+import com.react.SmsPackage;
+import com.tkporter.sendsms.SendSMSPackage;
+
 import android.app.Application;
 import android.content.res.Configuration;
 import androidx.annotation.NonNull;

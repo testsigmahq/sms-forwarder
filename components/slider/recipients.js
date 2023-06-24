@@ -13,7 +13,6 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import {FontAwesome5} from "@expo/vector-icons";
 import CustomHeader from "../custom-header";
 
 const Recipients = () => {
@@ -106,7 +105,7 @@ const Recipients = () => {
                                     <Text style={styles.radioLabel}>GET</Text>
                                 </TouchableOpacity>
                                 {requestMethod && (
-                                    <TextInput style={styles.requestInput} placeholder={`${requestMethod} Data`} />
+                                    <TextInput style={styles.requestInput} placeholder={`${requestMethod} KEY`} />
                                 )}
                             </View>}
 
@@ -165,9 +164,9 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
     title: {
-        fontSize: 19,
+        fontSize: 20,
         marginBottom: 10,
-        fontWeight: 'bold',
+        fontWeight: '500',
         letterSpacing: 0.2,
     },
     subtitle: {
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: '#FFF',
-        borderRadius: 5,
+        borderRadius: 2,
         flexDirection: 'column',
         marginRight: 20,
         padding: 15,

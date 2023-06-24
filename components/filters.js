@@ -3,7 +3,8 @@ import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal 
 import { FontAwesome5 } from "@expo/vector-icons";
 import {useNavigation} from "@react-navigation/native";
 
-const Filters = ({}) => {
+const Filters = ({navigation}) => {
+
     const [toggleValue, setToggleValue] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -19,7 +20,6 @@ const Filters = ({}) => {
         navigation.navigate('Wrapper');
         setShowModal(false);
     };
-    const navigation = useNavigation();
 
 
     return (

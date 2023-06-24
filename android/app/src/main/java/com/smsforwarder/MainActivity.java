@@ -8,8 +8,11 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
-import expo.modules.ReactActivityDelegateWrapper;
+import com.react.SmsPackage;
+import com.tkporter.sendsms.SendSMSPackage;
 
+import expo.modules.ReactActivityDelegateWrapper;
+import android.content.Intent;
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +21,15 @@ public class MainActivity extends ReactActivity {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(null);
+  }
+
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data)
+  {
+    super.onActivityResult(requestCode, resultCode, data);
+//probably some other stuff here
+    SendSMSPackage.getInstance().onActivityResult(requestCode, resultCode, data);
   }
 
   /**
