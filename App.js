@@ -1,28 +1,13 @@
-import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GoogleSignin } from 'react-native-google-signin';
-import GoogleSignupButton from './components/google-signup-button';
-import SmsRelay  from './screens/smsRelay';
-import Wrapper from "./screens/wrapper";
+import SmsRelay from './screens/smsRelay';
+import Wrapper from './screens/wrapper';
+import HomeScreen from './components/home-screen';
+
 const Stack = createStackNavigator();
-
-const HomeScreen = ({ navigation }) => {
-  const handleGoogleSignup = (userInfo) => {
-    console.log('Google user info:', userInfo);
-      navigation.navigate('SmsRelay');
-
-  };
-
-  return (
-      <View style={styles.container}>
-        <Text style={{bottom:10}}>Welcome to RelayMate</Text>
-        <GoogleSignupButton onSignup={handleGoogleSignup} />
-      </View>
-  );
-};
-
 
 export default function App() {
   React.useEffect(() => {
@@ -33,21 +18,22 @@ export default function App() {
   }, []);
 
   return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="SmsRelay" component={SmsRelay} />
+      <View style={styles.container}>
+        <NavigationContainer style={{ backgroundColor: '#fff',
+          cardStyle: { backgroundColor: '#fff' },
+        }}>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="SmsRelay" component={SmsRelay} />
             <Stack.Screen name="Wrapper" component={Wrapper} />
-        </Stack.Navigator>
-      </NavigationContainer>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
   },
 });
