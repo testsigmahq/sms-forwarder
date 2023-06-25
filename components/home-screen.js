@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import LottieView from 'lottie-react-native';
 import GoogleSignupButton from './google-signup-button';
 import { useNavigation } from '@react-navigation/native';
+import Spinner from "react-native-loading-spinner-overlay";
 
 const HomeScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +17,7 @@ const HomeScreen = () => {
         setTimeout(() => {
             setIsLoading(false);
             navigation.navigate('SmsRelay');
-        }, 5000);
+        }, 4500);
     };
 
     return (
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     animation: {
         width: 200,
         height: 200,
-    },
+    }
 });
 
 export default HomeScreen;

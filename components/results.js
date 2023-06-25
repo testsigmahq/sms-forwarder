@@ -1,10 +1,39 @@
 import React, { useState } from 'react';
-import { Button, View, Text, Alert } from 'react-native';
+import {Button, View, Text, Alert, SafeAreaView, StyleSheet, Dimensions} from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
+import ReactNativeSMS from 'react-native-sms'
+
 
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState('');
 
+     const content = [
+        {
+            "from": "+918148683700 (Seenivasan)",
+            "to": "8110037728",
+            "body": "added the react-native-loading-spinner-overlay library and imported the Spinner component"
+        },
+            {
+                "from": "+918148683701 (John)",
+                "to": "8110037729",
+                "body": "updated the UI design and fixed layout issues"
+            },
+            {
+                "from": "+918148683702 (Jane)",
+                "to": "8110037730",
+                "body": "implemented authentication logic and user registration feature"
+            },
+            {
+                "from": "+918148683703 (David)",
+                "to": "8110037731",
+                "body": "integrated backend API for data retrieval and storage"
+            },
+            {
+                "from": "+918148683704 (Sarah)",
+                "to": "8110037732",
+                "body": "optimized app performance and reduced loading time"
+            }
+        ]
     const handleListenSMS = () => {
         let filter = {
             box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
@@ -33,14 +62,74 @@ const Result = () => {
         );
     };
 
+    const handleSendSMS = () => {
+        console.log('sendSMS');
+        // alert('clicked');
+        ReactNativeSMS.send({
+            body: 'Hello seenivasan you have done well !',
+            recipients: ['918148683700'],
+            successTypes: ['sent', 'queued'],
+            allowAndroidSendWithoutReadPermission: true
+        }, (completed, cancelled, error) => {
+            if (completed) {
+                console.log('SMS Sent Completed');
+            } else if (cancelled) {
+                console.log('SMS Sent Cancelled');
+            } else if (error) {
+                console.log('Some error occured');
+            }
+        });
+    }
+
     return (
+        <>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ marginBottom: 16 }}>
                 Latest Received SMS: {latestMessage}
             </Text>
             <Button title="Listen SMS" onPress={handleListenSMS} />
+            <Button title="Send SMS" onPress={handleSendSMS} />
+
         </View>
-    );
+
+        <SafeAreaView style={styles.container}>
+            {content.map((item, index) => (
+                <React.Fragment key={index}>
+                    <View style={styles.line}></View>
+                    <View>
+                    <Text style={styles.resultText}>From: {item.from}</Text>
+                    <Text style={styles.resultText}>To: {item.to}</Text>
+                    <Text style={styles.resultText}>SIM In : SIM 1</Text>
+                    <View style={styles.line}></View>
+                    </View>
+                </React.Fragment>
+            ))}
+        </SafeAreaView>
+            </>
+
+        );
 };
+
+const deviceWidth = Math.round(Dimensions.get('window').width);
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        padding: 16,
+    },
+    line:{
+        borderBottomColor: 'rgba(0, 0, 0, 0.6)',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        width: deviceWidth *0.9,
+        margin:10,
+    },
+    resultText:{
+        fontSize:15,
+        fontWeight:500,
+    }
+
+})
 
 export default Result;

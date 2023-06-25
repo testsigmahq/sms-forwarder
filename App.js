@@ -6,6 +6,7 @@ import { GoogleSignin } from 'react-native-google-signin';
 import SmsRelay from './screens/smsRelay';
 import Wrapper from './screens/wrapper';
 import HomeScreen from './components/home-screen';
+import Spinner from "react-native-loading-spinner-overlay";
 
 const Stack = createStackNavigator();
 
@@ -19,7 +20,7 @@ export default function App() {
 
   return (
       <View style={styles.container}>
-        <NavigationContainer style={{ backgroundColor: '#fff',
+          <NavigationContainer style={{ backgroundColor: '#fff',
           cardStyle: { backgroundColor: '#fff' },
         }}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -36,4 +37,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
 });
+
