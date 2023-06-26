@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
     View,
@@ -13,51 +12,102 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
+import { useDispatch, useSelector } from "react-redux";
+
 import CustomHeader from "../custom-header";
 
 const Recipients = () => {
     const navigation = useNavigation();
 
     const [showModal, setShowModal] = useState(false);
-    const [requestMethod, setRequestMethod] = useState('');
 
     const [selectedOption, setSelectedOption] = useState();
-    const [recipients, setRecipients] = useState(["PhoneNumber"]);
+    const [recipients, setRecipients] = useState([]);
 
     function setContext(contextName) {
         setSelectedOption(contextName);
         setShowModal(false);
     }
 
-    useEffect(()=>{
-        if(selectedOption) {
-            setRecipients([...recipients, selectedOption]);
-            setSelectedOption('')
+    useEffect(() => {
+        if (selectedOption) {
+            const newRecipient = {
+                type: selectedOption,
+                text: '',
+                requestMethod: '',
+            };
+            setRecipients([...recipients, newRecipient]);
+            setSelectedOption('');
         }
-        else
-            setRecipients([...recipients]);
-    },[selectedOption])
+    }, [selectedOption]);
 
-    function removeTrip(index) {
+
+    function removeRecipient(index) {
         const updatedRecipients = [...recipients];
         updatedRecipients.splice(index, 1);
         setRecipients(updatedRecipients);
     }
 
-    function handleSelectPost() {
-        setRequestMethod('POST');
+    function handleSelectPost(index) {
+        const updatedRecipients = [...recipients];
+        updatedRecipients[index].requestMethod = 'POST';
+        setRecipients(updatedRecipients);
     }
 
-    function handleSelectGet() {
-        setRequestMethod('GET');
+    function handleSelectGet(index) {
+        const updatedRecipients = [...recipients];
+        updatedRecipients[index].requestMethod = 'GET';
+        setRecipients(updatedRecipients);
     }
+
+    function handleRecipientTextChange(text, index) {
+        const updatedRecipients = [...recipients];
+        updatedRecipients[index].text = text;
+        setRecipients(updatedRecipients);
+    }
+    const dispatch = useDispatch();
+
+
+    function save() {
+        const recipientsInfo = recipients.reduce((result, item) => {
+            const { type, text, requestMethod } = item;
+
+            if (type === "PhoneNumber") {
+                if (!result.phoneNumber) {
+                    result.phoneNumber = [];
+                }
+                result.phoneNumber.push(text);
+            } else if (type === "Email") {
+                if (!result.email) {
+                    result.email = [];
+                }
+                result.email.push(text.trim());
+            } else if (type === "URL") {
+                if (!result.url) {
+                    result.url = [];
+                }
+                result.url.push({ url: text, requestMethod });
+            }
+
+            return result;
+        }, {});
+
+        console.log("recipientsInfo" ,recipientsInfo);
+        dispatch(SetRecipientsInfo(recipientsInfo.recipients));
+
+    }
+
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{marginBottom:4}}>
-            <CustomHeader
-                title="Add filter"
-                onPressBackButton={() => navigation.goBack()}/>
+            <View style={{ marginBottom: 4 ,flexDirection:'row'}}>
+                <CustomHeader
+                    title="Add filter"
+                    onPressBackButton={() => navigation.goBack()} />
+                <TouchableOpacity onPress={save}>
+                    <Text style={{fontSize:20,left:200}}>Save</Text>
+                </TouchableOpacity>
             </View>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Set up recipients</Text>
@@ -69,45 +119,54 @@ const Recipients = () => {
                 <View>
                     {recipients.map((recipient, index) => (
                         <React.Fragment key={index}>
-                            <View style={{flexDirection :'row',alignSelf:'center',width:deviceWidth*0.8, justifyContent:"space-between"}}>
-                            <TextInput style={styles.input} placeholder={recipient} />
+                            <View style={{ flexDirection: 'row', alignSelf: 'center', width: deviceWidth * 0.8, justifyContent: "space-between" }}>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder={recipient.type}
+                                    onChangeText={text => handleRecipientTextChange(text, index)}
+                                />
                                 <View style={styles.imageContainer}>
-                                    <TouchableOpacity onPress={()=>{removeTrip(index)}}>
+                                    <TouchableOpacity onPress={() => removeRecipient(index)}>
                                         <Image source={require('../../assets/minus.png')} style={styles.minus} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            {recipient ==="URL" && <View style={styles.inputContainer}>
-                                <TouchableOpacity onPress={handleSelectPost} style={styles.radioButton}>
-                                    <View
-                                        style={[
-                                            styles.radioOuterCircle,
-                                            {
-                                                borderColor: requestMethod === 'POST' ? '#1AA874' : '#000',
-                                            },
-                                        ]}
-                                    >
-                                        {requestMethod === 'POST' && <View style={styles.radioInnerCircle} />}
-                                    </View>
-                                    <Text style={styles.radioLabel}>POST</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleSelectGet} style={styles.radioButton}>
-                                    <View
-                                        style={[
-                                            styles.radioOuterCircle,
-                                            {
-                                                borderColor: requestMethod === 'GET' ? '#1AA874' : '#000',
-                                            },
-                                        ]}
-                                    >
-                                        {requestMethod === 'GET' && <View style={styles.radioInnerCircle} />}
-                                    </View>
-                                    <Text style={styles.radioLabel}>GET</Text>
-                                </TouchableOpacity>
-                                {requestMethod && (
-                                    <TextInput style={styles.requestInput} placeholder={`${requestMethod} KEY`} />
-                                )}
-                            </View>}
+                            {recipient.type === "URL" && (
+                                <View style={styles.inputContainer}>
+                                    <TouchableOpacity onPress={() => handleSelectPost(index)} style={styles.radioButton}>
+                                        <View
+                                            style={[
+                                                styles.radioOuterCircle,
+                                                {
+                                                    borderColor: recipient.requestMethod === 'POST' ? '#1AA874' : '#000',
+                                                },
+                                            ]}
+                                        >
+                                            {recipient.requestMethod === 'POST' && <View style={styles.radioInnerCircle} />}
+                                        </View>
+                                        <Text style={styles.radioLabel}>POST</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => handleSelectGet(index)} style={styles.radioButton}>
+                                        <View
+                                            style={[
+                                                styles.radioOuterCircle,
+                                                {
+                                                    borderColor: recipient.requestMethod === 'GET' ? '#1AA874' : '#000',
+                                                },
+                                            ]}
+                                        >
+                                            {recipient.requestMethod === 'GET' && <View style={styles.radioInnerCircle} />}
+                                        </View>
+                                        <Text style={styles.radioLabel}>GET</Text>
+                                    </TouchableOpacity>
+                                    {recipient.requestMethod && (
+                                        <TextInput
+                                            style={styles.requestInput}
+                                            placeholder={`${recipient.requestMethod} KEY`}
+                                        />
+                                    )}
+                                </View>
+                            )}
 
                             <View
                                 style={{
@@ -117,12 +176,11 @@ const Recipients = () => {
                                     width: deviceWidth * 0.9,
                                     marginLeft: 18,
                                     marginRight: 20,
-                                    marginBottom:10,
+                                    marginBottom: 10,
                                 }}
                             />
                         </React.Fragment>
                     ))}
-
                 </View>
                 <View style={styles.imageContainer}>
                     <TouchableOpacity onPress={() => setShowModal(true)}>
@@ -135,13 +193,13 @@ const Recipients = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Add</Text>
-                        <TouchableOpacity onPress={() => { setContext('PhoneNumber'); }}>
+                        <TouchableOpacity onPress={() => setContext('PhoneNumber')}>
                             <Text style={styles.modalText}>Enter Phone Number</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { setContext('Email'); }}>
+                        <TouchableOpacity onPress={() => setContext('Email')}>
                             <Text style={styles.modalText}>Enter Email</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { setContext('URL'); }}>
+                        <TouchableOpacity onPress={() => setContext('URL')}>
                             <Text style={styles.modalText}>URL</Text>
                         </TouchableOpacity>
                     </View>
@@ -204,11 +262,9 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         borderColor: 'gray',
         width: deviceWidth * 0.35,
-        marginBottom:-3,
+        marginBottom: -3,
     },
     imageContainer: {
-        // alignItems: 'center',
-        // justifyContent: 'flex-end',
         marginBottom: 10,
     },
     image: {
@@ -220,7 +276,7 @@ const styles = StyleSheet.create({
         width: 38,
         height: 38,
         marginTop: 10,
-        left:10,
+        left: 10,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -228,7 +284,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         alignSelf: 'stretch',
         marginBottom: 10,
-        marginHorizontal:20
+        marginHorizontal: 20
     },
     radioButton: {
         flexDirection: 'row',

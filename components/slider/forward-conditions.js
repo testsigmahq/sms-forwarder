@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, SafeAreaView } from 'react-native';
+import { useDispatch, useSelector } from "react-redux";
+
 import { useNavigation } from '@react-navigation/native';
 import CustomHeader from "../custom-header";
 import CheckBox from "../../components/checkbox";
@@ -10,6 +12,10 @@ const ForwardConditions = () => {
     const [forwardCondition, setforwardCondition] = useState(false);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
+
+    const data = useSelector((state) => {return (state.recipients)});
+    console.log("data",data)
+
 
     return (
         <SafeAreaView style={styles.container}>

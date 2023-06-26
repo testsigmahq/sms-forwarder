@@ -6,6 +6,8 @@ import { GoogleSignin } from 'react-native-google-signin';
 import SmsRelay from './screens/smsRelay';
 import Wrapper from './screens/wrapper';
 import HomeScreen from './components/home-screen';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +21,7 @@ export default function App() {
 
   return (
       <View style={styles.container}>
+          <Provider store={store}>
           <NavigationContainer style={{ backgroundColor: '#fff',
           cardStyle: { backgroundColor: '#fff' },
         }}>
@@ -28,6 +31,7 @@ export default function App() {
             <Stack.Screen name="Wrapper" component={Wrapper} />
           </Stack.Navigator>
         </NavigationContainer>
+          </Provider>
       </View>
   );
 }
