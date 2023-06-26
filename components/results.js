@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import {Button, View, Text, Alert, SafeAreaView, StyleSheet, Dimensions} from 'react-native';
+import {Button, View, Text, Alert, SafeAreaView, StyleSheet, Dimensions, Platform, Linking} from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
-import ReactNativeSMS from 'react-native-sms'
+import { NativeModules } from 'react-native';
+
+var DirectSms = NativeModules.DirectSms;
 
 
 const Result = () => {
@@ -62,24 +64,10 @@ const Result = () => {
         );
     };
 
-    const handleSendSMS = () => {
-        console.log('sendSMS');
-        // alert('clicked');
-        ReactNativeSMS.send({
-            body: 'Hello seenivasan you have done well !',
-            recipients: ['918148683700'],
-            successTypes: ['sent', 'queued'],
-            allowAndroidSendWithoutReadPermission: true
-        }, (completed, cancelled, error) => {
-            if (completed) {
-                console.log('SMS Sent Completed');
-            } else if (cancelled) {
-                console.log('SMS Sent Cancelled');
-            } else if (error) {
-                console.log('Some error occured');
-            }
-        });
+    function handleSendSMS() {
+        DirectSms.sendDirectSms('8110037728', 'This is a direct message');
     }
+
 
     return (
         <>
