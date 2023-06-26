@@ -8,13 +8,15 @@ const SmsRelay = () => {
             <SafeAreaView style={styles.safeArea}>
                 <View style={{ flexDirection: 'row', flex: 1 }}>
                     <TouchableOpacity
-                        name={'NavigationBar'}
-                        style={{ width: 70, height: 70 }}
+                        testID={"left-navigator"}
+                        name={"NavigationBar"}
+                        style = {{width: 70, height: 70}}
+                        // onPress = {() => navigation.openDrawer()}
                     >
                         <View>
-                            <View style={[styles.line, { width: 25 }]} />
-                            <View style={styles.line} />
-                            <View style={[styles.line, { width: 20 }]} />
+                            <View style = {[styles.line, {width: 25}]} />
+                            <View style = {styles.line} />
+                            <View style = {[styles.line, {width: 20}]} />
                         </View>
                     </TouchableOpacity>
                     <View style={styles.content}>

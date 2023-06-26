@@ -6,7 +6,6 @@ import { GoogleSignin } from 'react-native-google-signin';
 import SmsRelay from './screens/smsRelay';
 import Wrapper from './screens/wrapper';
 import HomeScreen from './components/home-screen';
-import Spinner from "react-native-loading-spinner-overlay";
 
 const Stack = createStackNavigator();
 
