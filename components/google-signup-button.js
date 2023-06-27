@@ -1,6 +1,7 @@
 import React from 'react';
-import {GoogleSignin,GoogleSigninButton} from "react-native-google-signin";
+import {GoogleSignin,GoogleSigninButton} from '@react-native-google-signin/google-signin';
 import {Button, View} from "react-native";
+
 
 const GoogleSignupButton = ({ onSignup }) => {
     const handleGoogleSignup = async () => {
