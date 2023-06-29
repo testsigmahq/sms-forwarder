@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import {StyleSheet, Text, View, SafeAreaView, Dimensions} from 'react-native';
 import LottieView from 'lottie-react-native';
 import GoogleSignupButton from './google-signup-button';
 import { useNavigation } from '@react-navigation/native';
@@ -42,6 +42,8 @@ const HomeScreen = () => {
         </SafeAreaView>
     );
 };
+const deviceWidth = Math.round(Dimensions.get('window').width);
+
 
 const styles = StyleSheet.create({
     container: {

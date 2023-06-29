@@ -8,6 +8,7 @@ import Wrapper from './screens/wrapper';
 import HomeScreen from './components/home-screen';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import MessageTemplate from "./screens/messageTemplate";
 
 const Stack = createStackNavigator();
 
@@ -15,7 +16,12 @@ export default function App() {
   React.useEffect(() => {
     // Initialize GoogleSignin
     GoogleSignin.configure({
-      webClientId: '473722209735-3lm8v2lqrk0a81cj5jfilolmg0vjcpda.apps.googleusercontent.com', scopes: ['email', 'profile'],
+        webClientId: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
+        scopes: ['email', 'profile'],
+        include_granted_scopes : true,
+        response_type : 'code',
+        access_type:'offline'
+
     });
   }, []);
 
@@ -27,8 +33,10 @@ export default function App() {
         }}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="SmsRelay" component={SmsRelay} />
+              <Stack.Screen name="MessageTemplate" component={MessageTemplate} />
+              <Stack.Screen name="SmsRelay" component={SmsRelay} />
             <Stack.Screen name="Wrapper" component={Wrapper} />
+
           </Stack.Navigator>
         </NavigationContainer>
           </Provider>

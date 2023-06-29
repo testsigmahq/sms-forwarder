@@ -4,3 +4,11 @@ export const SetRecipientsInfo = (data) => {
         payload: data,
     };
 };
+
+
+export const googleInfo = (data) => {
+    return {
+        type: 'GOOGLE_INFO',
+        payload: data,
+    };
+};

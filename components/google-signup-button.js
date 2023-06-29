@@ -1,5 +1,5 @@
 import React from 'react';
-import {GoogleSignin,GoogleSigninButton} from '@react-native-google-signin/google-signin';
+import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-google-signin/google-signin';
 import {Button, View} from "react-native";
 
 
@@ -9,8 +9,18 @@ const GoogleSignupButton = ({ onSignup }) => {
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
             onSignup(userInfo);
+            const { serverAuthCode } = await GoogleSignin.getTokens();
+            console.log('Authorization Code:', serverAuthCode);
         } catch (error) {
-            console.log('Google sign-up error:', error);
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                console.log('Sign-in cancelled');
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                console.log('Sign-in in progress');
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                console.log('Play services not available');
+            } else {
+                console.log('Error signing in:', error);
+            }
         }
     };
     const handleGoogleSignout = async () => {
