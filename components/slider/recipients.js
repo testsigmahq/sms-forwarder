@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
-    Button,
     StyleSheet,
     SafeAreaView,
     TextInput,
@@ -11,14 +10,14 @@ import {
     Modal,
     TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+
 import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch} from "react-redux";
+import { useSelector } from "react-redux";
 
-import CustomHeader from "../custom-header";
 
-const Recipients = () => {
-    const navigation = useNavigation();
+
+const Recipients = ({saveClicked}) => {
 
     const [showModal, setShowModal] = useState(false);
 
@@ -29,6 +28,12 @@ const Recipients = () => {
         setSelectedOption(contextName);
         setShowModal(false);
     }
+
+    React.useEffect(() => {
+        if (saveClicked) {
+            onSave();
+        }
+    }, [saveClicked]);
 
     useEffect(() => {
         if (selectedOption) {
@@ -69,7 +74,7 @@ const Recipients = () => {
     const dispatch = useDispatch();
 
 
-    function save() {
+    function onSave() {
         const recipientsInfo = recipients.reduce((result, item) => {
             const { type, text, requestMethod } = item;
 
@@ -94,21 +99,11 @@ const Recipients = () => {
         }, {});
 
         console.log("recipientsInfo" ,recipientsInfo);
-        dispatch(SetRecipientsInfo(recipientsInfo.recipients));
-
+        dispatch(SetRecipientsInfo(recipientsInfo));
     }
-
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginBottom: 4 ,flexDirection:'row'}}>
-                <CustomHeader
-                    title="Add filter"
-                    onPressBackButton={() => navigation.goBack()} />
-                <TouchableOpacity onPress={save}>
-                    <Text style={{fontSize:20,left:200}}>Save</Text>
-                </TouchableOpacity>
-            </View>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Set up recipients</Text>
                 <Text style={styles.subtitle}>

@@ -8,7 +8,7 @@ const MessageTemplate = () => {
 
     const [text, setText] = useState('');
     const [previewList, setPreviewList] = useState([]);
-
+     const [bodyTemplate,setBodyTemplate]=useState([]);
     const handleChangeText = (value) => {
         setText(value);
     };
@@ -62,7 +62,7 @@ const MessageTemplate = () => {
     const handlePlaceholderPress = (placeholder) => {
         let updatedText = text;
         let updatedPreviewList = [...previewList];
-
+        setBodyTemplate([...bodyTemplate,placeholder.title]);
         switch (placeholder.identity) {
             case '%rt%':
                 const currentDateTime = getCurrentDateTime();
@@ -115,6 +115,7 @@ const MessageTemplate = () => {
 
         setText(updatedText);
         setPreviewList(updatedPreviewList);
+        console.log("body",bodyTemplate);
     };
 
     const placeholders = [
@@ -134,14 +135,17 @@ const MessageTemplate = () => {
         { id: 14, title: 'Day of the Week', identity: '%w%' },
     ];
 
+    function handleNavigation(){
+        navigation.goBack();
+    }
     return (
         <SafeAreaView style={styles.container}>
             <View style={{ margin: 4 }}>
-                <CustomHeader title="Message Template" onPressBackButton={() => navigation.goBack()} />
+                <CustomHeader title="Message Template" onPressBackButton={handleNavigation} />
             </View>
             <View style={styles.previewCard}>
-                <Text style={{ color: 'purple' }}>Preview</Text>
-                <ScrollView style={{ marginTop: 10 }}>
+                <Text style={{ color: 'green',fontSize:16 }}>Preview</Text>
+                <ScrollView style={{ marginTop: 10 }} horizontal>
                     {previewList.map((previewItem, index) => (
                         <Text key={index}>{previewItem}</Text>
                     ))}

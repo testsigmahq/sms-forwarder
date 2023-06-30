@@ -1,20 +1,27 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import Recipients from "../components/slider/recipients";
 import ForwardConditions from "../components/slider/forward-conditions";
 import MessageContents from "../components/slider/message-contents";
 import MoreSettings from "../components/slider/more-settings";
-import { View, StyleSheet, Dimensions } from "react-native";
+import {View, StyleSheet, Dimensions, TouchableOpacity, Text} from "react-native";
+import CustomHeader from "../components/custom-header";
 
 const windowWidth = Dimensions.get('window').width;
 
 const Wrapper = () => {
+    const [saveClicked,setSaveClicked]=useState(false);
+    const handleSaveButton = () => {
+        setSaveClicked(true);
+    };
+
     const component = [
-        <Recipients />,
-        <ForwardConditions />,
-        <MessageContents />,
-        <MoreSettings />,
+        <Recipients  saveClicked={saveClicked} />,
+        <ForwardConditions saveClicked={saveClicked} />,
+        <MessageContents saveClicked={saveClicked} />,
+        <MoreSettings  saveClicked={saveClicked} />,
     ];
+
 
     const [activeSlide, setActiveSlide] = React.useState(0);
 
@@ -22,8 +29,18 @@ const Wrapper = () => {
         return <View style={styles.itemContainer}>{item}</View>;
     };
 
+
+
     return (
         <View style={styles.container}>
+            <View style={{ marginBottom: 4 ,flexDirection:'row'}}>
+                <CustomHeader
+                    title="Add filter"
+                    onPressBackButton={() => navigation.goBack()} />
+                <TouchableOpacity onPress={handleSaveButton}>
+                    <Text style={{fontSize:20,left:200}}>Save</Text>
+                </TouchableOpacity>
+            </View>
             <Carousel
                 data={component}
                 renderItem={renderItem}

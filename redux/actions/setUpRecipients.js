@@ -12,3 +12,10 @@ export const googleInfo = (data) => {
         payload: data,
     };
 };
+
+export const messageTemplate=(data)=>{
+    return{
+        type:'MESSAGE_TEMPLATE',
+        payload:data,
+    }
+}

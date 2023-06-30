@@ -28,11 +28,6 @@ const MessageContents = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginBottom: 4 }}>
-                <CustomHeader
-                    title="Add filter"
-                    onPressBackButton={() => navigation.goBack()} />
-            </View>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Set up recipients</Text>
                 <Text style={styles.subtitle}>

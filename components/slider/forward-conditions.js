@@ -1,29 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, SafeAreaView } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
-
-import { useNavigation } from '@react-navigation/native';
-import CustomHeader from "../custom-header";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
 
 const ForwardConditions = () => {
-    const navigation = useNavigation();
     const [forwardCondition, setforwardCondition] = useState(false);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
 
-    const data = useSelector((state) => {return (state.recipients)});
-    console.log("data",data)
+    const data = useSelector((state) => {return (state)});
+    console.log("data2",data)
 
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginBottom: 4 }}>
-                <CustomHeader
-                    title="Add filter"
-                    onPressBackButton={() => navigation.goBack()} />
-            </View>
             <Text style={styles.title}>Forwarding conditions</Text>
 
             <View style={styles.headerCard}>
