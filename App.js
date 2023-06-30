@@ -32,10 +32,10 @@ export default function App() {
           cardStyle: { backgroundColor: '#fff' },
         }}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="MessageTemplate" component={MessageTemplate} />
+            {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
               <Stack.Screen name="SmsRelay" component={SmsRelay} />
-            <Stack.Screen name="Wrapper" component={Wrapper} />
+              <Stack.Screen name="Wrapper" component={Wrapper} />
+              <Stack.Screen name="MessageTemplate" component={MessageTemplate} />
 
           </Stack.Navigator>
         </NavigationContainer>

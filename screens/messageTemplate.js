@@ -1,77 +1,221 @@
 import React, { useState } from 'react';
-import {Button, View, Text, Alert, SafeAreaView, StyleSheet, TouchableOpacity, Image, Dimensions} from 'react-native';
-import {useNavigation} from "@react-navigation/native";
+import { View, SafeAreaView, StyleSheet, TextInput, Text, ScrollView, TouchableOpacity } from 'react-native';
 import CustomHeader from "../components/custom-header";
-import {Input} from "react-native-elements";
+import {useNavigation} from "@react-navigation/native";
 
 const MessageTemplate = () => {
-
     const navigation = useNavigation();
-    const [isFocused, setIsFocused] = useState(false);
 
-    const handleFocus = () => {
-        setIsFocused(true);
+    const [text, setText] = useState('');
+    const [previewList, setPreviewList] = useState([]);
+
+    const handleChangeText = (value) => {
+        setText(value);
     };
 
-    const handleBlur = () => {
-        setIsFocused(false);
+    const getCurrentDateTime = () => {
+        const currentDate = new Date();
+        return currentDate.toLocaleString();
     };
 
-    const inputContainerStyle = [
-        styles.inputContainer,
-        isFocused && styles.inputContainerFocused,
+    const getCurrentYear = () => {
+        const currentDate = new Date();
+        return currentDate.getFullYear().toString();
+    };
+
+    const getCurrentMonth = () => {
+        const currentDate = new Date();
+        return (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    };
+
+    const getCurrentDay = () => {
+        const currentDate = new Date();
+        return currentDate.getDate().toString().padStart(2, '0');
+    };
+
+    const getCurrentHour12 = () => {
+        const currentDate = new Date();
+        let hours = currentDate.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours %= 12;
+        hours = hours || 12;
+        return hours.toString().padStart(2, '0') + ampm;
+    };
+
+    const getCurrentHour24 = () => {
+        const currentDate = new Date();
+        return currentDate.getHours().toString().padStart(2, '0');
+    };
+
+    const getCurrentMinute = () => {
+        const currentDate = new Date();
+        return currentDate.getMinutes().toString().padStart(2, '0');
+    };
+
+    const getCurrentDayOfWeek = () => {
+        const currentDate = new Date();
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayIndex = currentDate.getDay();
+        return daysOfWeek[dayIndex];
+    };
+
+    const handlePlaceholderPress = (placeholder) => {
+        let updatedText = text;
+        let updatedPreviewList = [...previewList];
+
+        switch (placeholder.identity) {
+            case '%rt%':
+                const currentDateTime = getCurrentDateTime();
+                updatedText += currentDateTime;
+                updatedPreviewList.push(`${currentDateTime}`);
+                break;
+            case '%Y':
+                const currentYear = getCurrentYear();
+                updatedText += currentYear;
+                updatedPreviewList.push(`${currentYear}`);
+                break;
+            case '%M':
+                const currentMonth = getCurrentMonth();
+                updatedText += currentMonth;
+                updatedPreviewList.push(`${currentMonth}`);
+                break;
+            case '%d':
+                const currentDay = getCurrentDay();
+                updatedText += currentDay;
+                updatedPreviewList.push(`${currentDay}`);
+                break;
+            case '%a':
+                const currentAmPm = getCurrentHour12();
+                updatedText += currentAmPm;
+                updatedPreviewList.push(`${currentAmPm}`);
+                break;
+            case '%h':
+                const currentHour12 = getCurrentHour12();
+                updatedText += currentHour12;
+                updatedPreviewList.push(`${currentHour12}`);
+                break;
+            case '%H':
+                const currentHour24 = getCurrentHour24();
+                updatedText += currentHour24;
+                updatedPreviewList.push(` ${currentHour24}`);
+                break;
+            case '%m':
+                const currentMinute = getCurrentMinute();
+                updatedText += currentMinute;
+                updatedPreviewList.push(` ${currentMinute}`);
+                break;
+            case '%w%':
+                const currentDayOfWeek = getCurrentDayOfWeek();
+                updatedText += currentDayOfWeek;
+                updatedPreviewList.push(`${currentDayOfWeek}`);
+                break;
+            default:
+                break;
+        }
+
+        setText(updatedText);
+        setPreviewList(updatedPreviewList);
+    };
+
+    const placeholders = [
+        { id: 1, title: 'Incoming Number', identity: '%pni%' },
+        { id: 2, title: 'Filter Name', identity: '%fn%' },
+        { id: 3, title: 'Contact Name', identity: '%ct%' },
+        { id: 4, title: 'SIM Number', identity: '%sn%' },
+        { id: 5, title: 'Received Time', identity: '%rt%' },
+        { id: 6, title: 'Message Body', identity: '%mb%' },
+        { id: 7, title: 'Year', identity: '%Y' },
+        { id: 8, title: 'Month', identity: '%M' },
+        { id: 9, title: 'Day', identity: '%d' },
+        { id: 10, title: 'AM/PM', identity: '%a' },
+        { id: 11, title: 'Hour 1~12', identity: '%h' },
+        { id: 12, title: 'Hour 0~24', identity: '%H' },
+        { id: 13, title: 'Minute', identity: '%m' },
+        { id: 14, title: 'Day of the Week', identity: '%w%' },
     ];
+
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginBottom: 4 }}>
-                <CustomHeader
-                    title="Message Template"
-                    onPressBackButton={() => navigation.goBack()} />
+            <View style={{ margin: 4 }}>
+                <CustomHeader title="Message Template" onPressBackButton={() => navigation.goBack()} />
             </View>
             <View style={styles.previewCard}>
-                <Text>Preview</Text>
+                <Text style={{ color: 'purple' }}>Preview</Text>
+                <ScrollView style={{ marginTop: 10 }}>
+                    {previewList.map((previewItem, index) => (
+                        <Text key={index}>{previewItem}</Text>
+                    ))}
+                </ScrollView>
             </View>
-            <Input
-                containerStyle={inputContainerStyle}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-            />
-
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    multiline
+                    placeholder="Enter your message"
+                    textAlignVertical="top"
+                    value={text}
+                    onChangeText={handleChangeText}
+                />
+            </View>
+            <Text style={{ marginLeft: 10, marginTop: 5, fontSize: 15, fontWeight: '500' }}>
+                Touch an item to add.
+            </Text>
+            <ScrollView style={styles.dottedBox}>
+                {placeholders.map((placeholder) => (
+                    <TouchableOpacity
+                        style={styles.dotCard}
+                        key={placeholder.id}
+                        onPress={() => handlePlaceholderPress(placeholder)}>
+                        <Text style={{ color: 'green', fontSize: 18 }}>
+                            {placeholder.title}: {placeholder.identity}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
         </SafeAreaView>
     );
 };
-
-const deviceWidth = Math.round(Dimensions.get('window').width)
-const deviceHeight = Math.round(Dimensions.get('window').height);
-
-
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
     },
-    previewCard: {
-        backgroundColor: 'white',
-        borderColor: 'green',
-        borderWidth: 0.5,
-        borderRadius: 4,
-        width: deviceWidth*0.9,
-        height:deviceHeight*0.8-550,
-        alignSelf:"center",
-        margin: 10,
-        marginTop: 18,
-    },
     inputContainer: {
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: 'gray',
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingTop: 4,
-        paddingBottom: 8,
+        margin: 10,
+        padding: 10,
     },
-    inputContainerFocused: {
+    input: {
+        minHeight: 60,
+    },
+    dottedBox: {
+        borderWidth: 1.5,
+        borderStyle: 'dotted',
+        borderColor: 'black',
+        marginHorizontal: 10,
+        marginTop: 10,
+        padding: 10,
+        minHeight: 80,
+        maxHeight: 450, // Adjust the value as needed
+    },
+    dotCard: {
+        backgroundColor: '#D1F2C9',
+        borderRadius: 2,
+        padding: 5, // Adjust the value to reduce the padding
+        margin: 10,
         borderColor: 'green',
+        minHeight: 18, // Adjust the value to reduce the height
+    },
+    previewCard: {
+        borderWidth: 1,
+        borderColor: 'green',
+        marginHorizontal: 10,
+        marginTop: 10,
+        padding: 10,
+        minHeight: 80,
+        maxHeight: 100,
     },
 });
 
