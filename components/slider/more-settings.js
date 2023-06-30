@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import {View, Text, SafeAreaView, Dimensions, StyleSheet, TouchableOpacity, Button} from 'react-native';
 import { Input } from 'react-native-elements';
 import DropDownPicker from 'react-native-dropdown-picker';
+import {useDispatch} from "react-redux";
 
 const MoreSettings = () => {
+    const dispatch = useDispatch();
+
     const [inputValue, setInputValue] = useState('');
 
     const handleChangeText = (value) => {

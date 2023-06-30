@@ -13,11 +13,11 @@ import {
 
 import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
-import { useSelector } from "react-redux";
 
 
 
 const Recipients = ({saveClicked}) => {
+    const dispatch = useDispatch();
 
     const [showModal, setShowModal] = useState(false);
 
@@ -71,10 +71,10 @@ const Recipients = ({saveClicked}) => {
         updatedRecipients[index].text = text;
         setRecipients(updatedRecipients);
     }
-    const dispatch = useDispatch();
 
 
     function onSave() {
+        console.log("j")
         const recipientsInfo = recipients.reduce((result, item) => {
             const { type, text, requestMethod } = item;
 

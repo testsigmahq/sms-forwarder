@@ -10,7 +10,8 @@ const MessageTemplate = (state = initialState, action) => {
         case 'MESSAGE_TEMPLATE':{
             return {
                 ...state,
-                messageTemplate:action.payload
+                templateTitle:action.payload.title,
+                templatePreview:action.payload.preview
             }
         }
         default:

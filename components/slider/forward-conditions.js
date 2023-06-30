@@ -9,7 +9,7 @@ const ForwardConditions = () => {
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
 
-    const data = useSelector((state) => {return (state)});
+    const data = useSelector((state) => {return (state.recipients)});
     console.log("data2",data)
 
 

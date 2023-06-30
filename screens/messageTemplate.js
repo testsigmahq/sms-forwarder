@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, SafeAreaView, StyleSheet, TextInput, Text, ScrollView, TouchableOpacity } from 'react-native';
 import CustomHeader from "../components/custom-header";
 import {useNavigation} from "@react-navigation/native";
+import {messageTemplate} from '../redux/actions/setUpRecipients'
+import {useDispatch} from "react-redux";
 
 const MessageTemplate = () => {
     const navigation = useNavigation();
@@ -134,13 +136,16 @@ const MessageTemplate = () => {
         { id: 13, title: 'Minute', identity: '%m' },
         { id: 14, title: 'Day of the Week', identity: '%w%' },
     ];
+    const dispatch = useDispatch();
+
 
     function handleNavigation(){
+        dispatch(messageTemplate(bodyTemplate,previewList))
         navigation.goBack();
     }
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ margin: 4 }}>
+            <View style={{ margin: 10 }}>
                 <CustomHeader title="Message Template" onPressBackButton={handleNavigation} />
             </View>
             <View style={styles.previewCard}>

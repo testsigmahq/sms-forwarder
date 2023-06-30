@@ -5,8 +5,11 @@ import CustomHeader from "../custom-header";
 import CheckBox from "../checkbox";
 import {Input} from "react-native-elements";
 import {FontAwesome5} from "@expo/vector-icons";
+import {useDispatch, useSelector} from "react-redux";
 const MessageContents = () => {
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+
 
     const [wordPairs, setWordPairs] = useState([]);
     const [exp,setExp]=useState(false);
@@ -25,6 +28,8 @@ const MessageContents = () => {
         navigation.navigate('MessageTemplate');
 
     }
+    const Message = useSelector((state) => {return (state.messageTemplate)});
+    console.log("messageTemplate",Message.templateTitle)
 
     return (
         <SafeAreaView style={styles.container}>
@@ -43,7 +48,11 @@ const MessageContents = () => {
                     </TouchableOpacity>
                 </View>
                     <View style={styles.line}></View>
-
+                <View style={{flexDirection:'row'}}>
+                {/*{(Message.templateTitle).map((title,index)=> {*/}
+                {/*   return <Text>{title}</Text>*/}
+                {/*})}*/}
+                </View>
             </View>
 
             <View style={styles.blackCard}>

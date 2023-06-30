@@ -6,13 +6,16 @@ import MessageContents from "../components/slider/message-contents";
 import MoreSettings from "../components/slider/more-settings";
 import {View, StyleSheet, Dimensions, TouchableOpacity, Text} from "react-native";
 import CustomHeader from "../components/custom-header";
+import {useNavigation} from "@react-navigation/native";
 
 const windowWidth = Dimensions.get('window').width;
 
 const Wrapper = () => {
+    const navigation = useNavigation();
+
     const [saveClicked,setSaveClicked]=useState(false);
     const handleSaveButton = () => {
-        setSaveClicked(true);
+        setSaveClicked(!saveClicked);
     };
 
     const component = [
@@ -33,12 +36,12 @@ const Wrapper = () => {
 
     return (
         <View style={styles.container}>
-            <View style={{ marginBottom: 4 ,flexDirection:'row'}}>
+            <View style={{ margin:10 ,flexDirection:'row',justifyContent: 'space-between' }}>
                 <CustomHeader
                     title="Add filter"
                     onPressBackButton={() => navigation.goBack()} />
                 <TouchableOpacity onPress={handleSaveButton}>
-                    <Text style={{fontSize:20,left:200}}>Save</Text>
+                    <Text style={{margin:6,fontSize:19,fontWeight:'500'}}>Save</Text>
                 </TouchableOpacity>
             </View>
             <Carousel
