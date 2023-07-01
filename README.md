@@ -35,3 +35,10 @@ Build .apk :
 
 4. Step 5: Go to this folder and check the apk file
    android-> app/build/outputs/apk/debug/app-debug.apk
+
+
+db
+
+sqlite3 SMSPoint.db
+
+.tables

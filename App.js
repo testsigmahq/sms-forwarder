@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,6 +9,7 @@ import HomeScreen from './components/home-screen';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import MessageTemplate from "./screens/messageTemplate";
+import Database from "./database";
 
 const Stack = createStackNavigator();
 
@@ -24,6 +25,22 @@ export default function App() {
 
     });
   }, []);
+
+      useEffect(() => {
+          Database.initDB();
+          Database.createTable();
+          const data = {
+              email: ['selva@Hhh', 'wwddddd'],
+              phoneNumber: ['9682827222', '8228281882811'],
+              url: [{ requestMethod: 'POST', url: 'www.gooogle.com', key: 'hshs' }],
+          };
+
+          Database.insertData(data.email, data.phoneNumber, data.url);
+          Database.getAllData((data) => {
+              console.log(data);
+          });
+      }, []);
+
 
   return (
       <View style={styles.container}>
