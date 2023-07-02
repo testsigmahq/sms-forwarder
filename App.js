@@ -26,20 +26,35 @@ export default function App() {
     });
   }, []);
 
-      useEffect(() => {
-          Database.initDB();
-          Database.createTable();
-          const data = {
-              email: ['selva@Hhh', 'wwddddd'],
-              phoneNumber: ['9682827222', '8228281882811'],
-              url: [{ requestMethod: 'POST', url: 'www.gooogle.com', key: 'hshs' }],
-          };
+    useEffect(() => {
+        Database.initDB();
+        Database.createTable();
 
-          Database.insertData(data.email, data.phoneNumber, data.url);
-          Database.getAllData((data) => {
-              console.log(data);
-          });
-      }, []);
+        const data = {
+            email: ['selva@Hhh', 'wwddddd'],
+            phoneNumber: ['9682827222', '8228281882811'],
+            url: [{ requestMethod: 'POST', url: 'www.gooogle.com', key: 'hshs' }],
+        };
+
+        // Insert data
+        Database.insertData(data.email, data.phoneNumber, data.url);
+
+        // Update data
+        const updatedData = {
+            id: 1, // ID of the data to update
+            email: 'updatedemail@example.com',
+            phoneNumber: '1234567890',
+            url: [{ requestMethod: 'GET', url: 'www.example.com', key: 'abc123' }],
+        };
+
+        Database.updateData(updatedData.id, updatedData.email, updatedData.phoneNumber, updatedData.url);
+
+        // Get all data
+        Database.getAllData((data) => {
+            console.log(JSON.stringify(data, null, 2));
+        });
+    }, []);
+
 
 
   return (

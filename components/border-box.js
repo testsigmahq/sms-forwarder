@@ -32,7 +32,6 @@ const BorderBox = props => {
         }
         setNumber('');
     }
-    console.log("msgw", messages);
 
     return (
         <View style={styles.blackCard}>
