@@ -360,6 +360,64 @@ const Database = {
         });
     },
 
+    updateEmailById: (emailId, newEmail) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE emails SET email = ? WHERE id = ?',
+                    [newEmail, emailId],
+                    () => {
+                        console.log(`Email with ID ${emailId} updated successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating email with ID ${emailId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
+    updatePhoneNumberById: (phoneNumberId, newPhoneNumber) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE phone_numbers SET phone_number = ? WHERE id = ?',
+                    [newPhoneNumber, phoneNumberId],
+                    () => {
+                        console.log(`Phone number with ID ${phoneNumberId} updated successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating phone number with ID ${phoneNumberId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
+
+    updateUrlById: (urlId, newUrl, newType, newKey) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE url SET url = ?, type = ?, key = ? WHERE id = ?',
+                    [newUrl, newType, newKey, urlId],
+                    () => {
+                        console.log(`URL with ID ${urlId} updated successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating URL with ID ${urlId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
 
 
 };

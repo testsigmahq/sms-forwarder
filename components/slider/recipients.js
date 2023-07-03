@@ -136,39 +136,97 @@ const Recipients = ({saveClicked,id}) => {
         setRecipients(updatedRecipients);
     }
 
-
-
     function onSave() {
         const recipientsInfo = recipients.reduce((result, item) => {
-            const { type, text, requestMethod,key } = item;
+            const { type, text, requestMethod,key,id } = item;
 
             if (type === "PhoneNumber") {
                 if (!result.phoneNumber) {
                     result.phoneNumber = [];
                 }
-                result.phoneNumber.push(text);
+                result.phoneNumber.push({text:text,id:id});
             } else if (type === "Email") {
                 if (!result.email) {
                     result.email = [];
                 }
-                result.email.push(text.trim());
+                result.email.push({text:text.trim(),id:id});
             } else if (type === "URL") {
                 if (!result.url) {
                     result.url = [];
                 }
-                result.url.push({ url: text, requestMethod,key });
+                result.url.push({ url: text, requestMethod,key ,id:id});
             }
 
             return result;
         }, {});
-      console.log("hh",recipients)
         console.log("recipientsInfo1" ,recipientsInfo);
 
-         // Database.insertEmails(recipientsInfo.email, 1);
-         // Database.insertPhoneNumbers(recipientsInfo.phoneNumber, 1);
-         Database.insertUrls(recipientsInfo.url,1);
+        const emailsUndefined = recipientsInfo?.email
+            ?.filter((emailObj) => emailObj.id === undefined)
+            ?.map((emailObj) => emailObj.text) ?? [];
+
+        const phoneNumbersUndefined = (recipientsInfo.phoneNumber || [])
+            .filter((phoneNumberObj) => phoneNumberObj.id === undefined)
+            .map((phoneNumberObj) => phoneNumberObj.text);
+
+        const urlsUndefined = {
+            url: recipientsInfo?.url
+                ?.filter((urlObj) => urlObj.id === undefined)
+                ?.map((urlObj) => ({
+                    key: urlObj.key,
+                    requestMethod: urlObj.requestMethod,
+                    url: urlObj.url,
+                })) ?? [],
+        };
+
+
+        const emailsDefined = recipientsInfo?.email
+            ?.filter((emailObj) => emailObj.id !== undefined)
+            ?.map((emailObj) => ({ id: emailObj.id, text: emailObj.text })) ?? [];
+
+        const phoneNumbersDefined = (recipientsInfo.phoneNumber || [])
+            .filter((phoneNumberObj) => phoneNumberObj.id !== undefined)
+            .map((phoneNumberObj) => ({ id: phoneNumberObj.id, text: phoneNumberObj.text }));
+
+        const urlsDefined = {
+            url: recipientsInfo?.url
+                ?.filter((urlObj) => urlObj.id !== undefined)
+                ?.map((urlObj) => ({
+                    id: urlObj.id,
+                    key: urlObj.key,
+                    requestMethod: urlObj.requestMethod,
+                    url: urlObj.url,
+                })) ?? [],
+        };
+        console.log("emailsDefined",emailsDefined)
+        console.log("phoneNumbersDefined",phoneNumbersDefined)
+        console.log("urlsDefined",urlsDefined)
+
+        if(emailsUndefined){
+            Database.insertEmails(emailsUndefined, 1);
+        }
+        if(phoneNumbersUndefined){
+            Database.insertPhoneNumbers(phoneNumbersUndefined, 1);
+        }
+        if(urlsUndefined) {
+            Database.insertUrls(urlsUndefined.url, 1);
+        }
+
+
+      if(recipientsInfo.url){
+          recipientsInfo.url.forEach((urlInfo) => {
+            const { id, url, requestMethod, key } = urlInfo;
+            Database.updateUrlById(id, url, requestMethod, key)
+                .then(() => {
+                    console.log(`URL with ID ${id} updated successfully`);
+                })
+                .catch((error) => {
+                    console.log(`Error occurred while updating URL with ID ${id}:`, error);
+                });
+        });
 
         dispatch(SetRecipientsInfo(recipientsInfo));
+    }
     }
 
     return (
