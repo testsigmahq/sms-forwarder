@@ -212,9 +212,8 @@ const Recipients = ({saveClicked,id}) => {
             Database.insertUrls(urlsUndefined.url, 1);
         }
 
-
-      if(recipientsInfo.url){
-          recipientsInfo.url.forEach((urlInfo) => {
+      if(urlsDefined.url){
+          urlsDefined.url.forEach((urlInfo) => {
             const { id, url, requestMethod, key } = urlInfo;
             Database.updateUrlById(id, url, requestMethod, key)
                 .then(() => {
@@ -227,6 +226,23 @@ const Recipients = ({saveClicked,id}) => {
 
         dispatch(SetRecipientsInfo(recipientsInfo));
     }
+
+      if(emailsDefined){
+          emailsDefined.forEach((emailInfo)=>{
+              const {id,text}=emailInfo;
+              Database.updateEmailById(id,text).
+              then(()=>console.log(` updating Email with ${id}`));
+          })
+      }
+
+        if(phoneNumbersDefined){
+            phoneNumbersDefined.forEach((NumberInfo)=>{
+                const {id,text}=NumberInfo;
+                Database.updateEmailById(id,text).
+                then(()=>console.log(` updating phoneNumbers with ${id}`));
+            })
+        }
+
     }
 
     return (
