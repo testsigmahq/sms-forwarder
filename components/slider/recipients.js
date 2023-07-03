@@ -8,7 +8,7 @@ import {
     Dimensions,
     Image,
     Modal,
-    TouchableOpacity,
+    TouchableOpacity, ScrollView,
 } from 'react-native';
 
 import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
@@ -17,13 +17,42 @@ import Database from "../../database";
 
 
 
-const Recipients = ({saveClicked}) => {
+const Recipients = ({saveClicked,id}) => {
     const dispatch = useDispatch();
+   const [fetch,setFetch]=useState([])
+
+
+    useEffect(() => {
+        if (id) {
+            Database.fetchAllRecords(id)
+                .then((result) => {
+                    const emailsArray = result.emails;
+                    const phoneNumbersArray = result.phoneNumbers;
+                    const urlsArray = result.urls;
+
+                    console.log('Emails:', emailsArray);
+                    console.log('Phone Numbers:', phoneNumbersArray);
+                    console.log('URLs:', urlsArray);
+
+                    const combinedArray = emailsArray.concat(urlsArray);
+                    console.log("combinedArray", combinedArray);
+                    setFetch(combinedArray);
+                })
+                .catch((err) => {
+                    console.log('Error occurred:', err);
+                });
+        }
+    }, []);
+
+    useEffect(() => {
+        setRecipients(fetch);
+        console.log("fetch",fetch)
+    }, [fetch]);
 
     const [showModal, setShowModal] = useState(false);
 
     const [selectedOption, setSelectedOption] = useState();
-    const [recipients, setRecipients] = useState([]);
+    const [recipients, setRecipients] = useState(fetch || []);
 
     function setContext(contextName) {
         setSelectedOption(contextName);
@@ -50,30 +79,58 @@ const Recipients = ({saveClicked}) => {
     }, [selectedOption]);
 
 
-    function removeRecipient(index) {
+    function removeRecipient(index,id,type) {
         const updatedRecipients = [...recipients];
+        if(type==="URL"){
+            Database.deleteUrlById(id)
+                .then(() => {
+                    console.log('URL deleted successfully');
+                })
+                .catch((err) => {
+                    console.log('Error occurred while deleting URL:', err);
+                });
+        }
+        else if (type==="Email"){
+            Database.deleteEmailById(id)
+                .then(() => {
+                    console.log('Email deleted successfully');
+                })
+                .catch((err) => {
+                    console.log('Error occurred while deleting email:', err);
+                });
+        }
+        else
+        {
+            Database.deletePhoneNumberById(id)
+                .then(() => {
+                    console.log('Phone number deleted successfully');
+                })
+                .catch((err) => {
+                    console.log('Error occurred while deleting phone number:', err);
+                });
+        }
         updatedRecipients.splice(index, 1);
         setRecipients(updatedRecipients);
     }
 
-    function handleSelectPost(index) {
+    function handleSelectPost(index,id) {
         const updatedRecipients = [...recipients];
         updatedRecipients[index].requestMethod = 'POST';
         setRecipients(updatedRecipients);
     }
 
-    function handleSelectGet(index) {
+    function handleSelectGet(index,id) {
         const updatedRecipients = [...recipients];
         updatedRecipients[index].requestMethod = 'GET';
         setRecipients(updatedRecipients);
     }
 
-    function handleRecipientTextChange(text, index) {
+    function handleRecipientTextChange(text, index,id) {
         const updatedRecipients = [...recipients];
         updatedRecipients[index].text = text;
         setRecipients(updatedRecipients);
     }
-    function handleRecipientKeyChange(text, index) {
+    function handleRecipientKeyChange(text, index,id) {
         const updatedRecipients = [...recipients];
         updatedRecipients[index].key = text;
         setRecipients(updatedRecipients);
@@ -104,7 +161,7 @@ const Recipients = ({saveClicked}) => {
 
             return result;
         }, {});
-
+      console.log("hh",recipients)
         console.log("recipientsInfo1" ,recipientsInfo);
 
          // Database.insertEmails(recipientsInfo.email, 1);
@@ -116,6 +173,7 @@ const Recipients = ({saveClicked}) => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContentContainer}>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Set up recipients</Text>
                 <Text style={styles.subtitle}>
@@ -130,17 +188,18 @@ const Recipients = ({saveClicked}) => {
                                 <TextInput
                                     style={styles.input}
                                     placeholder={recipient.type}
-                                    onChangeText={text => handleRecipientTextChange(text, index)}
+                                    value={recipient.text}
+                                    onChangeText={text => handleRecipientTextChange(text, index,recipient.id)}
                                 />
                                 <View style={styles.imageContainer}>
-                                    <TouchableOpacity onPress={() => removeRecipient(index)}>
+                                    <TouchableOpacity onPress={() => removeRecipient(index,recipient.id,recipient.type)}>
                                         <Image source={require('../../assets/minus.png')} style={styles.minus} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
                             {recipient.type === "URL" && (
                                 <View style={styles.inputContainer}>
-                                    <TouchableOpacity onPress={() => handleSelectPost(index)} style={styles.radioButton}>
+                                    <TouchableOpacity onPress={() => handleSelectPost(index,recipient.id)} style={styles.radioButton}>
                                         <View
                                             style={[
                                                 styles.radioOuterCircle,
@@ -153,7 +212,7 @@ const Recipients = ({saveClicked}) => {
                                         </View>
                                         <Text style={styles.radioLabel}>POST</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleSelectGet(index)} style={styles.radioButton}>
+                                    <TouchableOpacity onPress={() => handleSelectGet(index,recipient.id)} style={styles.radioButton}>
                                         <View
                                             style={[
                                                 styles.radioOuterCircle,
@@ -170,7 +229,8 @@ const Recipients = ({saveClicked}) => {
                                         <TextInput
                                             style={styles.requestInput}
                                             placeholder={`${recipient.requestMethod} KEY`}
-                                            onChangeText={text => handleRecipientKeyChange(text, index)} // Add this line to handle key text changes
+                                            value={recipient.key}
+                                            onChangeText={text => handleRecipientKeyChange(text, index,recipient.id)} // Add this line to handle key text changes
 
                                         />
                                     )}
@@ -214,6 +274,7 @@ const Recipients = ({saveClicked}) => {
                     </View>
                 </View>
             </Modal>
+            </ScrollView>
         </SafeAreaView>
     );
 };
@@ -225,6 +286,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
         padding: 16,
+    },
+    scrollContentContainer: {
+        flexGrow: 1,
     },
     contentContainer: {
         justifyContent: 'flex-start',

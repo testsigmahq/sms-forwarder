@@ -30,7 +30,6 @@ export default function App() {
         Database.createPhoneNumberTable()
         Database.createUrlTable();
 
-        Database.fetchAllRecords(1);
 
 
     }, []);

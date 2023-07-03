@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { FontAwesome5 } from "@expo/vector-icons";
-import {useNavigation} from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import Database from "./../database";
 
-const Filters = ({navigation}) => {
-
+const Filters = ({ navigation }) => {
     const [toggleValue, setToggleValue] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [filter, setFilter] = useState([]);
+
+    useEffect(() => {
+        Database.fetchAllFilters()
+            .then((filters) => {
+                setFilter(filters);
+                console.log(filters)
+            })
+            .catch((err) => {
+                console.log('Error occurred:', err);
+            });
+    }, [])
 
     const handleToggleChange = (value) => {
         setToggleValue(value);
@@ -29,40 +40,49 @@ const Filters = ({navigation}) => {
         setShowModal(false);
     };
 
+    const handleFilterNavigation = (id) => {
+        navigation.navigate('Wrapper', { filterId: id });
+    };
 
     return (
         <View style={styles.container}>
-            <View style={styles.card}>
-                <Text style={styles.cardText}>Filters</Text>
-                <View style={styles.switchContainer}>
-                    <Switch
-                        value={toggleValue}
-                        onValueChange={handleToggleChange}
-                        trackColor={{ false: '#767577', true: 'white' }}
-                        thumbColor={toggleValue ? 'lightgreen' : '#f4f3f4'}
-                        ios_backgroundColor="#3e3e3e"
-                        style={styles.switch}
-                    />
-                </View>
-            </View>
+            <ScrollView>
+                {filter.map((filterItem) => (
+                    <View style={styles.card} key={filterItem.id}>
+                        <TouchableOpacity onPress={()=>{handleFilterNavigation(filterItem.id)}}>
+                            <Text style={styles.cardText}>Filters {filterItem.id}</Text>
+                        </TouchableOpacity>
+                        <View style={styles.switchContainer}>
+                            <Switch
+                                value={toggleValue}
+                                onValueChange={handleToggleChange}
+                                trackColor={{ false: '#767577', true: 'white' }}
+                                thumbColor={toggleValue ? 'lightgreen' : '#f4f3f4'}
+                                ios_backgroundColor="#3e3e3e"
+                                style={styles.switch}
+                            />
+                        </View>
+                    </View>
+                ))}
+            </ScrollView>
 
             <TouchableOpacity onPress={handleImagePress}>
                 <View style={styles.imageContainer}>
                     <Image source={require('../assets/plus.png')} style={styles.image} />
                 </View>
             </TouchableOpacity>
-            <Modal visible={showModal} animationType="none" transparent={true}>
-            <View style={styles.modalContainer}>
-                <View style={[styles.modalContent]}>
-                    <Text style={styles.modalTitle}>Add filter</Text>
-                    <TouchableOpacity onPress={handleForwardSMS}>
-                    <Text style={styles.modalText}>Forward SMS</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.modalText}>Forward Notification</Text>
-                </View>
-            </View>
-        </Modal>
 
+            <Modal visible={showModal} animationType="none" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={[styles.modalContent]}>
+                        <Text style={styles.modalTitle}>Add filter</Text>
+                        <TouchableOpacity onPress={handleForwardSMS}>
+                            <Text style={styles.modalText}>Forward SMS</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.modalText}>Forward Notification</Text>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -117,26 +137,25 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: '#FFF',
-        borderRadius:5,
+        borderRadius: 5,
         flexDirection: 'column',
-        marginRight:20,
-        padding:15,
-        paddingRight:185,
+        marginRight: 20,
+        padding: 15,
+        paddingRight: 185,
     },
     modalText: {
         alignSelf: 'flex-start',
         textAlign: 'left',
-        marginBottom:20,
-        fontSize:16,
+        marginBottom: 20,
+        fontSize: 16,
     },
     modalTitle: {
         alignSelf: 'flex-start',
         textAlign: 'left',
-        marginBottom:20,
-        fontWeight:500,
-        fontSize:18,
+        marginBottom: 20,
+        fontWeight: '500',
+        fontSize: 18,
     }
-
 });
 
 export default Filters;

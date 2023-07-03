@@ -6,7 +6,7 @@ import MessageContents from "../components/slider/message-contents";
 import MoreSettings from "../components/slider/more-settings";
 import { View, StyleSheet, Dimensions, TouchableOpacity, Text } from "react-native";
 import CustomHeader from "../components/custom-header";
-import { useNavigation } from "@react-navigation/native";
+import {useNavigation, useRoute} from "@react-navigation/native";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -18,8 +18,13 @@ const Wrapper = () => {
         setSaveClicked(prevState => !prevState);
     };
 
+    const route = useRoute();
+    const filterId = route.params?.filterId;
+    console.log("id", filterId);
+
+
     const component = [
-        <Recipients saveClicked={saveClicked} />,
+        <Recipients saveClicked={saveClicked} id={filterId} />,
         <ForwardConditions saveClicked={saveClicked} />,
         <MessageContents saveClicked={saveClicked} />,
         <MoreSettings saveClicked={saveClicked} />,

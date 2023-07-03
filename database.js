@@ -72,6 +72,40 @@ const Database = {
             });
         });
     },
+    fetchAllFilters: () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM filters',
+                    [],
+                    (tx, results) => {
+                        const len = results.rows.length;
+                        const filters = [];
+
+                        if (len > 0) {
+                            console.log(`Total filters found: ${len}`);
+                            for (let i = 0; i < len; i++) {
+                                const row = results.rows.item(i);
+                                filters.push({
+                                    id: row.id,
+                                    filterName: row.filter_name,
+                                    status: row.status,
+                                });
+                            }
+                        } else {
+                            console.log('No filters found.');
+                        }
+
+                        resolve(filters);
+                    },
+                    (err) => {
+                        console.log('Error occurred while fetching filters:', err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
 
     createEmailTable: () => {
         db.transaction((tx) => {
@@ -240,11 +274,11 @@ const Database = {
                                         console.log('Record:', row);
 
                                         if (tableName === 'emails') {
-                                            records.emails.push({ id: row.id, email: row.email });
+                                            records.emails.push({ id: row.id, type:"Email", text: row.email });
                                         } else if (tableName === 'phone_numbers') {
-                                            records.phoneNumbers.push({ id: row.id, phoneNumber: row.phone_number });
+                                            records.phoneNumbers.push({ id: row.id,type: "PhoneNumber", text: row.phone_number });
                                         } else if (tableName === 'url') {
-                                            records.urls.push({ id: row.id, url: row.url });
+                                            records.urls.push({ id: row.id, type:"URL", text: row.url, requestMethod:row.type, key:row.key });
                                         }
                                     }
                                 } else {
@@ -266,6 +300,63 @@ const Database = {
                     console.log('Transaction completed');
                     resolve(records);
                 });
+        });
+    },
+
+    deleteEmailById: (emailId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM emails WHERE id = ?',
+                    [emailId],
+                    () => {
+                        console.log(`Email with ID ${emailId} deleted successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while deleting email with ID ${emailId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
+    deleteUrlById: (urlId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM url WHERE id = ?',
+                    [urlId],
+                    () => {
+                        console.log(`URL with ID ${urlId} deleted successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while deleting URL with ID ${urlId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
+    deletePhoneNumberById: (phoneNumberId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM phone_numbers WHERE id = ?',
+                    [phoneNumberId],
+                    () => {
+                        console.log(`Phone number with ID ${phoneNumberId} deleted successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while deleting phone number with ID ${phoneNumberId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
         });
     },
 
