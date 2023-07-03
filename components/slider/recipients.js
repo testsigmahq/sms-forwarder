@@ -13,6 +13,7 @@ import {
 
 import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
+import Database from "../../database";
 
 
 
@@ -41,6 +42,7 @@ const Recipients = ({saveClicked}) => {
                 type: selectedOption,
                 text: '',
                 requestMethod: '',
+                key:'',
             };
             setRecipients([...recipients, newRecipient]);
             setSelectedOption('');
@@ -71,12 +73,17 @@ const Recipients = ({saveClicked}) => {
         updatedRecipients[index].text = text;
         setRecipients(updatedRecipients);
     }
+    function handleRecipientKeyChange(text, index) {
+        const updatedRecipients = [...recipients];
+        updatedRecipients[index].key = text;
+        setRecipients(updatedRecipients);
+    }
+
 
 
     function onSave() {
-        console.log("j")
         const recipientsInfo = recipients.reduce((result, item) => {
-            const { type, text, requestMethod } = item;
+            const { type, text, requestMethod,key } = item;
 
             if (type === "PhoneNumber") {
                 if (!result.phoneNumber) {
@@ -92,13 +99,18 @@ const Recipients = ({saveClicked}) => {
                 if (!result.url) {
                     result.url = [];
                 }
-                result.url.push({ url: text, requestMethod });
+                result.url.push({ url: text, requestMethod,key });
             }
 
             return result;
         }, {});
 
-        console.log("recipientsInfo" ,recipientsInfo);
+        console.log("recipientsInfo1" ,recipientsInfo);
+
+         // Database.insertEmails(recipientsInfo.email, 1);
+         // Database.insertPhoneNumbers(recipientsInfo.phoneNumber, 1);
+         Database.insertUrls(recipientsInfo.url,1);
+
         dispatch(SetRecipientsInfo(recipientsInfo));
     }
 
@@ -158,6 +170,8 @@ const Recipients = ({saveClicked}) => {
                                         <TextInput
                                             style={styles.requestInput}
                                             placeholder={`${recipient.requestMethod} KEY`}
+                                            onChangeText={text => handleRecipientKeyChange(text, index)} // Add this line to handle key text changes
+
                                         />
                                     )}
                                 </View>

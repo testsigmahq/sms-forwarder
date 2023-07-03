@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal } from 'react-native';
 import { FontAwesome5 } from "@expo/vector-icons";
 import {useNavigation} from "@react-navigation/native";
+import Database from "./../database";
 
 const Filters = ({navigation}) => {
 
@@ -17,7 +18,14 @@ const Filters = ({navigation}) => {
     };
 
     const handleForwardSMS = () => {
-        navigation.navigate('Wrapper');
+        Database.insertFilter("filter2.0", "inactive")
+            .then((filter) => {
+                console.log('Inserted filter:', filter.id);
+                navigation.navigate('Wrapper', { filterId: filter.id });
+            })
+            .catch((error) => {
+                console.log('Error occurred:', error);
+            });
         setShowModal(false);
     };
 
