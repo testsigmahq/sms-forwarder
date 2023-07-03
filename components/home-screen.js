@@ -15,7 +15,7 @@ const HomeScreen = () => {
         console.log('Google user info:', userInfo);
         setTimeout(() => {
             setIsLoading(false);
-            navigation.navigate('SmsRelay');
+            navigation.navigate('DrawerStack');
         }, 4500);
     };
 

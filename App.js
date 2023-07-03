@@ -1,15 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import SmsRelay from './screens/smsRelay';
-import Wrapper from './screens/wrapper';
-import HomeScreen from './components/home-screen';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import MessageTemplate from "./screens/messageTemplate";
 import Database from "./database";
+import HomeStack from "./routes/homeStack";
 
 const Stack = createStackNavigator();
 
@@ -60,17 +57,7 @@ export default function App() {
   return (
       <View style={styles.container}>
           <Provider store={store}>
-          <NavigationContainer style={{ backgroundColor: '#fff',
-          cardStyle: { backgroundColor: '#fff' },
-        }}>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
-              <Stack.Screen name="SmsRelay" component={SmsRelay} />
-              <Stack.Screen name="Wrapper" component={Wrapper} />
-              <Stack.Screen name="MessageTemplate" component={MessageTemplate} />
-
-          </Stack.Navigator>
-        </NavigationContainer>
+              <HomeStack />
           </Provider>
       </View>
   );
@@ -82,4 +69,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
