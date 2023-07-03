@@ -216,43 +216,59 @@ const Database = {
     },
 
 
-
     fetchAllRecords: (filterId) => {
-        const tables = [
-            'filters',
-            'emails',
-            'phone_numbers',
-            'url',
-            'sender_numbers',
-            'texts',
-            'change_contents',
-        ];
+        const tables = ['emails', 'phone_numbers', 'url'];
 
-        tables.forEach((tableName) => {
+        const records = {
+            emails: [],
+            phoneNumbers: [],
+            urls: [],
+        };
+
+        return new Promise((resolve, reject) => {
             db.transaction((tx) => {
-                tx.executeSql(
-                    `SELECT * FROM ${tableName} WHERE filter_id = ?`,
-                    [filterId],
-                    (tx, results) => {
-                        const len = results.rows.length;
-                        if (len > 0) {
-                            console.log(`Records from table "${tableName}":`);
-                            for (let i = 0; i < len; i++) {
-                                const row = results.rows.item(i);
-                                console.log('Record:', row);
+                    tables.forEach((tableName) => {
+                        tx.executeSql(
+                            `SELECT id, * FROM ${tableName} WHERE filter_id = ?`,
+                            [filterId],
+                            (tx, results) => {
+                                const len = results.rows.length;
+                                if (len > 0) {
+                                    console.log(`Records from table "${tableName}":`);
+                                    for (let i = 0; i < len; i++) {
+                                        const row = results.rows.item(i);
+                                        console.log('Record:', row);
+
+                                        if (tableName === 'emails') {
+                                            records.emails.push({ id: row.id, email: row.email });
+                                        } else if (tableName === 'phone_numbers') {
+                                            records.phoneNumbers.push({ id: row.id, phoneNumber: row.phone_number });
+                                        } else if (tableName === 'url') {
+                                            records.urls.push({ id: row.id, url: row.url });
+                                        }
+                                    }
+                                } else {
+                                    console.log(`No records found in table "${tableName}".`);
+                                }
+                            },
+                            (err) => {
+                                console.log(`Error occurred while fetching records from table "${tableName}":`, err);
+                                reject(err);
                             }
-                        } else {
-                            console.log(`No records found in table "${tableName}".`);
-                        }
-                        tx.finish(); // Close the transaction
-                    },
-                    (err) => {
-                        console.log(`Error occurred while fetching records from table "${tableName}":`, err);
-                    }
-                );
-            });
+                        );
+                    });
+                },
+                (error) => {
+                    console.log('Transaction error:', error);
+                    reject(error);
+                },
+                () => {
+                    console.log('Transaction completed');
+                    resolve(records);
+                });
         });
     },
+
 
 
 };
