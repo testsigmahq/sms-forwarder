@@ -1,6 +1,6 @@
 import React from 'react';
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-google-signin/google-signin';
-import {Button, View} from "react-native";
+import {Button, Dimensions, View} from "react-native";
 
 
 const GoogleSignupButton = ({ onSignup }) => {
@@ -28,7 +28,7 @@ const GoogleSignupButton = ({ onSignup }) => {
     return (
         <View>
         <GoogleSigninButton
-            style={{ width: 192, height: 48 }}
+            style={{ width: deviceWidth*0.8, height: 48,}}
             size={GoogleSigninButton.Size.Wide}
             color={GoogleSigninButton.Color.Light}
             onPress={handleGoogleSignup}
@@ -37,5 +37,6 @@ const GoogleSignupButton = ({ onSignup }) => {
 
 );
 };
+const deviceWidth = Math.round(Dimensions.get('window').width);
 
 export default GoogleSignupButton;

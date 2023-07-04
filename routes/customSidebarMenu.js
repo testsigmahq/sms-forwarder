@@ -7,6 +7,7 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import {useRoute} from "@react-navigation/native";
 
 
 const handleGoogleSignout = async () => {
@@ -18,8 +19,23 @@ const handleGoogleSignout = async () => {
   }
 };
 const CustomSidebarMenu = props => {
+  const route = useRoute();
+  let userDetails = route.params?.user;
+  console.log("userdetails ==>", userDetails)
   return (
     <SafeAreaView style={{flex: 1}}>
+      <View style={{alignSelf:"center", marginVertical:20}}>
+        <Image
+            source={{ uri: userDetails.user.photo }}
+            style={{ width: 100, height: 100, borderRadius:50 }}
+        />
+      </View>
+
+      <View style={{alignSelf:"center", marginVertical:10}}>
+        <Text style={{fontWeight:"500"}}>{userDetails.user.givenName} {userDetails.user.familyName}</Text>
+      </View>
+
+      <View style={{borderTopWidth:1, marginVertical:10, borderColor:"grey"}}></View>
 
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />

@@ -13,7 +13,7 @@ const HomeScreen = () => {
         console.log('Google user info:', userInfo);
         setTimeout(() => {
             setIsLoading(false);
-            navigation.navigate('DrawerStack');
+            navigation.navigate('DrawerStack',{ user: userInfo});
         }, 4500);
     };
 
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     animation: {
-        width: 200,
+        width: deviceWidth*0.9,
         height: 200,
     }
 });

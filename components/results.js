@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, StyleSheet, Dimensions } from 'react-native';
+import {View, Text, Alert, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
@@ -122,6 +122,7 @@ const Result = () => {
 
     return (
         <View style={{ flex: 1}}>
+            <ScrollView>
             {smsResult && smsResult.length > 0 && smsResult.map((result, index) => (
                 <View key={index}><View style={{padding:10}}>
                     <Text style={{fontWeight:"bold"}}>From : {result.sender}</Text>
@@ -132,6 +133,7 @@ const Result = () => {
                 <View style={{borderTopWidth:1}}></View>
                 </View>
             ))}
+            </ScrollView>
         </View>
     );
 };

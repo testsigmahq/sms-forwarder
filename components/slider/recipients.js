@@ -24,7 +24,8 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
 
     const dispatch = useDispatch();
    const [fetch,setFetch]=useState([])
-
+    const [error, setError] = useState(false);
+    const [condition, setCondition] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -162,8 +163,6 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
             }
             return result;
         }, {});
-        console.log("recipientsInfo1" ,recipientsInfo);
-
         const emailsUndefined = recipientsInfo?.email
             ?.filter((emailObj) => emailObj.id === undefined)
             ?.map((emailObj) => emailObj.text) ?? [];
@@ -259,9 +258,15 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
             });
             }
 
-        navigation.navigate("Filters");
-
-
+        console.log("recipient info ==// ", recipientsInfo.phoneNumber, recipientsInfo.email, recipientsInfo.url)
+        if (recipientsInfo.phoneNumber || recipientsInfo.email || recipientsInfo.url){
+            navigation.navigate("Filters");
+        } else {
+            setError(true)
+        }
+    }
+    function handleClose(){
+        setError(false);
     }
 
     return (
@@ -367,6 +372,36 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
                     </View>
                 </View>
             </Modal>
+
+                <Modal visible={error} animationType="none" transparent={true} style={{}}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Error</Text>
+                            <Text style={styles.modalText}>Please check the phone number or email or URL in the recipients setting.</Text>
+                            <TouchableOpacity onPress={() => {handleClose()}}>
+                                <Text style={[styles.bottom,{color:"green",alignSelf:"flex-end"}]}>CLOSE</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                <Modal visible={condition} animationType="none" transparent={true} style={{}}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Warning</Text>
+                            <Text style={styles.modalText}>There're no conditions in the "Forwarding condition" field, so all messages are forwarded.</Text>
+                            <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
+                            <TouchableOpacity onPress={() => {handleClose()}}>
+                                <Text style={[styles.bottom,{color:"green", marginRight: 15}]}>CANCEL</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {handleClose()}}>
+                                <Text style={[styles.bottom,{color:"green", marginRight: 15}]}>OK</Text>
+                            </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
             </ScrollView>
         </SafeAreaView>
     );
@@ -484,14 +519,13 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: '#FFF',
-        borderRadius: 2,
+        borderRadius: 5,
         flexDirection: 'column',
-        marginRight: 20,
         padding: 15,
-        paddingRight: 185,
+        width:deviceWidth*0.8,
     },
     modalText: {
-        alignSelf: 'flex-start',
+        alignSelf: 'stretch',
         textAlign: 'left',
         marginBottom: 20,
         fontSize: 16,
