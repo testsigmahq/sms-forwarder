@@ -6,12 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [load,isLoad]=useState(true)
     const navigation = useNavigation();
 
     const handleGoogleSignup = (userInfo) => {
         setIsLoading(true);
-        isLoad(false)
         console.log('Google user info:', userInfo);
         setTimeout(() => {
             setIsLoading(false);
@@ -30,7 +28,7 @@ const HomeScreen = () => {
                 />
             ) : (
                 <>
-                    {!isLoading && load && (
+                    {!isLoading  && (
                         <>
                     <Text style={styles.text}>Welcome to RelayMate</Text>
 

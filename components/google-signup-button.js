@@ -23,14 +23,7 @@ const GoogleSignupButton = ({ onSignup }) => {
             }
         }
     };
-    const handleGoogleSignout = async () => {
-        try {
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
-        } catch (error) {
-            console.log('Google sign-out error:', error);
-        }
-    };
+
 
     return (
         <View>
@@ -40,7 +33,6 @@ const GoogleSignupButton = ({ onSignup }) => {
             color={GoogleSigninButton.Color.Light}
             onPress={handleGoogleSignup}
         />
-    <Button title="Sign Out" onPress={handleGoogleSignout} />
         </View>
 
 );

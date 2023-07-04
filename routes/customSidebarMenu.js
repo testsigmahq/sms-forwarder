@@ -6,7 +6,17 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
 
+
+const handleGoogleSignout = async () => {
+  try {
+    await GoogleSignin.revokeAccess();
+    await GoogleSignin.signOut();
+  } catch (error) {
+    console.log('Google sign-out error:', error);
+  }
+};
 const CustomSidebarMenu = props => {
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -31,7 +41,11 @@ const CustomSidebarMenu = props => {
               />
             );
           }}
-          onPress={() => props.navigation.navigate('Home')}
+          onPress={() => {
+            handleGoogleSignout().then(r => console.log("log-out successfully!!"));
+            props.navigation.navigate('Home')
+
+          }}
           testId={"log-out"}
           name={"log-out"}
         />
