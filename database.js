@@ -323,7 +323,7 @@ const Database = {
     createChangeContentTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS change_contents (id INTEGER PRIMARY KEY AUTOINCREMENT, messageTemplate TEXT, oldWord TEXT, newWord TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS change_contents (id INTEGER PRIMARY KEY AUTOINCREMENT, oldWord TEXT, newWord TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
                 [],
                 () => {
                     console.log('Table "change_contents" created successfully');
@@ -334,6 +334,21 @@ const Database = {
             );
         });
     },
+    insertChangeContent: (oldWord, newWord, filterId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT INTO change_contents (oldWord, newWord, filter_id) VALUES (?, ?, ?)',
+                [oldWord, newWord, filterId],
+                (_, { insertId }) => {
+                    console.log(`Inserted row with id ${insertId} successfully`);
+                },
+                (err) => {
+                    console.log('Error occurred while inserting into the "change_contents" table:', err);
+                }
+            );
+        });
+    },
+
 
 
     fetchAllRecords: (filterId) => {
@@ -552,41 +567,7 @@ const Database = {
             });
         });
     },
-    fetchSenderNumbersByFilterId: (filterId) => {
-        return new Promise((resolve, reject) => {
-            db.transaction((tx) => {
-                tx.executeSql(
-                    'SELECT * FROM sender_numbers WHERE filter_id = ?',
-                    [filterId],
-                    (_, { rows }) => {
-                        const senderNumbers = rows.raw();
-                        resolve(senderNumbers);
-                    },
-                    (error) => {
-                        reject(error);
-                    }
-                );
-            });
-        });
-    },
 
-    fetchTextsByFilterId: (filterId) => {
-        return new Promise((resolve, reject) => {
-            db.transaction((tx) => {
-                tx.executeSql(
-                    'SELECT * FROM texts WHERE filter_id = ?',
-                    [filterId],
-                    (_, { rows }) => {
-                        const texts = rows.raw();
-                        resolve(texts);
-                    },
-                    (error) => {
-                        reject(error);
-                    }
-                );
-            });
-        });
-    },
 
 
 

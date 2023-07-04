@@ -32,7 +32,7 @@ export default function App() {
         Database.createUrlTable();
         Database.createSenderNumberTable();
         Database.createTextTable();
-
+        Database.createChangeContentTable();
 
     }, []);
 

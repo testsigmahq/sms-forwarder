@@ -6,7 +6,8 @@ import CheckBox from "../checkbox";
 import {Input} from "react-native-elements";
 import {FontAwesome5} from "@expo/vector-icons";
 import {useDispatch, useSelector} from "react-redux";
-const MessageContents = () => {
+import Database from "../../database";
+const MessageContents = ({saveClicked,id}) => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
@@ -30,6 +31,18 @@ const MessageContents = () => {
     }
     const Message = useSelector((state) => {return (state.messageTemplate)});
     console.log("messageTemplate",Message.templateTitle)
+
+    function onSave() {
+        wordPairs.forEach((wordPairs)=>{
+            Database.insertChangeContent(wordPairs.oldWord,wordPairs.newWord,1)
+        })
+    }
+
+    React.useEffect(() => {
+        if (saveClicked) {
+            onSave();
+        }
+    }, [saveClicked]);
 
     return (
         <SafeAreaView style={styles.container}>
