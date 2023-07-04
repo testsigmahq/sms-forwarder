@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, SafeAreaView } from 'react-native';
+import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions} from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
@@ -37,20 +37,22 @@ const ForwardConditions = () => {
                         isChecked={useWildcards} />
                     <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
                 </View>
+                <View style={{justifyContent:"center",width:deviceWidth*1}} >
                 <BorderBox  title={"From who"} content={"ADD"} />
                 <BorderBox  title={"Rule for text"} content={"ADD"} />
-
+                </View>
             </View>
             }
         </SafeAreaView>
     );
 };
+const deviceWidth = Math.round(Dimensions.get('window').width);
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
-        padding: 16,
+        padding: 10,
     },
     title: {
         fontSize: 20,
@@ -62,8 +64,8 @@ const styles = StyleSheet.create({
     },
     headerCard: {
         flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
+        padding: 10,
+        paddingVertical:15,
         backgroundColor: 'white',
         borderRadius: 6,
         shadowColor: '#000',
@@ -71,16 +73,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 4,
-        margin: 8,
+        width: deviceWidth*0.95,
     },
     headerCardText: {
-        marginRight: 8,
         fontSize: 18,
         color: 'black',
         fontWeight: '400',
     },
     card: {
-        alignItems: 'flex-start',
         padding: 10,
         backgroundColor: '#FFFFFF',
         borderRadius: 6,
@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 10,
-        width: 355,
-        marginTop: 30,
-        alignSelf: 'flex-start',
+        width: deviceWidth*0.95,
+        marginTop: 20,
+        alignSelf: 'center',
     },
     checkboxRow: {
         flexDirection: 'row',

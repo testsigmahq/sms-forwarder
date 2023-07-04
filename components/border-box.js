@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         borderWidth: 0.5,
         borderRadius: 4,
-        width: 300,
+        width: deviceWidth*0.85,
         alignSelf:"flex-start",
         margin: 10,
         marginTop: 18,
