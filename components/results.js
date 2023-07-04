@@ -3,13 +3,13 @@ import { View, Text, Alert, StyleSheet, Dimensions } from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
+import axios from 'axios';
 
-var DirectSms = NativeModules.DirectSms;
+const DirectSms = NativeModules.DirectSms;
 
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState();
     const [smsResult, setSmsResult] = useState();
-    let numberOfMessagesFetched = 0;
 
     const fetchLatestMessage = () => {
         let filter = {
@@ -35,33 +35,52 @@ const Result = () => {
                     if (latestObject.body !== latestMessage) {
                         setLatestMessage(latestObject.body);
                         forwardMessage(latestObject); // Forward the received message
+                        forwardToURL("post","https://eom75b24cll8i0l.m.pipedream.net/","key",latestObject?.body);
                     }
                 }
             }
         );
     };
 
-
     function formatDateTime(timestamp) {
-        const dateObject = new Date(timestamp.toString());
-        // const dayIndex = dateObject.getDay();
-        // const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        // const day = daysOfWeek[dayIndex];
-        // const formattedDay = day.substring(0, 3);
+        const dateObject = new Date(timestamp);
         const formattedDateTime = dateObject.toLocaleString('en-GB', { day: '2-digit',month: '2-digit', hour: '2-digit', minute: '2-digit' });
-
         return `${formattedDateTime}`;
     }
+
+    const forwardToURL = (method, url, key, message) => {
+        const data = { [key]: message };
+
+        if (method === 'post') {
+            axios
+                .post(url, data)
+                .then(response => {
+                    console.log('SMS forwarded successfully:', response.data);
+                })
+                .catch(error => {
+                    console.error('Failed to forward SMS:', error);
+                });
+        } else if (method === 'get') {
+            axios
+                .get(url)
+                .then(response => {
+                    console.log('SMS forwarded successfully:', response.data);
+                })
+                .catch(error => {
+                    console.error('Failed to forward SMS:', error);
+                });
+        }
+    };
 
     const forwardMessage = (latestObject) => {
         const phoneNumbers = ['8148683700'];
         phoneNumbers.forEach((phoneNumber) => {
             const message = latestObject?.body.toString();
             DirectSms.sendDirectSms(phoneNumber, message);
-            Database.insertResult(latestObject?.body,latestObject?.address, phoneNumber, "", "Success");
+            Database.insertResult(latestObject?.body,latestObject?.address, phoneNumber, formatDateTime((latestObject?.date_sent)).toString(), "Success");
         });
     };
-    // formatDateTime((latestObject?.date_sent)).toString()
+
     useEffect(() => {
         const timer = setInterval(() => {
             fetchLatestMessage();
@@ -73,8 +92,6 @@ const Result = () => {
                 .catch((err) => {
                     console.log('Error occurred while retrieving SMS results:', err);
                 });
-
-
         }, 5000);
 
         return () => clearInterval(timer);
@@ -89,7 +106,7 @@ const Result = () => {
                     <Text>{result.message}</Text>
                     <Text style={{alignSelf:"flex-end"}}>{result?.timing} , {result.status} </Text>
                 </View>
-                <View style={{borderTopWidth:2}}></View>
+                <View style={{borderTopWidth:1}}></View>
                 </View>
             ))}
         </View>

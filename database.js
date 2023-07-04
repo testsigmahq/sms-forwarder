@@ -57,11 +57,11 @@ const Database = {
     },
 
     // Function to insert sample data into the "results" table
-    insertResult: () => {
+    insertResult: (message, sender, receiver, timing, status) => {
         db.transaction((tx) => {
             tx.executeSql(
                 'INSERT INTO results (message, sender, receiver, timing, status) VALUES (?, ?, ?, ?, ?)',
-                ['Hello', 'John', 'Jane', '2023-07-03', 'Sent'],
+                [message, sender, receiver, timing, status],
                 (_, { rowsAffected, insertId }) => {
                     if (rowsAffected > 0) {
                         console.log(`Sample data inserted successfully. Row ID: ${insertId}`);
