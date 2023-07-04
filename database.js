@@ -274,6 +274,22 @@ const Database = {
             );
         });
     },
+    insertSenderNumber: (sender, sendStatus, filterId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT INTO sender_numbers (sender, sendStatus, filter_id) VALUES (?, ?, ?)',
+                [sender, sendStatus, filterId],
+                (_, result) => {
+                    console.log('Sender number inserted successfully');
+                    console.log('Inserted row ID:', result.insertId);
+                },
+                (err) => {
+                    console.log('Error occurred while inserting sender number:', err);
+                }
+            );
+        });
+    },
+
 
     createTextTable: () => {
         db.transaction((tx) => {
@@ -289,6 +305,20 @@ const Database = {
             );
         });
     },
+    insertText: (messageText, sendStatus, filterId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT INTO texts (messageText, sendStatus, filter_id) VALUES (?, ?, ?)',
+                [messageText, sendStatus, filterId],
+                (_, { insertId }) => {
+                    console.log(`Text inserted successfully with ID: ${insertId}`);
+                },
+                (err) => {
+                    console.log('Error occurred while inserting text:', err);
+                }
+            );
+        });
+        },
 
     createChangeContentTable: () => {
         db.transaction((tx) => {
@@ -358,6 +388,55 @@ const Database = {
                 });
         });
     },
+    fetchAllByRule: (filterId) => {
+        const tables = ['sender_numbers', 'texts'];
+
+        const records = {
+            senderNumbers: [],
+            texts: [],
+        };
+
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                    tables.forEach((tableName) => {
+                        tx.executeSql(
+                            `SELECT id, * FROM ${tableName} WHERE filter_id = ?`,
+                            [filterId],
+                            (tx, results) => {
+                                const len = results.rows.length;
+                                if (len > 0) {
+                                    console.log(`Records from table "${tableName}":`);
+                                    for (let i = 0; i < len; i++) {
+                                        const row = results.rows.item(i);
+
+                                        if (tableName === 'sender_numbers') {
+                                            records.senderNumbers.push({ id: row.id, sender: row.sender, sendStatus: row.sendStatus });
+                                        } else if (tableName === 'texts') {
+                                            records.texts.push({ id: row.id, messageText: row.messageText, sendStatus: row.sendStatus });
+                                        }
+                                    }
+                                } else {
+                                    console.log(`No records found in table "${tableName}".`);
+                                }
+                            },
+                            (err) => {
+                                console.log(`Error occurred while fetching records from table "${tableName}":`, err);
+                                reject(err);
+                            }
+                        );
+                    });
+                },
+                (error) => {
+                    console.log('Transaction error:', error);
+                    reject(error);
+                },
+                () => {
+                    console.log('Transaction completed');
+                    resolve(records);
+                });
+        });
+    },
+
 
     deleteEmailById: (emailId) => {
         return new Promise((resolve, reject) => {
@@ -473,6 +552,42 @@ const Database = {
             });
         });
     },
+    fetchSenderNumbersByFilterId: (filterId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM sender_numbers WHERE filter_id = ?',
+                    [filterId],
+                    (_, { rows }) => {
+                        const senderNumbers = rows.raw();
+                        resolve(senderNumbers);
+                    },
+                    (error) => {
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+    fetchTextsByFilterId: (filterId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM texts WHERE filter_id = ?',
+                    [filterId],
+                    (_, { rows }) => {
+                        const texts = rows.raw();
+                        resolve(texts);
+                    },
+                    (error) => {
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
 
 
 

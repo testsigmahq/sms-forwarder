@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
+import Database from "../database";
 
 const BorderBox = props => {
     const navigation = useNavigation();
@@ -19,7 +20,7 @@ const BorderBox = props => {
     const [ruleText,setRuleText]=useState([]);
     //validation
     const [inputValidation,setInputValidation]=useState(false);
-
+  const [ruleNumber,setRuleNumber]=useState([])
     function handleCondition() {
         setShowModal(false);
 
@@ -27,12 +28,16 @@ const BorderBox = props => {
         const text2 = "it will be sent.";
 
         if (number) {
+            const sendStatus = value1.toLowerCase() === "send";
+            const newData = { number, sendStatus };
             setMessages((prevMessages) => [...prevMessages, text1 + number + ", " + text2]);
+            setRuleNumber((prevMessages) => [...prevMessages, newData]);
         }
         else {
             setInputValidation(true);
         }
         setNumber('');
+        console.log("message",ruleNumber)
     }
 
     const [open1, setOpen1] = useState(false);
@@ -48,17 +53,52 @@ const BorderBox = props => {
         { label: 'do not send', value: 'do not send' },
     ]);
     const [value2, setValue2] = useState('send');
-
+   const [ruleTextTemplate,setRuleTextTemplate]=useState([]);
     function handleRuleCondition() {
         setRuleModel(false);
         const text1 = "If the message ";
         const text2 = "it will be sent.";
 
         if(ruleText){
+            const sendStatus = value1.toLowerCase() === "send";
+            const newData = { ruleText, sendStatus };
             setRuleMessages((prevMessages) => [...prevMessages, text1 + ruleText + ", " + text2])
+            setRuleTextTemplate((prevMessages) => [...prevMessages, newData]);
         }
         setRuleText('')
+        console.log("setRuleMessages",ruleTextTemplate)
+
     }
+    function onSave() {
+        if (ruleNumber) {
+            console.log("message",ruleNumber)
+
+            ruleNumber.forEach((ruleNumber) => {
+                Database.insertSenderNumber(ruleNumber.number,ruleNumber.sendStatus,1);
+            });
+        }
+
+        if (ruleTextTemplate) {
+            ruleTextTemplate.forEach((ruleTextTemplate) => {
+                Database.insertText(ruleTextTemplate.text,ruleTextTemplate.sendStatus,1);
+            });
+        }
+
+        Database.fetchAllByRule(1)
+            .then((records) => {
+                console.log('Sender Numbers:', records.senderNumbers);
+                console.log('Texts:', records.texts);
+            })
+            .catch((error) => {
+                console.log('Error occurred while fetching records:', error);
+            });
+    }
+
+        React.useEffect(() => {
+        if (props.saveClicked) {
+            onSave();
+        }
+    }, [props.saveClicked]);
 
     return (
         <View style={styles.blackCard}>
@@ -147,8 +187,6 @@ const BorderBox = props => {
 
 
 
-
-
             <Modal visible={ruleModel} animationType="slide-up" transparent={true}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
@@ -177,7 +215,8 @@ const BorderBox = props => {
                                             defaultNull
                                         />
                                     </View>
-                                </View></View>
+                                </View>
+                                </View>
                             </TouchableOpacity>
                             <View style={styles.card}>
                                 <Text style={styles.modelText}>send</Text>

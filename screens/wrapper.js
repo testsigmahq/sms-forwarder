@@ -25,7 +25,7 @@ const Wrapper = () => {
 
     const component = [
         <Recipients saveClicked={saveClicked} id={filterId} />,
-        <ForwardConditions saveClicked={saveClicked} />,
+        <ForwardConditions saveClicked={saveClicked} id={filterId}/>,
         <MessageContents saveClicked={saveClicked} />,
         <MoreSettings saveClicked={saveClicked} />,
     ];

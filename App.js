@@ -30,7 +30,8 @@ export default function App() {
         Database.createEmailTable();
         Database.createPhoneNumberTable()
         Database.createUrlTable();
-
+        Database.createSenderNumberTable();
+        Database.createTextTable();
 
 
     }, []);

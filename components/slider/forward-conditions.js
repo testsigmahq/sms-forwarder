@@ -4,13 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
 
-const ForwardConditions = () => {
+const ForwardConditions = ({saveClicked,id}) => {
     const [forwardCondition, setforwardCondition] = useState(false);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
-
-    const data = useSelector((state) => {return (state.recipients)});
-    console.log("data2",data)
 
 
     return (
@@ -38,8 +35,8 @@ const ForwardConditions = () => {
                     <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
                 </View>
                 <View style={{justifyContent:"center",width:deviceWidth*1}} >
-                <BorderBox  title={"From who"} content={"ADD"} rule={"number"}/>
-                <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} />
+                <BorderBox  title={"From who"} content={"ADD"} rule={"number"} saveClicked={saveClicked} id={id}/>
+                <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} saveClicked={saveClicked} id={id}/>
                 </View>
             </View>
             }
