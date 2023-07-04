@@ -34,18 +34,20 @@ const MessageContents = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.contentContainer}>
-                <Text style={styles.title}>Set up recipients</Text>
+                <Text style={styles.title}>Change the content</Text>
                 <Text style={styles.subtitle}>
-                    You can choose to add the phone number of the intial sender of the message, a specific word ,etc.., to the message that you wish to forward ,or change  certain words within the body of the message
+                    You can choose to add the phone number of the initial sender of the message, a specific word, etc., to the message that you wish to forward ,or change certain words within the body of the message.
                 </Text>
             </View>
 
             <View style={styles.blackCard}>
-                <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                <View style={{flexDirection:'row',justifyContent:'center'}}>
                     <Text style={styles.text}>Message Template</Text>
-                    <TouchableOpacity onPress={forward}>
-                        <Image  source={require('../../assets/edit.png')} style={styles.editIcon} />
-                    </TouchableOpacity>
+                </View>
+                <View style={{position:"absolute", alignSelf:"flex-end"}}>
+                <TouchableOpacity onPress={forward}>
+                    <Image  source={require('../../assets/edit.png')} style={styles.editIcon} />
+                </TouchableOpacity>
                 </View>
                     <View style={styles.line}></View>
                 <View style={{flexDirection:'row'}}>
@@ -58,14 +60,15 @@ const MessageContents = () => {
             <View style={styles.blackCard}>
                 <Text style={styles.text}>Replace words</Text>
                 <View style={styles.line}></View>
-                <View style={{ flexDirection: 'row', margin: 10, justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', marginLeft:10,marginBottom:10, justifyContent: 'space-between' }}>
                     <Text style={{ fontSize: 17 }}> Use regular expression </Text>
                     <CheckBox onPress={() => setExp(!exp)} isChecked={exp} />
                 </View>
 
                 {wordPairs.map((pair, index) => (
-                    <View key={index} style={{ width: deviceWidth * 0.35, flexDirection: 'row', marginBottom: 10 }}>
+                    <View key={index} style={{width:deviceWidth*0.4, flexDirection: 'row', }}>
                         <Input
+                            style={{width:deviceWidth*0.1}}
                             placeholder={'Old Word'}
                             value={pair.oldWord}
                             onChangeText={(text) => {
@@ -74,7 +77,7 @@ const MessageContents = () => {
                                 setWordPairs(updatedPairs);
                             }}
                         />
-                        <View style={{ marginTop: 15 }}>
+                        <View style={{paddingHorizontal:8,marginTop:15 }}>
                             <FontAwesome5 name={'arrow-right'} size={17} />
                         </View>
                         <Input
@@ -86,8 +89,8 @@ const MessageContents = () => {
                                 setWordPairs(updatedPairs);
                             }}
                         />
-                        <TouchableOpacity onPress={() => removeField(index)}>
-                            <Image  source={require('../../assets/minus.png')} style={styles.imageMinus} />
+                        <TouchableOpacity style={{padding:2}} onPress={() => removeField(index)}>
+                            <Image source={require('../../assets/minus.png')} style={styles.imageMinus} />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         borderWidth: 0.5,
         borderRadius: 4,
-        width: 300,
+        width: deviceWidth*0.95,
         alignSelf:"flex-start",
         margin: 10,
         marginTop: 18,
@@ -136,8 +139,10 @@ const styles = StyleSheet.create({
     line: {
         borderColor: '#000',
         borderWidth: 0.2,
-        marginLeft: 18,
-        marginRight: 20,
+        alignSelf:"center",
+        width: deviceWidth*0.9,
+        marginBottom:20,
+        marginTop:10,
     },
     text: {
         fontSize: 20,
@@ -146,14 +151,14 @@ const styles = StyleSheet.create({
         margin: 5,
     },
     imageIcon:{
-        width:22,
-        height:22,
+        width:32,
+        height:32,
         alignSelf:'center',
         marginBottom:10,
     },
     imageMinus:{
-        width:22,
-        height:22,
+        width:30,
+        height:30,
         alignSelf:'center',
         right:12,
     },

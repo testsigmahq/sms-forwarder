@@ -169,7 +169,8 @@ const MessageTemplate = () => {
             <Text style={{ marginLeft: 10, marginTop: 5, fontSize: 15, fontWeight: '500' }}>
                 Touch an item to add.
             </Text>
-            <ScrollView style={styles.dottedBox}>
+            <View style={styles.dottedBox}>
+                <ScrollView style={{height:450,marginVertical:5,marginTop:10}}>
                 {placeholders.map((placeholder) => (
                     <TouchableOpacity
                         style={styles.dotCard}
@@ -180,7 +181,8 @@ const MessageTemplate = () => {
                         </Text>
                     </TouchableOpacity>
                 ))}
-            </ScrollView>
+                </ScrollView>
+            </View>
         </SafeAreaView>
     );
 };
@@ -194,6 +196,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'gray',
         margin: 10,
+        borderRadius:5,
         padding: 10,
     },
     input: {
@@ -203,19 +206,20 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderStyle: 'dotted',
         borderColor: 'black',
+        borderRadius:5,
         marginHorizontal: 10,
         marginTop: 10,
-        padding: 10,
+        padding: 0,
         minHeight: 80,
-        maxHeight: 450, // Adjust the value as needed
+        maxHeight: 450,
     },
     dotCard: {
         backgroundColor: '#D1F2C9',
-        borderRadius: 2,
-        padding: 5, // Adjust the value to reduce the padding
+        borderRadius: 5,
+        padding: 8,
         margin: 10,
         borderColor: 'green',
-        minHeight: 18, // Adjust the value to reduce the height
+        minHeight: 18,
     },
     previewCard: {
         borderWidth: 1,
@@ -225,6 +229,7 @@ const styles = StyleSheet.create({
         padding: 10,
         minHeight: 80,
         maxHeight: 100,
+        borderRadius: 5
     },
 });
 

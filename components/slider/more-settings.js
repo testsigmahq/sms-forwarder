@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, SafeAreaView, Dimensions, StyleSheet, TouchableOpacity, Button} from 'react-native';
 import { Input } from 'react-native-elements';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {useDispatch} from "react-redux";
-
+import SimData from 'react-native-sim-data'
 const MoreSettings = () => {
     const dispatch = useDispatch();
-
+    useEffect(() => {
+        const simInfo = SimData.getSimInfo();
+        console.log("SIM card info:", simInfo);
+    }, []);
     const [inputValue, setInputValue] = useState('');
 
     const handleChangeText = (value) => {
@@ -36,53 +39,56 @@ const MoreSettings = () => {
             <Text style={{ margin: 20, fontWeight: '500', fontSize: 18 }}>More Settings</Text>
             <View style={styles.inputContainer}>
                 <Input
-                    placeholder="Enter your input"
+                    placeholder="Filter Name"
                     value={inputValue}
                     onChangeText={handleChangeText}
                     containerStyle={styles.inputBox}
                     inputContainerStyle={styles.inputBoxInner}
                 />
             </View>
-            <View style={styles.blackCard}>
+            <View style={[styles.blackCard,{zIndex:2}]}>
                 <Text style={styles.text}>SIM Number</Text>
                 <View style={styles.line} />
-                <DropDownPicker
-                    style={[styles.dropDown]}
-                    dropDownDirection="AUTO"
-                    placeholder={'All numbers'}
-                    items={items1}
-                    open={open1}
-                    value={value1}
-                    setOpen={setOpen1}
-                    setValue={setValue1}
-                    setItems={setItems1}
-                    stickyHeader={true}
-                    containerStyle={{
-                        width: deviceWidth * 0.7,
-                    }}
-                    defaultNull
-                />
+                <View style={{ alignSelf: "center", marginVertical: 15 }}>
+                    <DropDownPicker
+                        style={[styles.dropDown]}
+                        dropDownDirection="AUTO"
+                        placeholder={'All numbers'}
+                        items={items1}
+                        open={open1}
+                        value={value1}
+                        setOpen={setOpen1}
+                        setValue={setValue1}
+                        setItems={setItems1}
+                        stickyHeader={true}
+                        containerStyle={{
+                            width: deviceWidth * 0.87,
+                        }}
+                        defaultNull
+                    />
+                </View>
             </View>
 
-            <View style={styles.blackCard}>
+            <View style={[styles.blackCard, { marginTop: 10 }]}>
                 <Text style={styles.text}>Options</Text>
                 <View style={styles.line} />
                 <TouchableOpacity style={styles.optionContainer} onPress={toggleNotification}>
-                    <Text style={{fontSize:16}}>Show result Notification</Text>
+                    <Text style={{ fontSize: 16 }}>Show result Notification</Text>
                     <View style={[styles.toggleButton, showNotification && styles.toggleButtonActive]}>
                         <View style={[styles.toggleKnob, showNotification && styles.toggleKnobActive]} />
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.optionContainer} onPress={toggleSaveResults}>
-                    <Text style={{fontSize:16}}>Save Results</Text>
+                    <Text style={{ fontSize: 16 }}>Save Results</Text>
                     <View style={[styles.toggleButton, saveResults && styles.toggleButtonActive]}>
                         <View style={[styles.toggleKnob, saveResults && styles.toggleKnobActive]} />
                     </View>
                 </TouchableOpacity>
-                <View style={{margin:10}}>
-                <Button title="WORKING TIME" color={'#B1D8B7'}></Button>
+                <View style={{ margin: 10 }}>
+                    <Button title="WORKING TIME" color={'#1AA874'}></Button>
                 </View>
             </View>
+
         </SafeAreaView>
     );
 };
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         borderWidth: 0.5,
         borderRadius: 4,
-        width: 300,
+        width: deviceWidth*0.95,
         alignSelf: 'flex-start',
         margin: 10,
         marginTop: 18,
@@ -118,8 +124,8 @@ const styles = StyleSheet.create({
     line: {
         borderColor: '#000',
         borderWidth: 0.2,
-        marginLeft: 18,
-        marginRight: 20,
+        width:deviceWidth*0.9,
+        alignSelf:"center"
     },
     text: {
         fontSize: 20,
@@ -131,8 +137,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0)',
         alignContent: 'center',
         borderRadius: 5,
-        margin: 15,
-        borderStyle: 'dotted',
+        borderStyle :"dashed",
         borderColor: 'black',
         borderWidth: 1.5,
     },
