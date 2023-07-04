@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Switch, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
-import { FontAwesome5 } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, StyleSheet, Switch, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import Database from "./../database";
 
 const Filters = ({ navigation }) => {
@@ -20,8 +18,12 @@ const Filters = ({ navigation }) => {
             });
     }, [[navigation]])
 
-    const handleToggleChange = (value) => {
-        setToggleValue(value);
+    const handleToggleChange = (id,status) => {
+        let newStatus = "active";
+        if(status === "active"){
+            newStatus = "inactive"
+        }
+        Database.updateFilter(id,newStatus);
     };
 
     const handleImagePress = () => {
@@ -42,21 +44,21 @@ const Filters = ({ navigation }) => {
         <View style={styles.container}>
             <ScrollView>
                 {filter.map((filterItem) => (
-                    <View style={styles.card} key={filterItem.id}>
-                        <TouchableOpacity onPress={()=>{handleFilterNavigation(filterItem.id)}}>
+                    <TouchableOpacity activeOpacity={1} key={filterItem.id} onPress={()=>{handleFilterNavigation(filterItem.id)}}>
+                    <View style={styles.card} >
                             <Text style={styles.cardText}>Filters {filterItem.id}</Text>
-                        </TouchableOpacity>
                         <View style={styles.switchContainer}>
                             <Switch
-                                value={toggleValue}
-                                onValueChange={handleToggleChange}
+                                value={filterItem.status === "active"}
+                                onValueChange={() => handleToggleChange(filterItem?.id, filterItem?.status)}
                                 trackColor={{ false: '#767577', true: 'white' }}
-                                thumbColor={toggleValue ? 'lightgreen' : '#f4f3f4'}
+                                thumbColor={filterItem.status === "active" ? 'lightgreen' : '#f4f3f4'}
                                 ios_backgroundColor="#3e3e3e"
                                 style={styles.switch}
                             />
                         </View>
                     </View>
+                    </TouchableOpacity>
                 ))}
             </ScrollView>
 

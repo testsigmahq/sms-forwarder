@@ -128,6 +128,24 @@ const Database = {
             });
         });
     },
+    updateFilter: (id, status) =>{
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE filters SET status = ? WHERE id = ?',
+                    [status, id],
+                    () => {
+                        console.log(`filter with ID ${id} updated successfully, with value of ${status}`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating filter with ID ${id}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
     fetchAllFilters: () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -503,6 +521,24 @@ const Database = {
                     },
                     (err) => {
                         console.log(`Error occurred while deleting phone number with ID ${phoneNumberId}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+    deleteFilter: (id) =>{
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM filters WHERE id = ?',
+                    [id],
+                    () => {
+                        console.log(`filter with ID ${id} deleted successfully`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while deleting filter with ID ${id}:`, err);
                         reject(err);
                     }
                 );

@@ -7,6 +7,7 @@ import MoreSettings from "../components/slider/more-settings";
 import { View, StyleSheet, Dimensions, TouchableOpacity, Text } from "react-native";
 import CustomHeader from "../components/custom-header";
 import {useNavigation, useRoute} from "@react-navigation/native";
+import Database from "../database";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -23,6 +24,10 @@ const Wrapper = () => {
     const filterIdForFetch = route.params?.filterIdForFetch;
     console.log("id", filterIdForCreate);
 
+    const handleDelete = () => {
+        Database.deleteFilter(filterIdForFetch)
+        navigation.navigate("Filters")
+    };
 
     const component = [
         <Recipients saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
@@ -43,9 +48,15 @@ const Wrapper = () => {
                 <CustomHeader
                     title="Add filter"
                     onPressBackButton={() => navigation.goBack()} />
+                <View style={{flexDirection:"row"}}>
+                    { filterIdForFetch &&
+                        <TouchableOpacity onPress={handleDelete}>
+                        <Text style={{margin: 6, fontSize: 19, fontWeight: '500'}}>Delete</Text>
+                        </TouchableOpacity> }
                 <TouchableOpacity onPress={handleSaveButton}>
                     <Text style={{ margin: 6, fontSize: 19, fontWeight: '500' }}>Save</Text>
                 </TouchableOpacity>
+                </View>
             </View>
             <Carousel
                 data={component}
