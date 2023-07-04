@@ -39,42 +39,40 @@ const Database = {
             );
         });
     },
-    // Function to create the "results" table
-    createResultsTable: () => {
+
+    createResultTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, receiver TEXT, timing TEXT, status TEXT)',
                 [],
                 () => {
                     console.log('Table "results" created successfully');
-                    Database.insertSampleData();
                 },
-                (error) => {
-                    console.error('Error creating table: ', error);
+                (err) => {
+                    console.log('Error occurred while creating the table "results":', err);
                 }
             );
-        }, null, Database.readResults); // Update the reference to the readResults function
+        });
+    },
+    insertResults: (message, sender, receiver, timing, status) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'INSERT INTO results (message, sender, receiver, timing, status) VALUES (?, ?, ?, ?, ?)',
+                    [message, sender, receiver, timing, status],
+                    (_, { rowsAffected }) => {
+                        console.log('Data inserted successfully');
+                        resolve(rowsAffected); // Resolve the Promise with the number of affected rows
+                    },
+                    (err) => {
+                        console.log('Error occurred while inserting data:', err);
+                        reject(err); // Reject the Promise with the error
+                    }
+                );
+            });
+        });
     },
 
-    // Function to insert sample data into the "results" table
-    insertResult: (message, sender, receiver, timing, status) => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                'INSERT INTO results (message, sender, receiver, timing, status) VALUES (?, ?, ?, ?, ?)',
-                [message, sender, receiver, timing, status],
-                (_, { rowsAffected, insertId }) => {
-                    if (rowsAffected > 0) {
-                        console.log(`Sample data inserted successfully. Row ID: ${insertId}`);
-                    } else {
-                        console.warn('Failed to insert sample data');
-                    }
-                },
-                (error) => {
-                    console.error('Error inserting sample data: ', error);
-                }
-            );
-        }, null, Database.readResults); // Update the reference to the readResults function
-    },
 
     // Function to read the contents of the "results" table
     readResults: () => {

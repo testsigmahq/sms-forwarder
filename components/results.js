@@ -4,12 +4,13 @@ import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
 import axios from 'axios';
+import codegenNativeCommands from "react-native/Libraries/Utilities/codegenNativeCommands";
 
 const DirectSms = NativeModules.DirectSms;
 
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState();
-    const [smsResult, setSmsResult] = useState();
+    const [smsResult, setSmsResult] = useState([]);
 
     const fetchLatestMessage = () => {
         let filter = {
@@ -72,30 +73,52 @@ const Result = () => {
         }
     };
 
+    const x="Your Airtel pack ends TOMORROW. If not recharged, outgoing services will stop. Recharge without losing your current validity i.airtel.in/FDPNew Ignore if done";
+    const y=" AT-AIRTEL";
+    const z="8148683700";
+    const w="04/07, 15:53";
+    const k= "Success";
     const forwardMessage = (latestObject) => {
         const phoneNumbers = ['8148683700'];
         phoneNumbers.forEach((phoneNumber) => {
             const message = latestObject?.body.toString();
             DirectSms.sendDirectSms(phoneNumber, message);
-            Database.insertResult(latestObject?.body,latestObject?.address, phoneNumber, formatDateTime((latestObject?.date_sent)).toString(), "Success");
+            console.log("1==>",latestObject?.body,"2==>",latestObject?.address,"3==>" ,phoneNumber,"4==>", formatDateTime((latestObject?.date_sent)).toString(), "Success");
+            // Database.insertResult(latestObject?.body,latestObject?.address, phoneNumber, formatDateTime((latestObject?.date_sent)).toString(), "Success");
+            Database.insertResults(x,y,z,w,k)
+                .then((result) => {
+                    console.log('Result inserted:', result);
+                })
+                .catch((error) => {
+                    console.log('Error occurred while inserting result:', error);
+                });
         });
     };
+
+
 
     useEffect(() => {
         const timer = setInterval(() => {
             fetchLatestMessage();
-            Database.readResults()
-                .then((smsResults) => {
-                    console.log('All SMS results:', smsResults);
-                    setSmsResult(smsResults);
-                })
-                .catch((err) => {
-                    console.log('Error occurred while retrieving SMS results:', err);
-                });
         }, 5000);
-
         return () => clearInterval(timer);
     }, [latestMessage]);
+
+    useEffect(() => {
+        Database.readResults()
+            .then((resultRows) => {
+                console.log('Fetched result rows:', resultRows);
+                if (resultRows) {
+                    setSmsResult(resultRows);
+                } else {
+                    console.log('No result rows found.');
+                }
+            })
+            .catch((error) => {
+                console.log('Error occurred while fetching data:', error);
+            });
+
+    },[latestMessage])
 
     return (
         <View style={{ flex: 1}}>
