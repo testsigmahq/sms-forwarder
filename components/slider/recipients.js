@@ -14,10 +14,14 @@ import {
 import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
 import Database from "../../database";
+import {useNavigation} from "@react-navigation/native";
 
 
 
-const Recipients = ({saveClicked,id}) => {
+const Recipients = ({saveClicked,id,filterIdForCreate}) => {
+
+    const navigation = useNavigation();
+
     const dispatch = useDispatch();
    const [fetch,setFetch]=useState([])
 
@@ -82,7 +86,7 @@ const Recipients = ({saveClicked,id}) => {
     function removeRecipient(index,id,type) {
         const updatedRecipients = [...recipients];
         if(type==="URL"){
-            Database.deleteUrlById(id)
+            Database.deleteUrlById(filterIdForCreate||id )
                 .then(() => {
                     console.log('URL deleted successfully');
                 })
@@ -91,7 +95,7 @@ const Recipients = ({saveClicked,id}) => {
                 });
         }
         else if (type==="Email"){
-            Database.deleteEmailById(id)
+            Database.deleteEmailById(filterIdForCreate||id)
                 .then(() => {
                     console.log('Email deleted successfully');
                 })
@@ -101,7 +105,7 @@ const Recipients = ({saveClicked,id}) => {
         }
         else
         {
-            Database.deletePhoneNumberById(id)
+            Database.deletePhoneNumberById(filterIdForCreate||id)
                 .then(() => {
                     console.log('Phone number deleted successfully');
                 })
@@ -156,7 +160,6 @@ const Recipients = ({saveClicked,id}) => {
                 }
                 result.url.push({ url: text, requestMethod,key ,id:id});
             }
-
             return result;
         }, {});
         console.log("recipientsInfo1" ,recipientsInfo);
@@ -201,21 +204,22 @@ const Recipients = ({saveClicked,id}) => {
         console.log("emailsDefined",emailsDefined)
         console.log("phoneNumbersDefined",phoneNumbersDefined)
         console.log("urlsDefined",urlsDefined)
-
+         console.log("filterIdForCreate",filterIdForCreate);
+        console.log("id",id);
         if(emailsUndefined){
-            Database.insertEmails(emailsUndefined, 1);
+            Database.insertEmails(emailsUndefined, filterIdForCreate || id);
         }
         if(phoneNumbersUndefined){
-            Database.insertPhoneNumbers(phoneNumbersUndefined, 1);
+            Database.insertPhoneNumbers(phoneNumbersUndefined, filterIdForCreate || id);
         }
         if(urlsUndefined) {
-            Database.insertUrls(urlsUndefined.url, 1);
+            Database.insertUrls(urlsUndefined.url, filterIdForCreate || id);
         }
 
       if(urlsDefined.url){
           urlsDefined.url.forEach((urlInfo) => {
             const { id, url, requestMethod, key } = urlInfo;
-            Database.updateUrlById(id, url, requestMethod, key)
+            Database.updateUrlById(id, url, requestMethod, key,filterIdForCreate || id)
                 .then(() => {
                     console.log(`URL with ID ${id} updated successfully`);
                 })
@@ -224,13 +228,15 @@ const Recipients = ({saveClicked,id}) => {
                 });
         });
 
+
         dispatch(SetRecipientsInfo(recipientsInfo));
     }
+
 
       if(emailsDefined){
           emailsDefined.forEach((emailInfo)=>{
               const {id,text}=emailInfo;
-              Database.updateEmailById(id,text).
+              Database.updateEmailById(id,text,filterIdForCreate || id).
               then(()=>console.log(` updating Email with ${id}`));
           })
       }
@@ -238,10 +244,23 @@ const Recipients = ({saveClicked,id}) => {
         if(phoneNumbersDefined){
             phoneNumbersDefined.forEach((NumberInfo)=>{
                 const {id,text}=NumberInfo;
-                Database.updatePhoneNumberById(id,text).
+                Database.updatePhoneNumberById(id,text,filterIdForCreate || id).
                 then(()=>console.log(` updating phoneNumbers with ${id}`));
             })
         }
+
+        if(filterIdForCreate){
+           Database.insertFilter(filterIdForCreate, "active")
+            .then((filter) => {
+                console.log('Inserted filter:', filter.id);
+            })
+            .catch((error) => {
+                console.log('Error occurred:', error);
+            });
+            }
+
+        navigation.navigate("Filters");
+
 
     }
 

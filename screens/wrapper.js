@@ -19,15 +19,16 @@ const Wrapper = () => {
     };
 
     const route = useRoute();
-    const filterId = route.params?.filterId;
-    console.log("id", filterId);
+    const filterIdForCreate = route.params?.filterIdForCreate;
+    const filterIdForFetch = route.params?.filterIdForFetch;
+    console.log("id", filterIdForCreate);
 
 
     const component = [
-        <Recipients saveClicked={saveClicked} id={filterId} />,
-        <ForwardConditions saveClicked={saveClicked} id={filterId}/>,
-        <MessageContents saveClicked={saveClicked} />,
-        <MoreSettings saveClicked={saveClicked} />,
+        <Recipients saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
+        <ForwardConditions saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch}/>,
+        <MessageContents saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
+        <MoreSettings saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
     ];
 
     const [activeSlide, setActiveSlide] = React.useState(0);

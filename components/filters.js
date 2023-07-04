@@ -18,7 +18,7 @@ const Filters = ({ navigation }) => {
             .catch((err) => {
                 console.log('Error occurred:', err);
             });
-    }, [])
+    }, [[navigation]])
 
     const handleToggleChange = (value) => {
         setToggleValue(value);
@@ -29,19 +29,13 @@ const Filters = ({ navigation }) => {
     };
 
     const handleForwardSMS = () => {
-        Database.insertFilter("filter2.0", "inactive")
-            .then((filter) => {
-                console.log('Inserted filter:', filter.id);
-                navigation.navigate('Wrapper', { filterId: filter.id });
-            })
-            .catch((error) => {
-                console.log('Error occurred:', error);
-            });
+        const  length = filter.length;
+        navigation.navigate('Wrapper', { filterIdForCreate: length+1 });
         setShowModal(false);
     };
 
     const handleFilterNavigation = (id) => {
-        navigation.navigate('Wrapper', { filterId: id });
+        navigation.navigate('Wrapper', { filterIdForFetch: id });
     };
 
     return (
