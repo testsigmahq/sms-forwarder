@@ -34,8 +34,8 @@ const Recipients = ({saveClicked,id}) => {
                     console.log('Phone Numbers:', phoneNumbersArray);
                     console.log('URLs:', urlsArray);
 
-                    const combinedArray = emailsArray.concat(urlsArray);
-                    console.log("combinedArray", combinedArray);
+                    const combinedArray = phoneNumbersArray.concat(emailsArray, urlsArray);
+                    console.log("Combined Array:", combinedArray);
                     setFetch(combinedArray);
                 })
                 .catch((err) => {
@@ -238,7 +238,7 @@ const Recipients = ({saveClicked,id}) => {
         if(phoneNumbersDefined){
             phoneNumbersDefined.forEach((NumberInfo)=>{
                 const {id,text}=NumberInfo;
-                Database.updateEmailById(id,text).
+                Database.updatePhoneNumberById(id,text).
                 then(()=>console.log(` updating phoneNumbers with ${id}`));
             })
         }

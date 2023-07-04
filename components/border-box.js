@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {View, Text, Button, StyleSheet, Dimensions, TouchableOpacity, Modal, TextInput, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ContactPicker from "./contact-picker";
+import {Input} from "react-native-elements";
+import DropDownPicker from "react-native-dropdown-picker";
 
 const BorderBox = props => {
     const navigation = useNavigation();
-
+   const [ruleModel,setRuleModel]=useState(false)
     const [showModal, setShowModal] = useState(false);
     const [tap, setTap] = useState(false);
     const [enter,setEnter]=useState(false);
@@ -13,7 +15,8 @@ const BorderBox = props => {
     const [number,setNumber]=useState();
 
     const [messages, setMessages] = useState([]);
-
+    const [ruleMessages,setRuleMessages]=useState([])
+    const [ruleText,setRuleText]=useState([]);
     //validation
     const [inputValidation,setInputValidation]=useState(false);
 
@@ -28,16 +31,40 @@ const BorderBox = props => {
         }
         else {
             setInputValidation(true);
-
         }
         setNumber('');
+    }
+
+    const [open1, setOpen1] = useState(false);
+    const [items1, setItems1] = useState([
+        { label: 'have', value: 'have' },
+        { label: 'have not', value: 'have not' },
+    ]);
+    const [value1, setValue1] = useState('have');
+
+    const [open2, setOpen2] = useState(false);
+    const [items2, setItems2] = useState([
+        { label: 'send', value: 'send' },
+        { label: 'do not send', value: 'do not send' },
+    ]);
+    const [value2, setValue2] = useState('send');
+
+    function handleRuleCondition() {
+        setRuleModel(false);
+        const text1 = "If the message ";
+        const text2 = "it will be sent.";
+
+        if(ruleText){
+            setRuleMessages((prevMessages) => [...prevMessages, text1 + ruleText + ", " + text2])
+        }
+        setRuleText('')
     }
 
     return (
         <View style={styles.blackCard}>
             <Text style={styles.text}>{props.title}</Text>
             <View style={styles.line}></View>
-            {props.content && (
+            {props.rule==="number" && (
                 <View>
                     { messages && messages.map((message, index) => (
                         <View style={styles.cardGreen} key={index}>
@@ -53,6 +80,23 @@ const BorderBox = props => {
                 </View>
                 </View>
             )}
+            {
+                props.rule==="text" && (
+                    <View>
+                        { ruleMessages && ruleMessages.map((message, index) => (
+                            <View style={styles.cardGreen} key={index}>
+                                <Text style={{fontSize:13,color:'green',fontWeight:500}}>Rule {index+1}</Text>
+                                <Text style={{fontSize:12}}>{message}</Text>
+                            </View>
+                        ))}
+                        <View style={styles.addBorder}>
+                        <TouchableOpacity onPress={() => setRuleModel(true)}>
+                            <Text style={styles.addBorderText}>{props.content}</Text>
+                        </TouchableOpacity>
+                        </View>
+                    </View>
+                )
+            }
 
             <Modal visible={showModal} animationType="slide-up" transparent={true}>
                 <View style={styles.modalContainer}>
@@ -66,8 +110,23 @@ const BorderBox = props => {
                                 <Text style={[styles.cardText, styles.underlineText]}>{number ? number :"Tap here"}</Text>
                             </View>
                             </TouchableOpacity>
-                            <View style={styles.card}>
-                                <Text style={styles.modelText}>send</Text>
+                            <View style={[styles.card,{padding: 0, zIndex:2,fontSize:20}]}>
+                                <DropDownPicker
+                                    style={[styles.dropDown]}
+                                    dropDownDirection="AUTO"
+                                    items={items2}
+                                    open={open2}
+                                    value={value2}
+                                    setOpen={setOpen2}
+                                    setValue={setValue2}
+                                    setItems={setItems2}
+                                    stickyHeader={true}
+                                    containerStyle={{
+                                        width: deviceWidth * 0.4,
+                                    }}
+                                    defaultNull
+                                />
+
                             </View>
                             <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
                                 <TouchableOpacity onPress={() => {
@@ -79,6 +138,60 @@ const BorderBox = props => {
                                    handleCondition()
                                 }}>
                                 <Text style={styles.bottom}>OK</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+
+
+
+
+            <Modal visible={ruleModel} animationType="slide-up" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <View>
+                            <View style={styles.card}>
+                                <Text style={styles.modelText}>If the message</Text>
+                            </View>
+                            <TouchableOpacity style={{zIndex:4}}>
+                                <View style={[styles.card,{padding: 0,width: deviceWidth*0.75}]}>
+                                <View style={[{ width: deviceWidth * 0.6, flexDirection: 'row'}]}>
+                                    <View style={[styles.inputContainer]}>
+                                        <Input onChangeText={(text)=>setRuleText(text)} />
+                                        <DropDownPicker
+                                            style={[styles.dropDown,{marginTop:8}]}
+                                            dropDownDirection="AUTO"
+                                            items={items1}
+                                            open={open1}
+                                            value={value1}
+                                            setOpen={setOpen1}
+                                            setValue={setValue1}
+                                            setItems={setItems1}
+                                            stickyHeader={true}
+                                            containerStyle={{
+                                                width: deviceWidth * 0.3,
+                                            }}
+                                            defaultNull
+                                        />
+                                    </View>
+                                </View></View>
+                            </TouchableOpacity>
+                            <View style={styles.card}>
+                                <Text style={styles.modelText}>send</Text>
+                            </View>
+                            <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
+                                <TouchableOpacity onPress={() => {
+                                    setRuleModel(false)
+                                }}>
+                                    <Text style={styles.bottom}>CANCEL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleRuleCondition()
+                                }}>
+                                    <Text style={styles.bottom}>OK</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -193,6 +306,7 @@ const styles = StyleSheet.create({
         borderWidth: 0.2,
         marginLeft: 18,
         marginRight: 20,
+
     },
     text: {
         fontSize: 20,
@@ -262,7 +376,7 @@ const styles = StyleSheet.create({
         margin: 8,
         borderColor:'green',
         borderWidth:0.3,
-        width: deviceWidth * 0.7,
+        width: deviceWidth * 0.8,
     },
     cardText: {
         marginRight: 8,
@@ -303,6 +417,23 @@ const styles = StyleSheet.create({
         height: 25,
         resizeMode: 'contain',
     },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        width:deviceWidth*0.3,
+    },
+    inputLine: {
+        width: 1,
+        height: '80%',
+        backgroundColor: 'black',
+    },
+    dropDown: {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        alignContent: 'stretch',
+        borderWidth:0,
+    },
+
+
 });
 
 export default BorderBox;

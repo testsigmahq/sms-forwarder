@@ -38,8 +38,8 @@ const ForwardConditions = () => {
                     <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
                 </View>
                 <View style={{justifyContent:"center",width:deviceWidth*1}} >
-                <BorderBox  title={"From who"} content={"ADD"} />
-                <BorderBox  title={"Rule for text"} content={"ADD"} />
+                <BorderBox  title={"From who"} content={"ADD"} rule={"number"}/>
+                <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} />
                 </View>
             </View>
             }

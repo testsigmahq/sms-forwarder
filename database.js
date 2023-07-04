@@ -327,7 +327,7 @@ const Database = {
                                     console.log(`Records from table "${tableName}":`);
                                     for (let i = 0; i < len; i++) {
                                         const row = results.rows.item(i);
-                                        console.log('Record:', row);
+                                        // console.log('Record:', row);
 
                                         if (tableName === 'emails') {
                                             records.emails.push({ id: row.id, type:"Email", text: row.email });
