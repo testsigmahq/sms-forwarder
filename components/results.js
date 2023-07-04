@@ -1,40 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, SafeAreaView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Alert, StyleSheet, Dimensions } from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
+import Database from "../database";
 
 var DirectSms = NativeModules.DirectSms;
 
 const Result = () => {
-    const [latestMessage, setLatestMessage] = useState('');
-
-    const content = [
-        {
-            "from": "+918148683700 (Seenivasan)",
-            "to": "8110037728",
-            "body": "added the react-native-loading-spinner-overlay library and imported the Spinner component"
-        },
-        {
-            "from": "+918148683701 (John)",
-            "to": "8110037729",
-            "body": "updated the UI design and fixed layout issues"
-        },
-        {
-            "from": "+918148683702 (Jane)",
-            "to": "8110037730",
-            "body": "implemented authentication logic and user registration feature"
-        },
-        {
-            "from": "+918148683703 (David)",
-            "to": "8110037731",
-            "body": "integrated backend API for data retrieval and storage"
-        },
-        {
-            "from": "+918148683704 (Sarah)",
-            "to": "8110037732",
-            "body": "optimized app performance and reduced loading time"
-        }
-    ]
+    const [latestMessage, setLatestMessage] = useState();
+    const [smsResult, setSmsResult] = useState();
+    let numberOfMessagesFetched = 0;
 
     const fetchLatestMessage = () => {
         let filter = {
@@ -55,34 +30,68 @@ const Result = () => {
                 if (arr.length > 0) {
                     const latestObject = arr[0];
                     console.log('Latest Object: ', latestObject);
-                    console.log('--> ' + latestObject.date);
+                    console.log('--> ' + latestObject.address);
                     console.log('--> ' + latestObject.body);
                     if (latestObject.body !== latestMessage) {
                         setLatestMessage(latestObject.body);
-                        Alert.alert('Received SMS', latestObject.body);
-                        forwardMessage(latestObject.body); // Forward the received message
+                        forwardMessage(latestObject); // Forward the received message
                     }
                 }
             }
         );
     };
 
-    const forwardMessage = (message) => {
-        const phoneNumbers = ['8148683700','6383190648','8610219625','7812831945','8110037728']; // Specify the numbers to forward the message to
-        DirectSms.sendDirectSms(phoneNumbers, message);
-    };
 
+    function formatDateTime(timestamp) {
+        const dateObject = new Date(timestamp.toString());
+        // const dayIndex = dateObject.getDay();
+        // const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        // const day = daysOfWeek[dayIndex];
+        // const formattedDay = day.substring(0, 3);
+        const formattedDateTime = dateObject.toLocaleString('en-GB', { day: '2-digit',month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+        return `${formattedDateTime}`;
+    }
+
+    const forwardMessage = (latestObject) => {
+        const phoneNumbers = ['8148683700'];
+        phoneNumbers.forEach((phoneNumber) => {
+            const message = latestObject?.body.toString();
+            DirectSms.sendDirectSms(phoneNumber, message);
+            Database.insertResult(latestObject?.body,latestObject?.address, phoneNumber, "", "Success");
+        });
+    };
+    // formatDateTime((latestObject?.date_sent)).toString()
     useEffect(() => {
         const timer = setInterval(() => {
             fetchLatestMessage();
+            Database.readResults()
+                .then((smsResults) => {
+                    console.log('All SMS results:', smsResults);
+                    setSmsResult(smsResults);
+                })
+                .catch((err) => {
+                    console.log('Error occurred while retrieving SMS results:', err);
+                });
+
+
         }, 5000);
 
         return () => clearInterval(timer);
     }, [latestMessage]);
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ marginBottom: 16 }}>Latest Received SMS: {latestMessage}</Text>
+        <View style={{ flex: 1}}>
+            {smsResult && smsResult.length > 0 && smsResult.map((result, index) => (
+                <View key={index}><View style={{padding:10}}>
+                    <Text style={{fontWeight:"bold"}}>From : {result.sender}</Text>
+                    <Text style={{fontWeight:"bold"}}>To : {result.receiver}</Text>
+                    <Text>{result.message}</Text>
+                    <Text style={{alignSelf:"flex-end"}}>{result?.timing} , {result.status} </Text>
+                </View>
+                <View style={{borderTopWidth:2}}></View>
+                </View>
+            ))}
         </View>
     );
 };

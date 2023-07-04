@@ -39,6 +39,62 @@ const Database = {
             );
         });
     },
+    // Function to create the "results" table
+    createResultsTable: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, receiver TEXT, timing TEXT, status TEXT)',
+                [],
+                () => {
+                    console.log('Table "results" created successfully');
+                    Database.insertSampleData();
+                },
+                (error) => {
+                    console.error('Error creating table: ', error);
+                }
+            );
+        }, null, Database.readResults); // Update the reference to the readResults function
+    },
+
+    // Function to insert sample data into the "results" table
+    insertResult: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT INTO results (message, sender, receiver, timing, status) VALUES (?, ?, ?, ?, ?)',
+                ['Hello', 'John', 'Jane', '2023-07-03', 'Sent'],
+                (_, { rowsAffected, insertId }) => {
+                    if (rowsAffected > 0) {
+                        console.log(`Sample data inserted successfully. Row ID: ${insertId}`);
+                    } else {
+                        console.warn('Failed to insert sample data');
+                    }
+                },
+                (error) => {
+                    console.error('Error inserting sample data: ', error);
+                }
+            );
+        }, null, Database.readResults); // Update the reference to the readResults function
+    },
+
+    // Function to read the contents of the "results" table
+    readResults: () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM results',
+                    [],
+                    (_, { rows }) => {
+                        const results = rows.raw();
+                        resolve(results);
+                    },
+                    (error) => {
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
     insertFilter: (filterName, status) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {

@@ -26,6 +26,7 @@ export default function App() {
     useEffect(() => {
         Database.initDB();
         Database.createFilterTable();
+        Database.createResultsTable();
         Database.createEmailTable();
         Database.createPhoneNumberTable()
         Database.createUrlTable();
