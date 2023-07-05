@@ -11,12 +11,7 @@ const DirectSms = NativeModules.DirectSms;
 
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
-    const [smsResult, setSmsResult] = useState();
-    const [filtersId, setFiltersId] = useState([]);
-    const [phoneNumbers, setPhoneNumbers] = useState([]);
-    const [emails, setEmails] = useState([]);
-    const [urls, setUrls] = useState([]);
-    const [rules, setRules] = useState([]);
+    const [smsResult, setSmsResult] = useState([]);
     const fetchLatestMessage = () => {
         let filter = {
             box: 'inbox',
@@ -55,7 +50,6 @@ const Result = () => {
 
     const forwardToURL = (method, url, key, message) => {
         const data = { [key]: message };
-
         if (method === 'post') {
             axios
                 .post(url, data)
@@ -77,25 +71,35 @@ const Result = () => {
         }
     };
 
-    async function fetchRecipients(id) {
+    async function fetchRecipients(id, latestObject) {
         try {
             const recipients = await Database.fetchAllRecords(id);
             console.log("recipients : ", recipients);
-
-            setPhoneNumbers(recipients?.phoneNumbers?.map(item => item.text));
-            setEmails(recipients?.emails?.map(item => item.text));
-            setUrls(recipients?.urls);
-
+            if (recipients?.phoneNumbers) {
+                const phoneNumbersRecipient = recipients?.phoneNumbers?.map(item => item.text);
+                DirectSms.sendDirectSms(phoneNumbersRecipient, latestObject.body);
+                for (const phoneNumber of phoneNumbersRecipient) {
+                    await Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                }
+            }
+            if (recipients?.urls) {
+              recipients?.urls?.forEach( (url) => {
+                    forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
+                    Database.insertResults(latestObject?.body, latestObject?.address, url.text, formatDateTime(moment()), "Success");
+                });
+            }
         } catch (error) {
             console.error("Error occurred while fetching recipients:", error);
         }
     }
 
-    async function fetchFilters(status) {
+    async function fetchFilters(status, latestObject) {
         try {
-            const filter = await Database.fetchFiltersByStatus(status);
-            console.log("filters : ", filter);
-            setFiltersId(filter?.map(item => item.id));
+            const filterArray = await Database.fetchFiltersByStatus(status);
+            console.log("filters : ", filterArray);
+            filterArray.forEach((item) => {
+                fetchRecipients(item.id, latestObject)
+            })
         } catch (error) {
             console.error("Error occurred while fetching filters:", error);
         }
@@ -111,43 +115,9 @@ const Result = () => {
         }
     }
 
-    const forwardMessage = async (latestObject) => {
-        await fetchFilters("active");
-
-        if (filtersId) {
-            for (const filterId of filtersId) {
-                await fetchRecipients(filterId);
-                await fetchRules(filterId);
-
-                if (phoneNumbers) {
-                    DirectSms.sendDirectSms(phoneNumbers, latestObject.body);
-
-                    for (const phoneNumber of phoneNumbers) {
-                        await Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
-                    }
-
-                    setPhoneNumbers([]);
-                }
-
-                if (urls) {
-                    const urlPromises = urls.map(async (url) => {
-                        forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
-                        await Database.insertResults(latestObject?.body, latestObject?.address, url.text, formatDateTime(moment()), "Success");
-                    });
-
-                    await Promise.all(urlPromises);
-                    setUrls([]);
-                }
-            }
-        }
+    const forwardMessage =  (latestObject) => {
+        fetchFilters("active", latestObject);
     };
-
-    useEffect(() => {
-        console.log("Phone Numbers result:", phoneNumbers);
-        console.log("Emails result:", emails);
-        console.log("URLs result:", urls);
-    }, [phoneNumbers, emails, urls]);
-
 
     useEffect(() => {
         const timer = setInterval(() => {
