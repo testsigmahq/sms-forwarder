@@ -39,7 +39,7 @@ const BorderBox = props => {
         setShowModal(false);
 
         if (number) {
-            const sendStatus = value1.toLowerCase() === "send";
+            const sendStatus = value2.toLowerCase() === "send";
             const newData = { number, sendStatus };
             setRuleNumber((prevMessages) => [...prevMessages, newData]);
         }

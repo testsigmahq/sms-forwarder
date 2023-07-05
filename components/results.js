@@ -71,16 +71,42 @@ const Result = () => {
         }
     };
 
+    const[number,setNumber]=useState([]);
+    const[ruleText,setRuleText]=useState([]);
     async function fetchRecipients(id, latestObject) {
         try {
             const recipients = await Database.fetchAllRecords(id);
             console.log("recipients : ", recipients);
+            if(id) {
+                Database.fetchAllByRule(id)
+                    .then((records) => {
+                        setNumber(records.senderNumbers);
+                        setRuleText(records.texts);
+                        console.log('Texts:', records.texts);
+                    })
+            }
+
             if (recipients?.phoneNumbers) {
                 const phoneNumbersRecipient = recipients?.phoneNumbers?.map(item => item.text);
-                DirectSms.sendDirectSms(phoneNumbersRecipient, latestObject.body);
-                for (const phoneNumber of phoneNumbersRecipient) {
-                    await Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                if(number) {
+                    number.forEach((number) => {
+                        if (number.sender === latestObject.address.slice(3)) {
+                            if (number.sendStatus === 1) {
+                                DirectSms.sendDirectSms(phoneNumbersRecipient, latestObject.body);
+                                for (const phoneNumber of phoneNumbersRecipient) {
+                                    Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                                }
+                            }
+                        }
+                    })
                 }
+                else {
+                    DirectSms.sendDirectSms(phoneNumbersRecipient, latestObject.body);
+                    for (const phoneNumber of phoneNumbersRecipient) {
+                        Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                    }
+                }
+
             }
             if (recipients?.urls) {
               recipients?.urls?.forEach( (url) => {
