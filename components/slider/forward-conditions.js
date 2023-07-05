@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
 
-const ForwardConditions = ({saveClicked,id}) => {
+const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
     const [forwardCondition, setforwardCondition] = useState(false);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
@@ -35,8 +35,8 @@ const ForwardConditions = ({saveClicked,id}) => {
                     <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
                 </View>
                 <View style={{justifyContent:"center",width:deviceWidth*1}} >
-                <BorderBox  title={"From who"} content={"ADD"} rule={"number"} saveClicked={saveClicked} id={id}/>
-                <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} saveClicked={saveClicked} id={id}/>
+                <BorderBox  title={"From who"} content={"ADD"} rule={"number"} saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
+                <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
                 </View>
             </View>
             }

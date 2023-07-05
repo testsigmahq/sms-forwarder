@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'SMSPoints.db';
+const database_name = 'SMSPointss.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -356,7 +356,7 @@ const Database = {
                 'INSERT INTO change_contents (oldWord, newWord, filter_id) VALUES (?, ?, ?)',
                 [oldWord, newWord, filterId],
                 (_, { insertId }) => {
-                    console.log(`Inserted row with id ${insertId} successfully`);
+                    console.log(`Inserted row with id ${insertId,filterId} successfully`);
                 },
                 (err) => {
                     console.log('Error occurred while inserting into the "change_contents" table:', err);
@@ -365,23 +365,49 @@ const Database = {
         });
     },
 
-     fetchChangeContents : (filterId) => {
+    fetchChangeContents: (filterId) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
                     'SELECT * FROM change_contents WHERE filter_id = ?',
                     [filterId],
-                    (_, { rows }) => {
-                        const changeContents = rows._array;
+                    (_, result) => {
+                        const rows = result.rows;
+                        const changeContents = [];
+                        for (let i = 0; i < rows.length; i++) {
+                            changeContents.push(rows.item(i));
+                        }
+                        console.log('Fetched change_contents:', changeContents);
                         resolve(changeContents);
                     },
                     (_, error) => {
+                        console.log('Error:', error);
                         reject(error);
                     }
                 );
             });
         });
     },
+    deleteChangeContentsById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM change_contents WHERE id = ?',
+                    [id],
+                    (_, result) => {
+                        console.log('Deleted change_contents with id:', id);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+
 
     fetchAllRecords: (filterId) => {
         const tables = ['emails', 'phone_numbers', 'url'];

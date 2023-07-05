@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {View, Text, Button, StyleSheet, Dimensions, TouchableOpacity, Modal, TextInput, Image} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, TextInput, Image} from 'react-native';
 import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
 import Database from "../database";
 
 const BorderBox = props => {
-    const navigation = useNavigation();
    const [ruleModel,setRuleModel]=useState(false)
     const [showModal, setShowModal] = useState(false);
     const [tap, setTap] = useState(false);
@@ -76,21 +74,18 @@ const BorderBox = props => {
         console.log("setRuleMessages",ruleTextTemplate)
     }
     function onSave() {
-        if (ruleNumber) {
-            console.log("message",ruleNumber);
 
             ruleNumber.forEach((ruleNumber) => {
+                if(!ruleNumber.id){
                 Database.insertSenderNumber(ruleNumber.number,ruleNumber.sendStatus,props.filterIdForCreate || props.id);
+                }
             });
-        }
 
-        if (ruleTextTemplate) {
-            console.log("ruleTextTemplate",ruleTextTemplate);
             ruleTextTemplate.forEach((ruleTextTemplate) => {
-                Database.insertText(ruleTextTemplate.text,ruleTextTemplate.sendStatus,props.filterIdForCreate || props.id);
+                if(!ruleTextTemplate.id){
+                Database.insertText(ruleTextTemplate.ruleText,ruleTextTemplate.sendStatus,props.filterIdForCreate || props.id);
+                }
             });
-        }
-
     }
 
         React.useEffect(() => {

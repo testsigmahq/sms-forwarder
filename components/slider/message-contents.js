@@ -1,15 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import CustomHeader from "../custom-header";
 import CheckBox from "../checkbox";
 import {Input} from "react-native-elements";
 import {FontAwesome5} from "@expo/vector-icons";
 import {useDispatch, useSelector} from "react-redux";
 import Database from "../../database";
-const MessageContents = ({saveClicked,id}) => {
+const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
     const navigation = useNavigation();
-    const dispatch = useDispatch();
 
     const intialTemplate = ["From:{incoming Number} {Message Body}"];
     const[template,setTemplate]=useState(intialTemplate);
@@ -21,9 +19,10 @@ const MessageContents = ({saveClicked,id}) => {
         console.log("words",wordPairs);
     };
 
-    const removeField = (index) => {
+    const removeField = (index,id) => {
         const updatedPairs = [...wordPairs];
         updatedPairs.splice(index, 1);
+        Database.deleteChangeContentsById(id);
         setWordPairs(updatedPairs);
     };
     function forward(){
@@ -33,20 +32,25 @@ const MessageContents = ({saveClicked,id}) => {
     const Message = useSelector((state) => {return (state.messageTemplate)});
     console.log("messageTemplate",Message.templateTitle)
 
+
+    useEffect(()=>{
+        if(id) {
+            Database.fetchChangeContents(id)
+                .then((changeContents) => {
+                    console.log('Fetched change_contents:', changeContents);
+                    setWordPairs(changeContents);
+                })
+                .catch((error) => {
+                    console.log('Error occurred while fetching change_contents:', error);
+                });
+        }
+    },[])
     function onSave() {
         wordPairs.forEach((wordPairs)=>{
-            Database.insertChangeContent(wordPairs.oldWord,wordPairs.newWord,1)
+            if(!wordPairs.id) {
+                Database.insertChangeContent(wordPairs.oldWord, wordPairs.newWord, filterIdForCreate || id);
+            }
         })
-
-        Database.fetchChangeContents(1)
-            .then((changeContents) => {
-                console.log('Fetched change_contents:', changeContents);
-                // Process the retrieved data as needed
-            })
-            .catch((error) => {
-                console.log('Error occurred while fetching change_contents:', error);
-            });
-
     }
 
     React.useEffect(() => {
@@ -113,7 +117,7 @@ const MessageContents = ({saveClicked,id}) => {
                                 setWordPairs(updatedPairs);
                             }}
                         />
-                        <TouchableOpacity style={{padding:2}} onPress={() => removeField(index)}>
+                        <TouchableOpacity style={{padding:2}} onPress={() => removeField(index,pair.id)}>
                             <Image source={require('../../assets/minus.png')} style={styles.imageMinus} />
                         </TouchableOpacity>
                     </View>
