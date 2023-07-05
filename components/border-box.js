@@ -15,22 +15,34 @@ const BorderBox = props => {
     const [openContact,setOpenContact]=useState(false);
     const [number,setNumber]=useState();
 
-    const [messages, setMessages] = useState([]);
-    const [ruleMessages,setRuleMessages]=useState([])
-    const [ruleText,setRuleText]=useState([]);
-    //validation
+    const [ruleText,setRuleText]=useState('');
     const [inputValidation,setInputValidation]=useState(false);
-  const [ruleNumber,setRuleNumber]=useState([])
+
+    const [ruleNumber,setRuleNumber]=useState( [])
+    const [ruleTextTemplate,setRuleTextTemplate]=useState([]);
+
+
+    useEffect(() => {
+        if (props.id) {
+            Database.fetchAllByRule(props.id)
+                .then((records) => {
+                    setRuleNumber(records.senderNumbers);
+                    setRuleTextTemplate(records.texts)
+                    console.log('Sender Numbers:', records.senderNumbers);
+                    console.log('Texts:', records.texts);
+                })
+                .catch((error) => {
+                    console.log('Error occurred while fetching records:', error);
+                });
+        }
+    }, []);
+
     function handleCondition() {
         setShowModal(false);
-
-        const text1 = "If the sender is ";
-        const text2 = "it will be sent.";
 
         if (number) {
             const sendStatus = value1.toLowerCase() === "send";
             const newData = { number, sendStatus };
-            setMessages((prevMessages) => [...prevMessages, text1 + number + ", " + text2]);
             setRuleNumber((prevMessages) => [...prevMessages, newData]);
         }
         else {
@@ -53,45 +65,32 @@ const BorderBox = props => {
         { label: 'do not send', value: 'do not send' },
     ]);
     const [value2, setValue2] = useState('send');
-   const [ruleTextTemplate,setRuleTextTemplate]=useState([]);
     function handleRuleCondition() {
         setRuleModel(false);
-        const text1 = "If the message ";
-        const text2 = "it will be sent.";
-
         if(ruleText){
             const sendStatus = value1.toLowerCase() === "send";
             const newData = { ruleText, sendStatus };
-            setRuleMessages((prevMessages) => [...prevMessages, text1 + ruleText + ", " + text2])
             setRuleTextTemplate((prevMessages) => [...prevMessages, newData]);
         }
         setRuleText('')
         console.log("setRuleMessages",ruleTextTemplate)
-
     }
     function onSave() {
         if (ruleNumber) {
-            console.log("message",ruleNumber)
+            console.log("message",ruleNumber);
 
             ruleNumber.forEach((ruleNumber) => {
-                Database.insertSenderNumber(ruleNumber.number,ruleNumber.sendStatus,1);
+                Database.insertSenderNumber(ruleNumber.number,ruleNumber.sendStatus,props.filterIdForCreate || props.id);
             });
         }
 
         if (ruleTextTemplate) {
+            console.log("ruleTextTemplate",ruleTextTemplate);
             ruleTextTemplate.forEach((ruleTextTemplate) => {
-                Database.insertText(ruleTextTemplate.text,ruleTextTemplate.sendStatus,1);
+                Database.insertText(ruleTextTemplate.text,ruleTextTemplate.sendStatus,props.filterIdForCreate || props.id);
             });
         }
 
-        Database.fetchAllByRule(1)
-            .then((records) => {
-                console.log('Sender Numbers:', records.senderNumbers);
-                console.log('Texts:', records.texts);
-            })
-            .catch((error) => {
-                console.log('Error occurred while fetching records:', error);
-            });
     }
 
         React.useEffect(() => {
@@ -106,10 +105,10 @@ const BorderBox = props => {
             <View style={styles.line}></View>
             {props.rule==="number" && (
                 <View>
-                    { messages && messages.map((message, index) => (
+                    { ruleNumber && ruleNumber.map((message, index) => (
                         <View style={styles.cardGreen} key={index}>
                             <Text style={{fontSize:13,color:'green',fontWeight:500}}>Rule {index+1}</Text>
-                            <Text style={{fontSize:12}}>{message}</Text>
+                            <Text style={{ fontSize: 12 }}>{`If the sender is  ${message.number || message.sender}, ${message.sendStatus ? 'it will be sent' : 'it will not be sent'}`}</Text>
                         </View>
                     ))}
 
@@ -123,10 +122,10 @@ const BorderBox = props => {
             {
                 props.rule==="text" && (
                     <View>
-                        { ruleMessages && ruleMessages.map((message, index) => (
+                        { ruleTextTemplate && ruleTextTemplate.map((message, index) => (
                             <View style={styles.cardGreen} key={index}>
                                 <Text style={{fontSize:13,color:'green',fontWeight:500}}>Rule {index+1}</Text>
-                                <Text style={{fontSize:12}}>{message}</Text>
+                                <Text style={{fontSize:12}}>{`If the message content ${message.sendStatus ? 'has':'does not have'} ${message.ruleText ||message.messageText},it will be sent`}</Text>
                             </View>
                         ))}
                         <View style={styles.addBorder}>

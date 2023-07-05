@@ -11,7 +11,8 @@ const MessageContents = ({saveClicked,id}) => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
-
+    const intialTemplate = ["From:{incoming Number} {Message Body}"];
+    const[template,setTemplate]=useState(intialTemplate);
     const [wordPairs, setWordPairs] = useState([]);
     const [exp,setExp]=useState(false);
 
@@ -36,6 +37,16 @@ const MessageContents = ({saveClicked,id}) => {
         wordPairs.forEach((wordPairs)=>{
             Database.insertChangeContent(wordPairs.oldWord,wordPairs.newWord,1)
         })
+
+        Database.fetchChangeContents(1)
+            .then((changeContents) => {
+                console.log('Fetched change_contents:', changeContents);
+                // Process the retrieved data as needed
+            })
+            .catch((error) => {
+                console.log('Error occurred while fetching change_contents:', error);
+            });
+
     }
 
     React.useEffect(() => {
@@ -63,10 +74,10 @@ const MessageContents = ({saveClicked,id}) => {
                 </TouchableOpacity>
                 </View>
                     <View style={styles.line}></View>
-                <View style={{flexDirection:'row'}}>
-                {/*{(Message.templateTitle).map((title,index)=> {*/}
-                {/*   return <Text>{title}</Text>*/}
-                {/*})}*/}
+                <View style={{flexDirection:'row',margin:18,marginTop:0}}>
+                    {(Message.templateTitle || intialTemplate).map((title, index) => {
+                        return <Text style={{fontSize:14,color:'green'}} key={index}>{title}</Text>;
+                    })}
                 </View>
             </View>
 

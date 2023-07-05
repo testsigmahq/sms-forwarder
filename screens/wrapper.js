@@ -22,7 +22,7 @@ const Wrapper = () => {
     const route = useRoute();
     const filterIdForCreate = route.params?.filterIdForCreate;
     const filterIdForFetch = route.params?.filterIdForFetch;
-    console.log("id", filterIdForCreate);
+    console.log("id", filterIdForFetch);
 
     const handleDelete = () => {
         Database.deleteFilter(filterIdForFetch)

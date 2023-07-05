@@ -1,9 +1,9 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'SMSPoint.db';
+const database_name = 'SMSPoints.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
-const database_size = 200000;
+const database_size = 500000000;
 let db;
 
 const Database = {
@@ -365,7 +365,23 @@ const Database = {
         });
     },
 
-
+     fetchChangeContents : (filterId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM change_contents WHERE filter_id = ?',
+                    [filterId],
+                    (_, { rows }) => {
+                        const changeContents = rows._array;
+                        resolve(changeContents);
+                    },
+                    (_, error) => {
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
 
     fetchAllRecords: (filterId) => {
         const tables = ['emails', 'phone_numbers', 'url'];
