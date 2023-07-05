@@ -11,7 +11,6 @@ const Filters = ({ navigation }) => {
         Database.fetchAllFilters()
             .then((filters) => {
                 setFilter(filters);
-                console.log(filters)
             })
             .catch((err) => {
                 console.log('Error occurred:', err);

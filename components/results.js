@@ -5,13 +5,18 @@ import { NativeModules } from 'react-native';
 import Database from "../database";
 import axios from 'axios';
 import codegenNativeCommands from "react-native/Libraries/Utilities/codegenNativeCommands";
+import moment from "moment";
 
 const DirectSms = NativeModules.DirectSms;
 
 const Result = () => {
-    const [latestMessage, setLatestMessage] = useState();
-    const [smsResult, setSmsResult] = useState([]);
-
+    const [latestMessage, setLatestMessage] = useState("");
+    const [smsResult, setSmsResult] = useState();
+    const [filtersId, setFiltersId] = useState([]);
+    const [phoneNumbers, setPhoneNumbers] = useState([]);
+    const [emails, setEmails] = useState([]);
+    const [urls, setUrls] = useState([]);
+    const [rules, setRules] = useState([]);
     const fetchLatestMessage = () => {
         let filter = {
             box: 'inbox',
@@ -21,7 +26,7 @@ const Result = () => {
         SmsAndroid.list(
             JSON.stringify(filter),
             (fail) => {
-                console.log('Failed with this error: ' + fail);
+                console.log('Failed with this error: ', fail);
             },
             (count, smsList) => {
                 console.log('Count: ', count);
@@ -31,12 +36,11 @@ const Result = () => {
                 if (arr.length > 0) {
                     const latestObject = arr[0];
                     console.log('Latest Object: ', latestObject);
-                    console.log('--> ' + latestObject.address);
-                    console.log('--> ' + latestObject.body);
+                    console.log('--> ' , latestObject.address);
+                    console.log('--> ' , latestObject.body);
                     if (latestObject.body !== latestMessage) {
                         setLatestMessage(latestObject.body);
                         forwardMessage(latestObject); // Forward the received message
-                        forwardToURL("post","https://eom75b24cll8i0l.m.pipedream.net/","key",latestObject?.body);
                     }
                 }
             }
@@ -73,28 +77,76 @@ const Result = () => {
         }
     };
 
-    const x="Your Airtel pack ends TOMORROW. If not recharged, outgoing services will stop. Recharge without losing your current validity i.airtel.in/FDPNew Ignore if done";
-    const y=" AT-AIRTEL";
-    const z="8148683700";
-    const w="04/07, 15:53";
-    const k= "Success";
-    const forwardMessage = (latestObject) => {
-        const phoneNumbers = ['8148683700'];
-        phoneNumbers.forEach((phoneNumber) => {
-            const message = latestObject?.body.toString();
-            DirectSms.sendDirectSms(phoneNumber, message);
-            console.log("1==>",latestObject?.body,"2==>",latestObject?.address,"3==>" ,phoneNumber,"4==>", formatDateTime((latestObject?.date_sent)).toString(), "Success");
-            // Database.insertResult(latestObject?.body,latestObject?.address, phoneNumber, formatDateTime((latestObject?.date_sent)).toString(), "Success");
-            Database.insertResults(x,y,z,w,k)
-                .then((result) => {
-                    console.log('Result inserted:', result);
-                })
-                .catch((error) => {
-                    console.log('Error occurred while inserting result:', error);
-                });
-        });
+    async function fetchRecipients(id) {
+        try {
+            const recipients = await Database.fetchAllRecords(id);
+            console.log("recipients : ", recipients);
+
+            setPhoneNumbers(recipients?.phoneNumbers?.map(item => item.text));
+            setEmails(recipients?.emails?.map(item => item.text));
+            setUrls(recipients?.urls);
+
+        } catch (error) {
+            console.error("Error occurred while fetching recipients:", error);
+        }
+    }
+
+    async function fetchFilters(status) {
+        try {
+            const filter = await Database.fetchFiltersByStatus(status);
+            console.log("filters : ", filter);
+            setFiltersId(filter?.map(item => item.id));
+        } catch (error) {
+            console.error("Error occurred while fetching filters:", error);
+        }
+    }
+
+    async function fetchRules(id) {
+        try {
+            const rule = await  Database.fetchAllByRule(id);
+            console.log("rules : ", rule);
+            setRules(rule);
+        } catch (error) {
+            console.error("Error occurred while fetching filters:", error);
+        }
+    }
+
+    const forwardMessage = async (latestObject) => {
+        await fetchFilters("active");
+
+        if (filtersId) {
+            for (const filterId of filtersId) {
+                await fetchRecipients(filterId);
+                await fetchRules(filterId);
+
+                if (phoneNumbers) {
+                    DirectSms.sendDirectSms(phoneNumbers, latestObject.body);
+
+                    for (const phoneNumber of phoneNumbers) {
+                        await Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                    }
+
+                    setPhoneNumbers([]);
+                }
+
+                if (urls) {
+                    const urlPromises = urls.map(async (url) => {
+                        forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
+                        await Database.insertResults(latestObject?.body, latestObject?.address, url.text, formatDateTime(moment()), "Success");
+                    });
+
+                    await Promise.all(urlPromises);
+                    setUrls([]);
+                }
+            }
+        }
     };
 
+    useEffect(() => {
+        console.log("Phone Numbers result:", phoneNumbers);
+        console.log("Emails result:", emails);
+        console.log("URLs result:", urls);
+    }, [phoneNumbers, emails, urls]);
 
 
     useEffect(() => {

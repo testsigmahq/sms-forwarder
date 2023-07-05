@@ -155,6 +155,41 @@ const Database = {
                         const filters = [];
 
                         if (len > 0) {
+                            // console.log(`Total filters found: ${len}`);
+                            for (let i = 0; i < len; i++) {
+                                const row = results.rows.item(i);
+                                filters.push({
+                                    id: row.id,
+                                    filterName: row.filter_name,
+                                    status: row.status,
+                                });
+                            }
+                        } else {
+                            console.log('No filters found.');
+                        }
+
+                        resolve(filters);
+                    },
+                    (err) => {
+                        console.log('Error occurred while fetching filters:', err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
+    fetchFiltersByStatus: (status) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM filters WHERE status = ?',
+                    [status],
+                    (tx, results) => {
+                        const len = results.rows.length;
+                        const filters = [];
+
+                        if (len > 0) {
                             console.log(`Total filters found: ${len}`);
                             for (let i = 0; i < len; i++) {
                                 const row = results.rows.item(i);
@@ -509,7 +544,6 @@ const Database = {
                 });
         });
     },
-
 
     deleteEmailById: (emailId) => {
         return new Promise((resolve, reject) => {
