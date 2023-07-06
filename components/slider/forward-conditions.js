@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions} from 'react-native';
+import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions, ScrollView} from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
@@ -11,7 +11,7 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
 
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>Forwarding conditions</Text>
 
             <View style={styles.headerCard}>
@@ -34,13 +34,13 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
                         isChecked={useWildcards} />
                     <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
                 </View>
-                <View style={{justifyContent:"center",width:deviceWidth*1}} >
+                <View style={{justifyContent:"center",width:deviceWidth}} >
                 <BorderBox  title={"From who"} content={"ADD"} rule={"number"} saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
                 <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
                 </View>
             </View>
             }
-        </SafeAreaView>
+        </ScrollView>
     );
 };
 const deviceWidth = Math.round(Dimensions.get('window').width);

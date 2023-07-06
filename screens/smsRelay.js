@@ -46,6 +46,26 @@ function SmsRelay({ navigation }) {
             console.warn(err);
         }
     }
+    async function requestReadSMSPermission() {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_SMS,
+                {
+                    title: 'Camera Permission',
+                    message: 'App needs access to your camera.',
+                    buttonPositive: 'OK',
+                    buttonNegative: 'Cancel',
+                },
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('Camera permission granted');
+            } else {
+                console.log('Camera permission denied');
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    }
 
     async function requestContactsPermission() {
         try {
@@ -90,11 +110,22 @@ function SmsRelay({ navigation }) {
     }
 
     useEffect(() => {
-        requestSMSPermission();
-        requestStoragePermission();
-        requestTelephonePermission();
-        requestContactsPermission();
-    },[])
+        const requestPermissions = async () => {
+            try {
+                await Promise.all([
+                    requestSMSPermission(),
+                    requestStoragePermission(),
+                    requestTelephonePermission(),
+                    requestContactsPermission(),
+                    requestReadSMSPermission(),
+                ]);
+            } catch (err) {
+                console.warn(err);
+            }
+        };
+
+        requestPermissions().then(r => console.log(r));
+    }, []);
 
     return (
         <View style={styles.container}>

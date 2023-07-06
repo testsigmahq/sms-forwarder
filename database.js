@@ -165,7 +165,7 @@ const Database = {
                                 });
                             }
                         } else {
-                            console.log('No filters found.');
+                            // console.log('No filters found.');
                         }
 
                         resolve(filters);

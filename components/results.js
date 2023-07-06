@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, Alert, StyleSheet, Dimensions, ScrollView} from 'react-native';
+import {View, Text, Alert, StyleSheet, Dimensions, ScrollView, PermissionsAndroid} from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
@@ -12,6 +12,32 @@ const DirectSms = NativeModules.DirectSms;
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const [smsResult, setSmsResult] = useState([]);
+
+    useEffect(() => {
+        requestReadSMSPermission()
+    },[])
+
+    async function requestReadSMSPermission() {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_SMS,
+                {
+                    title: 'SMS Read Permission',
+                    message: 'App needs access to read SMS.',
+                    buttonPositive: 'OK',
+                    buttonNegative: 'Cancel',
+                },
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('Read SMS permission granted');
+            } else {
+                console.log('Read SMS permission denied');
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    }
+
     const fetchLatestMessage = () => {
         let filter = {
             box: 'inbox',
@@ -71,48 +97,86 @@ const Result = () => {
         }
     };
 
-    const[number,setNumber]=useState([]);
-    const[ruleText,setRuleText]=useState([]);
+    async function canForwardMessage(id, latestObject){
+        const rule = await  Database.fetchAllByRule(id);
+        console.log("rules : ", rule);
+        let booleanValue = false;
+        if(rule.senderNumbers.length > 0 || rule.texts.length > 0) {
+            if (rule.senderNumbers.length > 0) {
+                console.log("inside sender rule");
+                rule.senderNumbers.forEach((number) => {
+                    console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,",latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
+                    if (number.sender === latestObject.address.slice(3) && number.sendStatus === "1") {
+                        console.log("inside sender number status 1");
+                        booleanValue = true;
+                    }
+                })
+            }
+            if (rule.texts.length > 0) {
+                console.log("inside text rule");
+                for (const text of rule.texts) {
+                    if (text.sendStatus === "1" && !latestObject?.body.includes(text.messageText)) {
+                        booleanValue = false;
+                        console.log("before return 1 statement , ", text.messageText, booleanValue);
+                        return;
+                    }
+                    if (text.sendStatus === "0" && latestObject?.body.includes(text.messageText)) {
+                        booleanValue = false;
+                        console.log("before return 0 statement , ", text.messageText, booleanValue);
+                        return;
+                    }
+                    booleanValue = true;
+                    console.log("before else , ", text.messageText, booleanValue);
+                }
+            }
+        }
+        else {
+            console.log("inside else no text and sender rule");
+            booleanValue = true;
+        }
+        console.log("before booleanValue return : \t ", booleanValue)
+        return booleanValue;
+    }
+
+    async  function changeMessageText(id,latestObject){
+        let newMessage = latestObject?.body;
+        const changeContent = await Database.fetchChangeContents(id);
+        console.log("Change content : \t ", changeContent);
+        if(changeContent.length > 0){
+            console.log("inside change content ");
+            changeContent.forEach((content) => {
+                if (newMessage.includes(content.oldWord)){
+                    console.log("inside content with oldWord :\t", content.oldWord);
+                    newMessage = newMessage.replace(content.oldWord, content.newWord);
+                }
+            })
+        }
+        newMessage = `From : ${latestObject?.address} \n` + newMessage;
+        console.log("before returning newMessage : ", newMessage);
+        return newMessage;
+    }
     async function fetchRecipients(id, latestObject) {
         try {
             const recipients = await Database.fetchAllRecords(id);
             console.log("recipients : ", recipients);
-            if(id) {
-                Database.fetchAllByRule(id)
-                    .then((records) => {
-                        setNumber(records.senderNumbers);
-                        setRuleText(records.texts);
-                        console.log('Texts:', records.texts);
-                    })
-            }
-
+            let messageCondition = await canForwardMessage(id, latestObject);
+            let newMessage = await changeMessageText(id,latestObject);
             if (recipients?.phoneNumbers) {
                 const phoneNumbersRecipient = recipients?.phoneNumbers?.map(item => item.text);
-                if(number) {
-                    number.forEach((number) => {
-                        if (number.sender === latestObject.address.slice(3)) {
-                            if (number.sendStatus === 1) {
-                                DirectSms.sendDirectSms(phoneNumbersRecipient, latestObject.body);
-                                for (const phoneNumber of phoneNumbersRecipient) {
-                                    Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
-                                }
-                            }
-                        }
-                    })
-                }
-                else {
-                    DirectSms.sendDirectSms(phoneNumbersRecipient, latestObject.body);
+                if (messageCondition) {
+                    DirectSms.sendDirectSms(phoneNumbersRecipient, newMessage);
                     for (const phoneNumber of phoneNumbersRecipient) {
-                        Database.insertResults(latestObject?.body, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                        await Database.insertResults(newMessage, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
                     }
                 }
-
             }
             if (recipients?.urls) {
-              recipients?.urls?.forEach( (url) => {
-                    forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
-                    Database.insertResults(latestObject?.body, latestObject?.address, url.text, formatDateTime(moment()), "Success");
-                });
+                if (messageCondition) {
+                    recipients?.urls?.forEach((url) => {
+                        forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
+                        Database.insertResults(newMessage, latestObject?.address, url.text, formatDateTime(moment()), "Success");
+                    });
+                }
             }
         } catch (error) {
             console.error("Error occurred while fetching recipients:", error);
@@ -131,16 +195,6 @@ const Result = () => {
         }
     }
 
-    async function fetchRules(id) {
-        try {
-            const rule = await  Database.fetchAllByRule(id);
-            console.log("rules : ", rule);
-            setRules(rule);
-        } catch (error) {
-            console.error("Error occurred while fetching filters:", error);
-        }
-    }
-
     const forwardMessage =  (latestObject) => {
         fetchFilters("active", latestObject);
     };
@@ -148,25 +202,21 @@ const Result = () => {
     useEffect(() => {
         const timer = setInterval(() => {
             fetchLatestMessage();
+            Database.readResults()
+                .then((resultRows) => {
+                    console.log('Fetched result rows:', resultRows);
+                    if (resultRows) {
+                        setSmsResult(resultRows);
+                    } else {
+                        console.log('No result rows found.');
+                    }
+                })
+                .catch((error) => {
+                    console.log('Error occurred while fetching data:', error);
+                });
         }, 5000);
         return () => clearInterval(timer);
     }, [latestMessage]);
-
-    useEffect(() => {
-        Database.readResults()
-            .then((resultRows) => {
-                console.log('Fetched result rows:', resultRows);
-                if (resultRows) {
-                    setSmsResult(resultRows);
-                } else {
-                    console.log('No result rows found.');
-                }
-            })
-            .catch((error) => {
-                console.log('Error occurred while fetching data:', error);
-            });
-
-    },[latestMessage])
 
     return (
         <View style={{ flex: 1}}>

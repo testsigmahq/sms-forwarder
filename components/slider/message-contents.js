@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, ScrollView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CheckBox from "../checkbox";
 import {Input} from "react-native-elements";
@@ -60,7 +60,7 @@ const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
     }, [saveClicked]);
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Change the content</Text>
                 <Text style={styles.subtitle}>
@@ -127,7 +127,7 @@ const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
                     <Image source={require('../../assets/plus.png')} style={styles.imageIcon} />
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </ScrollView>
     );
 };
 
