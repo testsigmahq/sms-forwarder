@@ -5,7 +5,8 @@ import messageTemplate from "./message-template";
 
 const rootReducer = combineReducers({
     recipients,
-    messageTemplate
+    messageTemplate,
+    google,
 })
 
 export default rootReducer;

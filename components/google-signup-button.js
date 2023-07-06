@@ -1,14 +1,21 @@
 import React from 'react';
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-google-signin/google-signin';
-import {Button, Dimensions, View} from "react-native";
-
+import { Dimensions, View} from "react-native";
+import {googleInfo} from '../redux/actions/setUpRecipients';
+import {useDispatch} from "react-redux";
 
 const GoogleSignupButton = ({ onSignup }) => {
+    const dispatch = useDispatch();
     const handleGoogleSignup = async () => {
+
         try {
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
             onSignup(userInfo);
+            console.log("userInfo",userInfo);
+            if(userInfo){
+                dispatch(googleInfo(userInfo));
+            }
             const { serverAuthCode } = await GoogleSignin.getTokens();
             console.log('Authorization Code:', serverAuthCode);
         } catch (error) {
@@ -23,7 +30,6 @@ const GoogleSignupButton = ({ onSignup }) => {
             }
         }
     };
-
 
     return (
         <View>

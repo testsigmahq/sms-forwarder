@@ -4,14 +4,20 @@ import { Input } from 'react-native-elements';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {useDispatch} from "react-redux";
 import SimData from 'react-native-sim-data'
-const MoreSettings = () => {
+import Database from "../../database";
+const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
     const dispatch = useDispatch();
     useEffect(() => {
         const simInfo = SimData.getSimInfo();
         console.log("SIM card info:", simInfo);
     }, []);
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState();
 
+    useEffect(()=>{
+        if(id) {
+            Database.filterById(id).then((res)=>setInputValue(`Filter ${res.id}`));
+        }
+    },[]);
     const handleChangeText = (value) => {
         setInputValue(value);
     };

@@ -4,7 +4,9 @@ import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
 import axios from 'axios';
-import codegenNativeCommands from "react-native/Libraries/Utilities/codegenNativeCommands";
+import { encode } from 'base-64';
+import {useSelector} from "react-redux";
+import google from "../redux/reducers/google";
 import moment from "moment";
 
 const DirectSms = NativeModules.DirectSms;
@@ -12,6 +14,7 @@ const DirectSms = NativeModules.DirectSms;
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const [smsResult, setSmsResult] = useState([]);
+    const [accessToken,setAccessToken]=useState('')
 
     useEffect(() => {
         requestReadSMSPermission()
@@ -178,6 +181,14 @@ const Result = () => {
                     });
                 }
             }
+            if (recipients?.emails) {
+                if (messageCondition) {
+                    recipients.emails.forEach((email) => {
+                        sendEmail(email.text,latestObject?.address, newMessage)
+                        Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success");
+                    })
+                }
+            }
         } catch (error) {
             console.error("Error occurred while fetching recipients:", error);
         }
@@ -217,6 +228,69 @@ const Result = () => {
         }, 5000);
         return () => clearInterval(timer);
     }, [latestMessage]);
+
+    const api = useSelector((state) => {return (state.google)});
+    console.log("api",api.googleInfo.serverAuthCode)
+
+    const sendEmail = async (to, from,text) => {
+        const config = {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        const email = {
+            to: to,
+            subject: ` From: ${from} - SMS Forwarder`,
+            text: text,
+        };
+        try {
+            const response = await axios.post('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
+                raw: createRawMessage(email),
+            }, config);
+            console.log('Email sent:', response.data);
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+    };
+
+    const getAccessToken = async () => {
+        try {
+            const response = await axios.post('https://oauth2.googleapis.com/token', {
+                code: api.googleInfo.serverAuthCode,
+                client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
+                client_secret: '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',
+                redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
+                grant_type: 'authorization_code',
+            });
+            const { access_token, refresh_token } = response.data;
+            setAccessToken(access_token);
+            console.log('Access Token:', access_token);
+            console.log('Refresh Token:', refresh_token);
+        } catch (error) {
+            console.error('Error retrieving access token:', error);
+        }
+    };
+
+    const createRawMessage = (email) => {
+        const message = [
+            `From: ${email.from}`,
+            `To: ${email.to}`,
+            `Subject: ${email.subject}`,
+            '',
+            `${email.text}`,
+        ].join('\r\n');
+
+        const base64EncodedMessage = encode(message);
+
+        return base64EncodedMessage;
+    };
+
+
+    useEffect(()=>{
+        getAccessToken();
+    },[])
+
 
     return (
         <View style={{ flex: 1}}>

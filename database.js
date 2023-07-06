@@ -178,6 +178,31 @@ const Database = {
             });
         });
     },
+    filterById: (filterId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM filters WHERE id = ?',
+                    [filterId],
+                    (tx, queryResult) => {
+                        if (queryResult.rows.length > 0) {
+                            const record = queryResult.rows.item(0);
+                            console.log('Filter fetched successfully:');
+                            console.log('Filter:', record);
+                            resolve(record);
+                        } else {
+                            console.log('Filter not found.');
+                            resolve(null);
+                        }
+                    },
+                    (err) => {
+                        console.log('Error occurred while fetching the filter:', err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
 
     fetchFiltersByStatus: (status) => {
         return new Promise((resolve, reject) => {
