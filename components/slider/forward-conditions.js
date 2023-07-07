@@ -3,40 +3,57 @@ import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions, ScrollView} fr
 import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
+import Database from "../../database";
 
 const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
-    const [forwardCondition, setforwardCondition] = useState(false);
+    const [forwardCondition, setForwardCondition] = useState(false);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
 
+    React.useEffect(() => {
+        if (saveClicked) {
+            onSave();
+        }
+    }, [saveClicked]);
 
+    useEffect(() => {
+       async function fetchFilter(){
+          let filter = await Database.fetchFilters(id);
+          // console.log("filters ==> //", filter)
+          setForwardCondition(filter?.forward_all === "1" )
+       }
+       fetchFilter();
+    },[])
+
+    function  onSave(){
+        Database.updateFilterForCondition(id,forwardCondition);
+    }
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Forwarding conditions</Text>
 
             <View style={styles.headerCard}>
                 <CheckBox
-                    onPress={() => setforwardCondition(!forwardCondition)}
+                    onPress={() => setForwardCondition(!forwardCondition)}
                     isChecked={forwardCondition} />
                 <Text style={styles.headerCardText}>Forward all messages</Text>
             </View>
 
             {!forwardCondition && <View style={styles.card}>
-                <View style={styles.checkboxRow}>
-                    <CheckBox
-                        onPress={() => setIgnoreCase(!ignoreCase)}
-                        isChecked={ignoreCase} />
-                    <Text style={styles.checkboxLabel}>Ignore case sensitive</Text>
-                </View>
-                <View style={styles.checkboxRow}>
-                    <CheckBox
-                        onPress={() => setUseWildcards(!useWildcards)}
-                        isChecked={useWildcards} />
-                    <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>
-                </View>
+                {/*<View style={styles.checkboxRow}>*/}
+                {/*    <CheckBox*/}
+                {/*        onPress={() => setIgnoreCase(!ignoreCase)}*/}
+                {/*        isChecked={ignoreCase} />*/}
+                {/*    <Text style={styles.checkboxLabel}>Ignore case sensitive</Text>*/}
+                {/*</View>*/}
+                {/*<View style={styles.checkboxRow}>*/}
+                {/*    <CheckBox*/}
+                {/*        onPress={() => setUseWildcards(!useWildcards)}*/}
+                {/*        isChecked={useWildcards} />*/}
+                {/*    <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>*/}
+                {/*</View>*/}
                 <View style={{justifyContent:"center",width:deviceWidth}} >
-                <BorderBox  title={"From who"} content={"ADD"} rule={"number"} saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
-                <BorderBox  title={"Rule for text"} content={"ADD"} rule={"text"} saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
+                <BorderBox saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
                 </View>
             </View>
             }

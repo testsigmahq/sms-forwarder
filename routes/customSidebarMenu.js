@@ -15,13 +15,13 @@ const handleGoogleSignout = async () => {
     await GoogleSignin.revokeAccess();
     await GoogleSignin.signOut();
   } catch (error) {
-    console.log('Google sign-out error:', error);
+    // console.log('Google sign-out error:', error);
   }
 };
 const CustomSidebarMenu = props => {
   const route = useRoute();
   let userDetails = route.params?.user;
-  console.log("userdetails ==>", userDetails)
+  // console.log("userdetails ==>", userDetails)
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={{alignSelf:"center", marginVertical:20}}>

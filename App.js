@@ -32,6 +32,7 @@ export default function App() {
         Database.createTextTable();
         Database.createChangeContentTable();
         Database.createResultTable();
+        Database.createSettings();
     }, []);
 
 

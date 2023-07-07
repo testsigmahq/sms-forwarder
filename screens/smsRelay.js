@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BottomTabs from '../components/bottom-tabs';
 import { PermissionsAndroid } from 'react-native';
+import Database from "../database";
 
 function SmsRelay({ navigation }) {
 
@@ -17,9 +18,9 @@ function SmsRelay({ navigation }) {
                 },
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Camera permission granted');
+                // console.log('Send SMS permission granted');
             } else {
-                console.log('Camera permission denied');
+                // console.log('Send SMS permission denied');
             }
         } catch (err) {
             console.warn(err);
@@ -38,9 +39,9 @@ function SmsRelay({ navigation }) {
                 },
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Camera permission granted');
+                // console.log('Storage permission granted');
             } else {
-                console.log('Camera permission denied');
+                // console.log('Storage permission denied');
             }
         } catch (err) {
             console.warn(err);
@@ -58,9 +59,9 @@ function SmsRelay({ navigation }) {
                 },
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Camera permission granted');
+                // console.log('Read SMS permission granted');
             } else {
-                console.log('Camera permission denied');
+                // console.log('Read SMS permission denied');
             }
         } catch (err) {
             console.warn(err);
@@ -79,9 +80,9 @@ function SmsRelay({ navigation }) {
                 },
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Camera permission granted');
+                // console.log('Contacts permission granted');
             } else {
-                console.log('Camera permission denied');
+                // console.log('Contacts permission denied');
             }
         } catch (err) {
             console.warn(err);
@@ -100,9 +101,9 @@ function SmsRelay({ navigation }) {
                 },
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Camera permission granted');
+                // console.log('Telephone permission granted');
             } else {
-                console.log('Camera permission denied');
+                // console.log('Telephone permission denied');
             }
         } catch (err) {
             console.warn(err);
@@ -127,14 +128,19 @@ function SmsRelay({ navigation }) {
         requestPermissions().then(r => console.log(r));
     }, []);
 
+    async function handleDeleteAll(){
+        await  Database.deleteResults();
+    }
+
+
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
-                <View style={{ flexDirection: 'row', flex: 1 }}>
+                <View style={{ flexDirection: 'row', flex: 1, width:"100%" }}>
                     <TouchableOpacity
                         testID="left-navigator"
                         name="NavigationBar"
-                        style={{ width: 70, height: 70 }}
+                        style={{ width: "15%", height: "15%" }}
                         onPress={() => navigation.openDrawer()}
                     >
                         <View>
@@ -143,7 +149,9 @@ function SmsRelay({ navigation }) {
                             <View style={[styles.line, { width: 20 }]} />
                         </View>
                     </TouchableOpacity>
-
+                    {/*<TouchableOpacity onPress={handleDeleteAll()} style={{flex:1, alignItems:"flex-end" }}>*/}
+                    {/*   <Text> hi </Text>*/}
+                    {/*</TouchableOpacity>*/}
                     <View style={styles.content}>
                         {/* Your main content goes here */}
                     </View>

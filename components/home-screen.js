@@ -10,7 +10,7 @@ const HomeScreen = () => {
 
     const handleGoogleSignup = (userInfo) => {
         setIsLoading(true);
-        console.log('Google user info:', userInfo);
+        // console.log('Google user info:', userInfo);
         setTimeout(() => {
             setIsLoading(false);
             navigation.navigate('DrawerStack',{ user: userInfo});

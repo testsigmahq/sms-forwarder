@@ -13,7 +13,7 @@ const Filters = ({ navigation }) => {
                 setFilter(filters);
             })
             .catch((err) => {
-                console.log('Error occurred:', err);
+                // console.log('Error occurred:', err);
             });
     }, [[navigation]])
 
@@ -22,11 +22,12 @@ const Filters = ({ navigation }) => {
         if(status === "active"){
             newStatus = "inactive"
         }
-        Database.updateFilter(id,newStatus);
+        Database.updateFilterForStatus(id,newStatus);
     };
 
     const handleImagePress = () => {
-        setShowModal(true);
+        // setShowModal(true);
+        handleForwardSMS();
     };
 
     const handleForwardSMS = () => {
@@ -67,17 +68,17 @@ const Filters = ({ navigation }) => {
                 </View>
             </TouchableOpacity>
 
-            <Modal visible={showModal} animationType="none" transparent={true}>
-                <View style={styles.modalContainer}>
-                    <View style={[styles.modalContent]}>
-                        <Text style={styles.modalTitle}>Add filter</Text>
-                        <TouchableOpacity onPress={handleForwardSMS}>
-                            <Text style={styles.modalText}>Forward SMS</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.modalText}>Forward Notification</Text>
-                    </View>
-                </View>
-            </Modal>
+            {/*<Modal visible={showModal} animationType="none" transparent={true}>*/}
+            {/*    <View style={styles.modalContainer}>*/}
+            {/*        <View style={[styles.modalContent]}>*/}
+            {/*            <Text style={styles.modalTitle}>Add filter</Text>*/}
+            {/*            <TouchableOpacity onPress={handleForwardSMS}>*/}
+            {/*                <Text style={styles.modalText}>Forward SMS</Text>*/}
+            {/*            </TouchableOpacity>*/}
+            {/*            <Text style={styles.modalText}>Forward Notification</Text>*/}
+            {/*        </View>*/}
+            {/*    </View>*/}
+            {/*</Modal>*/}
         </View>
     );
 };

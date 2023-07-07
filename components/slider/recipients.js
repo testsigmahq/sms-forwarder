@@ -35,12 +35,12 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
                     const phoneNumbersArray = result.phoneNumbers;
                     const urlsArray = result.urls;
 
-                    console.log('Emails:', emailsArray);
-                    console.log('Phone Numbers:', phoneNumbersArray);
-                    console.log('URLs:', urlsArray);
+                    // console.log('Emails:', emailsArray);
+                    // console.log('Phone Numbers:', phoneNumbersArray);
+                    // console.log('URLs:', urlsArray);
 
                     const combinedArray = phoneNumbersArray.concat(emailsArray, urlsArray);
-                    console.log("Combined Array:", combinedArray);
+                    // console.log("Combined Array:", combinedArray);
                     setFetch(combinedArray);
                 })
                 .catch((err) => {
@@ -51,7 +51,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
 
     useEffect(() => {
         setRecipients(fetch);
-        console.log("fetch",fetch)
+        // console.log("fetch",fetch)
     }, [fetch]);
 
     const [showModal, setShowModal] = useState(false);
@@ -89,29 +89,29 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
         if(type==="URL"){
             Database.deleteUrlById(filterIdForCreate||id )
                 .then(() => {
-                    console.log('URL deleted successfully');
+                    // console.log('URL deleted successfully');
                 })
                 .catch((err) => {
-                    console.log('Error occurred while deleting URL:', err);
+                    // console.log('Error occurred while deleting URL:', err);
                 });
         }
         else if (type==="Email"){
             Database.deleteEmailById(filterIdForCreate||id)
                 .then(() => {
-                    console.log('Email deleted successfully');
+                    // console.log('Email deleted successfully');
                 })
                 .catch((err) => {
-                    console.log('Error occurred while deleting email:', err);
+                    // console.log('Error occurred while deleting email:', err);
                 });
         }
         else
         {
             Database.deletePhoneNumberById(filterIdForCreate||id)
                 .then(() => {
-                    console.log('Phone number deleted successfully');
+                    // console.log('Phone number deleted successfully');
                 })
                 .catch((err) => {
-                    console.log('Error occurred while deleting phone number:', err);
+                    // console.log('Error occurred while deleting phone number:', err);
                 });
         }
         updatedRecipients.splice(index, 1);
@@ -200,11 +200,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
                     url: urlObj.url,
                 })) ?? [],
         };
-        console.log("emailsDefined",emailsDefined)
-        console.log("phoneNumbersDefined",phoneNumbersDefined)
-        console.log("urlsDefined",urlsDefined)
-         console.log("filterIdForCreate",filterIdForCreate);
-        console.log("id",id);
+        // console.log("emailsDefined",emailsDefined)
+        // console.log("phoneNumbersDefined",phoneNumbersDefined)
+        // console.log("urlsDefined",urlsDefined)
+        //  console.log("filterIdForCreate",filterIdForCreate);
+        // console.log("id",id);
         if(emailsUndefined){
             Database.insertEmails(emailsUndefined, filterIdForCreate || id);
         }
@@ -220,10 +220,10 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
             const { id, url, requestMethod, key } = urlInfo;
             Database.updateUrlById(id, url, requestMethod, key,filterIdForCreate || id)
                 .then(() => {
-                    console.log(`URL with ID ${id} updated successfully`);
+                    // console.log(`URL with ID ${id} updated successfully`);
                 })
                 .catch((error) => {
-                    console.log(`Error occurred while updating URL with ID ${id}:`, error);
+                    // console.log(`Error occurred while updating URL with ID ${id}:`, error);
                 });
         });
 
@@ -265,8 +265,9 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
             setError(true)
         }
     }
-    function handleClose(){
+    async function handleClose(){
         setError(false);
+        await Database.deleteFilter(id);
     }
 
     return (

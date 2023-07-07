@@ -8,7 +8,7 @@ const ContactPicker = () => {
 
     useEffect(() => {
         Contacts.getAll().then((contacts) => {
-            console.log(contacts);
+            // console.log(contacts);
             setContacts(contacts);
         });
     }, []);
@@ -18,7 +18,7 @@ const ContactPicker = () => {
     };
 
     const handleContactPress = (contact) => {
-        console.log('Contact pressed:', contact);
+        // console.log('Contact pressed:', contact);
         // Handle the contact press event here
     };
 
@@ -26,7 +26,7 @@ const ContactPicker = () => {
         return <Contact contact={item} onPress={handleContactPress} />;
     };
 
-    console.log('Contacts:', contacts);
+    // console.log('Contacts:', contacts);
 
     return (
         <FlatList

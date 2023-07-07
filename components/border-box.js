@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, TextInput, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -12,43 +12,31 @@ const BorderBox = props => {
     const [enter,setEnter]=useState(false);
     const [openContact,setOpenContact]=useState(false);
     const [number,setNumber]=useState();
-
+    const [senderId, setSenderId] = useState([]);
+    const [textId, setTextId] = useState([]);
+    const [editSender, setEditSender] = useState(false);
+    const [editText, setEditText] = useState(false);
     const [ruleText,setRuleText]=useState('');
     const [inputValidation,setInputValidation]=useState(false);
 
     const [ruleNumber,setRuleNumber]=useState( [])
     const [ruleTextTemplate,setRuleTextTemplate]=useState([]);
-
-
+    const [editId, setEditId] = useState(0);
     useEffect(() => {
         if (props.id) {
             Database.fetchAllByRule(props.id)
                 .then((records) => {
                     setRuleNumber(records.senderNumbers);
                     setRuleTextTemplate(records.texts)
-                    console.log('Sender Numbers:', records.senderNumbers);
-                    console.log('Texts:', records.texts);
+                    // console.log('Sender Numbers:', records.senderNumbers);
+                    // console.log('Texts:', records.texts);
                 })
                 .catch((error) => {
-                    console.log('Error occurred while fetching records:', error);
+                    // console.log('Error occurred while fetching records:', error);
                 });
         }
     }, []);
 
-    function handleCondition() {
-        setShowModal(false);
-
-        if (number) {
-            const sendStatus = value2.toLowerCase() === "send";
-            const newData = { number, sendStatus };
-            setRuleNumber((prevMessages) => [...prevMessages, newData]);
-        }
-        else {
-            setInputValidation(true);
-        }
-        setNumber('');
-        console.log("message",ruleNumber)
-    }
 
     const [open1, setOpen1] = useState(false);
     const [items1, setItems1] = useState([
@@ -56,7 +44,6 @@ const BorderBox = props => {
         { label: 'have not', value: 'have not' },
     ]);
     const [value1, setValue1] = useState('have');
-
     const [open2, setOpen2] = useState(false);
     const [items2, setItems2] = useState([
         { label: 'send', value: 'send' },
@@ -65,72 +52,178 @@ const BorderBox = props => {
     const [value2, setValue2] = useState('send');
     function handleRuleCondition() {
         setRuleModel(false);
-        if(ruleText){
-            const sendStatus = value1.toLowerCase() === "send";
+        if(!editText && ruleText){
+            const sendStatus = value1.toLowerCase() === "have";
+            // console.log("without edit check",sendStatus)
             const newData = { ruleText, sendStatus };
             setRuleTextTemplate((prevMessages) => [...prevMessages, newData]);
+            // console.log("\n\n rule texts \n\n", ruleTextTemplate)
+        }
+        if (editText && ruleText) {
+            const updatedPairs = [...ruleTextTemplate];
+            if (updatedPairs[editId].id) {
+                updatedPairs[editId].sendStatus = value1.toLowerCase() === "have" ? "1" : "0";
+                updatedPairs[editId].messageText = ruleText;
+            } else if (!updatedPairs[editId].id) {
+                updatedPairs[editId].sendStatus = value1.toLowerCase() === "have";
+                updatedPairs[editId].ruleText = ruleText;
+            }
+            setRuleTextTemplate(updatedPairs);
+            // console.log("\n\n rule texts \n\n", ruleTextTemplate)
         }
         setRuleText('')
-        console.log("setRuleMessages",ruleTextTemplate)
-    }
-    function onSave() {
-
-            ruleNumber.forEach((ruleNumber) => {
-                if(!ruleNumber.id){
-                Database.insertSenderNumber(ruleNumber.number,ruleNumber.sendStatus,props.filterIdForCreate || props.id);
-                }
-            });
-
-            ruleTextTemplate.forEach((ruleTextTemplate) => {
-                if(!ruleTextTemplate.id){
-                Database.insertText(ruleTextTemplate.ruleText,ruleTextTemplate.sendStatus,props.filterIdForCreate || props.id);
-                }
-            });
     }
 
-        React.useEffect(() => {
+    function handleCondition() {
+        setShowModal(false);
+        if (!editSender && number) {
+            const sendStatus = value2.toLowerCase() === "send";
+            const newData = { number, sendStatus };
+            setRuleNumber((prevMessages) => [...prevMessages, newData]);
+        }
+        if (editSender && number) {
+            const updatedPairs = [...ruleNumber];
+            if (updatedPairs[editId].id) {
+                updatedPairs[editId].sendStatus = value2.toLowerCase() === "send" ? "1" : "0";
+                updatedPairs[editId].sender = number;
+            } else if (!updatedPairs[editId].id) {
+                updatedPairs[editId].sendStatus = value2.toLowerCase() === "send";
+                updatedPairs[editId].number = number;
+            }
+            setRuleNumber(updatedPairs);
+        }
+        setNumber('');
+    }
+
+    async function onSave() {
+        // console.log("rulenumber s \n\n check this \n\n", ruleNumber);
+        for (const rule of ruleNumber) {
+            if (!rule.id) {
+                // console.log("\n\n if check ruleNumber : \n\n", rule);
+                await Database.insertSenderNumber(rule.number, rule.sendStatus, props.filterIdForCreate || props.id);
+            } else if (rule.id) {
+                // console.log("\n\n if check iiiddd ruleNumber : \n\n ", rule);
+                await Database.updateSenderNumber(rule.id, rule.sender, rule.sendStatus);
+                // let sendNumbers = await Database.fetchAllSender();
+                // console.log("\n\n all senders details : \n\n", sendNumbers)
+            }
+        }
+
+        for (const rule of ruleTextTemplate) {
+            if (!rule.id) {
+                // console.log("\n\n if check ruleTextTemplate : \n\n", rule);
+                await Database.insertText(rule.ruleText, rule.sendStatus, props.filterIdForCreate || props.id);
+            } else if (rule.id) {
+                // console.log("\n\n if check iiddd ruleTextTemplate : \n\n", rule);
+                await Database.updateTextTable(rule.id, rule.ruleText, rule.sendStatus);
+                // let text = await Database.fetchAllText();
+                // console.log("\n\n all senders details : \n\n", text)
+            }
+        }
+        // console.log("sender ids :\t" , senderId)
+        for (const id of senderId) {
+            await Database.deleteSenderById(id);
+        }
+        // console.log("sender ids :\t" , textId)
+        for (const id of textId) {
+            await Database.deleteTextById(id);
+        }
+    }
+
+
+    React.useEffect(() => {
         if (props.saveClicked) {
             onSave();
         }
     }, [props.saveClicked]);
 
+    function handleEditSender(index,message){
+        setEditId(index)
+        setNumber(message.number || message.sender)
+        setEditSender(true);
+        setShowModal(true);
+        setValue2(message.sendStatus === "1" ? "send" : "don't send");
+    }
+
+    function handleEditText(index, message){
+        setEditId(index)
+        setRuleText(message.ruleText ||message.messageText)
+        setEditText(true);
+        setRuleModel(true);
+        setValue1(message.sendStatus === "1" ? "have" : "don't have");
+    }
+
+    function handleDelete(type){
+        if (type === "sender"){
+            const updatedPairs = [...ruleNumber];
+            if(updatedPairs[editId].id){
+                setSenderId(prevState => [...prevState,updatedPairs[editId].id])
+            }
+            updatedPairs.splice(editId,1)
+            setRuleNumber(updatedPairs)
+            setEditSender(false)
+            setNumber('')
+            setShowModal(false)
+        }
+        if (type === "text"){
+            const updatedPairs = [...ruleTextTemplate];
+            if(updatedPairs[editId].id){
+                setTextId(prevState => [...prevState,updatedPairs[editId].id])
+            }
+            updatedPairs.splice(editId,1)
+            setRuleTextTemplate(updatedPairs)
+            setEditText(false)
+            setRuleText('')
+            setRuleModel(false)
+        }
+    }
+
     return (
+        <View>
         <View style={styles.blackCard}>
-            <Text style={styles.text}>{props.title}</Text>
+            <Text style={styles.text}>From who</Text>
             <View style={styles.line}></View>
-            {props.rule==="number" && (
                 <View>
                     { ruleNumber && ruleNumber.map((message, index) => (
-                        <View style={styles.cardGreen} key={index}>
+                       <TouchableOpacity activeOpacity={1} key={index}
+                                         onPress={() => handleEditSender(index,message)}
+                       >
+                        <View style={styles.cardGreen} >
                             <Text style={{fontSize:13,color:'green',fontWeight:500}}>Rule {index+1}</Text>
-                            <Text style={{ fontSize: 12 }}>{`If the sender is  ${message.number || message.sender}, ${message.sendStatus ? 'it will be sent' : 'it will not be sent'}`}</Text>
+                            <Text style={{ fontSize: 12 }}>{`If the sender is  ${message.number || message.sender}, ${message.id ? message.sendStatus === "1"  ? 'it will be sent' : 'it will not be sent' : message.sendStatus ? 'it will be sent' : 'it will not be sent'}`}</Text>
                         </View>
+                       </TouchableOpacity>
                     ))}
 
                     <View style={styles.addBorder}>
                     <TouchableOpacity onPress={() => setShowModal(true)}>
-                        <Text style={styles.addBorderText}>{props.content}</Text>
+                        <Text style={styles.addBorderText}>ADD</Text>
                     </TouchableOpacity>
                 </View>
                 </View>
-            )}
-            {
-                props.rule==="text" && (
-                    <View>
-                        { ruleTextTemplate && ruleTextTemplate.map((message, index) => (
-                            <View style={styles.cardGreen} key={index}>
+        </View>
+
+            <View style={styles.blackCard}>
+                <Text style={styles.text}>Rule for text</Text>
+                <View style={styles.line}></View>
+                <View>
+                    { ruleTextTemplate && ruleTextTemplate.map((message, index) => (
+                        <TouchableOpacity activeOpacity={1} key={index}
+                                          onPress={() => handleEditText(index, message)}
+                        >
+                            <View style={styles.cardGreen}>
                                 <Text style={{fontSize:13,color:'green',fontWeight:500}}>Rule {index+1}</Text>
-                                <Text style={{fontSize:12}}>{`If the message content ${message.sendStatus ? 'has':'does not have'} ${message.ruleText ||message.messageText},it will be sent`}</Text>
+                                <Text style={{fontSize:12}}>{`If the message content ${message.id ? message.sendStatus === "1" ? 'has':'does not have' : message.sendStatus ? 'has':'does not have'} ${message.ruleText ||message.messageText},it will be sent`}</Text>
                             </View>
-                        ))}
-                        <View style={styles.addBorder}>
-                        <TouchableOpacity onPress={() => setRuleModel(true)}>
-                            <Text style={styles.addBorderText}>{props.content}</Text>
                         </TouchableOpacity>
-                        </View>
+                    ))}
+                    <View style={styles.addBorder}>
+                        <TouchableOpacity onPress={() => setRuleModel(true)}>
+                            <Text style={styles.addBorderText}>ADD</Text>
+                        </TouchableOpacity>
                     </View>
-                )
-            }
+                </View>
+            </View>
 
             <Modal visible={showModal} animationType="slide-up" transparent={true}>
                 <View style={styles.modalContainer}>
@@ -163,22 +256,33 @@ const BorderBox = props => {
 
                             </View>
                             <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
+                                { editSender &&
+                                    <TouchableOpacity style={{alignSelf:"flex-start"}}
+                                                      onPress={() => {handleDelete("sender")}}
+                                    >
+                                        <Text style={styles.bottom}>DELETE</Text>
+                                    </TouchableOpacity>}
+
                                 <TouchableOpacity onPress={() => {
+                                    setEditSender(false)
                                     setShowModal(false)
+                                    setNumber('')
                                 }}>
                                     <Text style={styles.bottom}>CANCEL</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {
                                    handleCondition()
+                                    setEditSender(false)
                                 }}>
-                                <Text style={styles.bottom}>OK</Text>
+                                <Text style={styles.bottom} >OK</Text>
                                 </TouchableOpacity>
+
+
                             </View>
                         </View>
                     </View>
                 </View>
             </Modal>
-
 
 
             <Modal visible={ruleModel} animationType="slide-up" transparent={true}>
@@ -192,7 +296,7 @@ const BorderBox = props => {
                                 <View style={[styles.card,{padding: 0,width: deviceWidth*0.75}]}>
                                 <View style={[{ width: deviceWidth * 0.6, flexDirection: 'row'}]}>
                                     <View style={[styles.inputContainer]}>
-                                        <Input onChangeText={(text)=>setRuleText(text)} />
+                                        <Input onChangeText={(text)=>setRuleText(text)} value={ruleText} />
                                         <DropDownPicker
                                             style={[styles.dropDown,{marginTop:8}]}
                                             dropDownDirection="AUTO"
@@ -216,13 +320,20 @@ const BorderBox = props => {
                                 <Text style={styles.modelText}>send</Text>
                             </View>
                             <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
+                                { editText &&
+                                    <TouchableOpacity style={{alignSelf:"flex-start"}} onPress={() => {handleDelete("text")}}>
+                                        <Text style={styles.bottom}>DELETE</Text>
+                                    </TouchableOpacity>}
                                 <TouchableOpacity onPress={() => {
                                     setRuleModel(false)
+                                    setEditText(false)
+                                    setRuleText('')
                                 }}>
                                     <Text style={styles.bottom}>CANCEL</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {
                                     handleRuleCondition()
+                                    setEditText(false)
                                 }}>
                                     <Text style={styles.bottom}>OK</Text>
                                 </TouchableOpacity>

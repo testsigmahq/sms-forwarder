@@ -32,12 +32,12 @@ const Result = () => {
                 },
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Read SMS permission granted');
+                // console.log('Read SMS permission granted');
             } else {
-                console.log('Read SMS permission denied');
+                // console.log('Read SMS permission denied');
             }
         } catch (err) {
-            console.warn(err);
+            // console.warn(err);
         }
     }
 
@@ -50,18 +50,18 @@ const Result = () => {
         SmsAndroid.list(
             JSON.stringify(filter),
             (fail) => {
-                console.log('Failed with this error: ', fail);
+                // console.log('Failed with this error: ', fail);
             },
             (count, smsList) => {
-                console.log('Count: ', count);
-                console.log('List: ', smsList);
+                // console.log('Count: ', count);
+                // console.log('List: ', smsList);
                 var arr = JSON.parse(smsList);
 
                 if (arr.length > 0) {
                     const latestObject = arr[0];
-                    console.log('Latest Object: ', latestObject);
-                    console.log('--> ' , latestObject.address);
-                    console.log('--> ' , latestObject.body);
+                    // console.log('Latest Object: ', latestObject);
+                    // console.log('--> ' , latestObject.address);
+                    // console.log('--> ' , latestObject.body);
                     if (latestObject.body !== latestMessage) {
                         setLatestMessage(latestObject.body);
                         forwardMessage(latestObject); // Forward the received message
@@ -83,85 +83,86 @@ const Result = () => {
             axios
                 .post(url, data)
                 .then(response => {
-                    console.log('SMS forwarded successfully:', response.data);
+                    // console.log('SMS forwarded successfully:', response.data);
                 })
                 .catch(error => {
-                    console.error('Failed to forward SMS:', error);
+                    // console.error('Failed to forward SMS:', error);
                 });
         } else if (method === 'get') {
             axios
                 .get(url)
                 .then(response => {
-                    console.log('SMS forwarded successfully:', response.data);
+                    // console.log('SMS forwarded successfully:', response.data);
                 })
                 .catch(error => {
-                    console.error('Failed to forward SMS:', error);
+                    // console.error('Failed to forward SMS:', error);
                 });
         }
     };
 
     async function canForwardMessage(id, latestObject){
         const rule = await  Database.fetchAllByRule(id);
-        console.log("rules : ", rule);
+        // console.log("rules : ", rule);
         let booleanValue = false;
-        if(rule.senderNumbers.length > 0 || rule.texts.length > 0) {
+        const forwardCondition = await Database.fetchFilters(id)
+        if((rule.senderNumbers.length > 0 || rule.texts.length > 0) && forwardCondition.forward_all === "0" ) {
             if (rule.senderNumbers.length > 0) {
-                console.log("inside sender rule");
+                // console.log("inside sender rule");
                 rule.senderNumbers.forEach((number) => {
-                    console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,",latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
+                    // console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,",latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
                     if (number.sender === latestObject.address.slice(3) && number.sendStatus === "1") {
-                        console.log("inside sender number status 1");
+                        // console.log("inside sender number status 1");
                         booleanValue = true;
                     }
                 })
             }
             if (rule.texts.length > 0) {
-                console.log("inside text rule");
+                // console.log("inside text rule");
                 for (const text of rule.texts) {
                     if (text.sendStatus === "1" && !latestObject?.body.includes(text.messageText)) {
                         booleanValue = false;
-                        console.log("before return 1 statement , ", text.messageText, booleanValue);
+                        // console.log("before return 1 statement , ", text.messageText, booleanValue);
                         return;
                     }
                     if (text.sendStatus === "0" && latestObject?.body.includes(text.messageText)) {
                         booleanValue = false;
-                        console.log("before return 0 statement , ", text.messageText, booleanValue);
+                        // console.log("before return 0 statement , ", text.messageText, booleanValue);
                         return;
                     }
                     booleanValue = true;
-                    console.log("before else , ", text.messageText, booleanValue);
+                    // console.log("before else , ", text.messageText, booleanValue);
                 }
             }
         }
         else {
-            console.log("inside else no text and sender rule");
+            // console.log("inside else no text and sender rule");
             booleanValue = true;
         }
-        console.log("before booleanValue return : \t ", booleanValue)
+        // console.log("before booleanValue return : \t ", booleanValue)
         return booleanValue;
     }
 
     async  function changeMessageText(id,latestObject){
         let newMessage = latestObject?.body;
         const changeContent = await Database.fetchChangeContents(id);
-        console.log("Change content : \t ", changeContent);
+        // console.log("Change content : \t ", changeContent);
         if(changeContent.length > 0){
-            console.log("inside change content ");
+            // console.log("inside change content ");
             changeContent.forEach((content) => {
                 if (newMessage.includes(content.oldWord)){
-                    console.log("inside content with oldWord :\t", content.oldWord);
+                    // console.log("inside content with oldWord :\t", content.oldWord);
                     newMessage = newMessage.replace(content.oldWord, content.newWord);
                 }
             })
         }
         newMessage = `From : ${latestObject?.address} \n` + newMessage;
-        console.log("before returning newMessage : ", newMessage);
+        // console.log("before returning newMessage : ", newMessage);
         return newMessage;
     }
     async function fetchRecipients(id, latestObject) {
         try {
             const recipients = await Database.fetchAllRecords(id);
-            console.log("recipients : ", recipients);
+            // console.log("recipients : ", recipients);
             let messageCondition = await canForwardMessage(id, latestObject);
             let newMessage = await changeMessageText(id,latestObject);
             if (recipients?.phoneNumbers) {
@@ -190,19 +191,19 @@ const Result = () => {
                 }
             }
         } catch (error) {
-            console.error("Error occurred while fetching recipients:", error);
+            // console.error("Error occurred while fetching recipients:", error);
         }
     }
 
     async function fetchFilters(status, latestObject) {
         try {
             const filterArray = await Database.fetchFiltersByStatus(status);
-            console.log("filters : ", filterArray);
+            // console.log("filters : ", filterArray);
             filterArray.forEach((item) => {
                 fetchRecipients(item.id, latestObject)
             })
         } catch (error) {
-            console.error("Error occurred while fetching filters:", error);
+            // console.error("Error occurred while fetching filters:", error);
         }
     }
 
@@ -215,15 +216,15 @@ const Result = () => {
             fetchLatestMessage();
             Database.readResults()
                 .then((resultRows) => {
-                    console.log('Fetched result rows:', resultRows);
+                    // console.log('Fetched result rows:', resultRows);
                     if (resultRows) {
                         setSmsResult(resultRows);
                     } else {
-                        console.log('No result rows found.');
+                        // console.log('No result rows found.');
                     }
                 })
                 .catch((error) => {
-                    console.log('Error occurred while fetching data:', error);
+                    // console.log('Error occurred while fetching data:', error);
                 });
         }, 5000);
         return () => clearInterval(timer);

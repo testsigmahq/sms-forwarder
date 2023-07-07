@@ -160,15 +160,15 @@ const DrawerStack = () => {
             {/*        name: "setting-name"*/}
             {/*    }}*/}
             {/*/>*/}
-            <Drawer.Screen
-                name="Setting"
-                component={Setting}
-                options={{
-                    ...drawerOptionSetting,
-                    id: "setting-id",
-                    name: "setting-name"
-                }}
-            />
+            {/*<Drawer.Screen*/}
+            {/*    name="Setting"*/}
+            {/*    component={Setting}*/}
+            {/*    options={{*/}
+            {/*        ...drawerOptionSetting,*/}
+            {/*        id: "setting-id",*/}
+            {/*        name: "setting-name"*/}
+            {/*    }}*/}
+            {/*/>*/}
             {/*<Drawer.Screen*/}
             {/*    name="FAQ"*/}
             {/*    component={Setting}*/}

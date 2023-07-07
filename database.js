@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'SMSPointss.db';
+const database_name = 'SMSPoint.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -19,7 +19,7 @@ const Database = {
     },
 
     openCB: () => {
-        console.log('Database opened');
+        // console.log('Database opened');
     },
 
     errorCB: (err) => {
@@ -28,7 +28,7 @@ const Database = {
     createFilterTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS filters (id INTEGER PRIMARY KEY AUTOINCREMENT, filter_name TEXT, status TEXT)',
+                'CREATE TABLE IF NOT EXISTS filters (id INTEGER PRIMARY KEY AUTOINCREMENT, filter_name TEXT, status TEXT,  forward_all TEXT)',
                 [],
                 () => {
                     console.log('Table "filters" created successfully');
@@ -97,7 +97,7 @@ const Database = {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    'INSERT INTO filters (filter_name, status) VALUES (?, ?)',
+                    'INSERT INTO filters (filter_name, status, forward_all) VALUES (?, ?, "1")',
                     [filterName, status],
                     (tx, insertResult) => {
                         const { insertId } = insertResult;
@@ -126,12 +126,30 @@ const Database = {
             });
         });
     },
-    updateFilter: (id, status) =>{
+    updateFilterForStatus: (id, status) =>{
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
                     'UPDATE filters SET status = ? WHERE id = ?',
                     [status, id],
+                    () => {
+                        console.log(`filter with ID ${id} updated successfully, with value of ${status}`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating filter with ID ${id}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+    updateFilterForCondition: (id, forward) =>{
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE filters SET forward_all = ? WHERE id = ?',
+                    [forward, id],
                     () => {
                         console.log(`filter with ID ${id} updated successfully, with value of ${status}`);
                         resolve();
@@ -350,6 +368,131 @@ const Database = {
             );
         });
     },
+
+    deleteSenderById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM sender_numbers WHERE id = ?',
+                    [id],
+                    (_, result) => {
+                        console.log('Deleted sender_numbers with id:', id);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+    deleteResults: () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM results',
+                    [],
+                    (_, result) => {
+                        console.log('Deleted all rows from "results" table');
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+    fetchAllSender: () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM sender_numbers',
+                    [],
+                    (_, result) => {
+                        const rows = result.rows;
+                        const senderNumbers = [];
+
+                        for (let i = 0; i < rows.length; i++) {
+                            senderNumbers.push(rows.item(i));
+                        }
+
+                        console.log('Retrieved all rows from "sender_numbers" table:', senderNumbers);
+                        resolve(senderNumbers);
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+
+    fetchAllText: () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM texts',
+                    [],
+                    (_, result) => {
+                        const rows = result.rows;
+                        const texts = [];
+
+                        for (let i = 0; i < rows.length; i++) {
+                            texts.push(rows.item(i));
+                        }
+
+                        console.log('Retrieved all rows from "texts" table:', texts);
+                        resolve(texts);
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+
+    deleteTextById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM texts WHERE id = ?',
+                    [id],
+                    (_, result) => {
+                        console.log('Deleted texts with id:', id);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+    createSettings: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY AUTOINCREMENT, activate TEXT, notification TEXT, save TEXT)',
+                [],
+                () => {
+                    console.log('Table "settings" created successfully');
+                },
+                (err) => {
+                    console.log('Error occurred while creating the table "settings":', err);
+                }
+            );
+        });
+    },
     insertSenderNumber: (sender, sendStatus, filterId) => {
         db.transaction((tx) => {
             tx.executeSql(
@@ -381,6 +524,37 @@ const Database = {
             );
         });
     },
+
+    updateTextTable: (id, text, sendStatus) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'UPDATE texts SET messageText = ? , sendStatus = ? WHERE id = ? ',
+                [text, sendStatus, id],
+                () => {
+                    console.log('Table "texts" updated successfully');
+                },
+                (err) => {
+                    console.log('Error occurred while creating the table "texts":', err);
+                }
+            );
+        });
+    },
+
+    updateSenderNumber: (id, sender, sendStatus) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'UPDATE sender_numbers SET sender = ? , sendStatus = ? WHERE id = ? ',
+                [sender, sendStatus, id],
+                () => {
+                    console.log('Table "number" updated successfully');
+                },
+                (err) => {
+                    console.log('Error occurred while creating the table "number":', err);
+                }
+            );
+        });
+    },
+
     insertText: (messageText, sendStatus, filterId) => {
         db.transaction((tx) => {
             tx.executeSql(
@@ -448,6 +622,31 @@ const Database = {
             });
         });
     },
+
+    fetchFilters: (filterId) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM filters WHERE id = ?',
+                    [filterId],
+                    (_, result) => {
+                        const rows = result.rows;
+                        const changeContents = [];
+                        for (let i = 0; i < rows.length; i++) {
+                            changeContents.push(rows.item(i));
+                        }
+                        console.log('Fetched change_contents:', changeContents);
+                        resolve(changeContents);
+                    },
+                    (_, error) => {
+                        console.log('Error:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
     deleteChangeContentsById: (id) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {

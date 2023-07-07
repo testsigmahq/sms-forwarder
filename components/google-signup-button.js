@@ -17,16 +17,16 @@ const GoogleSignupButton = ({ onSignup }) => {
                 dispatch(googleInfo(userInfo));
             }
             const { serverAuthCode } = await GoogleSignin.getTokens();
-            console.log('Authorization Code:', serverAuthCode);
+            // console.log('Authorization Code:', serverAuthCode);
         } catch (error) {
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                console.log('Sign-in cancelled');
+                // console.log('Sign-in cancelled');
             } else if (error.code === statusCodes.IN_PROGRESS) {
-                console.log('Sign-in in progress');
+                // console.log('Sign-in in progress');
             } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                console.log('Play services not available');
+                // console.log('Play services not available');
             } else {
-                console.log('Error signing in:', error);
+                // console.log('Error signing in:', error);
             }
         }
     };
