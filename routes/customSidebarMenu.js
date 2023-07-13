@@ -24,16 +24,16 @@ const CustomSidebarMenu = props => {
   // console.log("userdetails ==>", userDetails)
   return (
     <SafeAreaView style={{flex: 1}}>
-      <View style={{alignSelf:"center", marginVertical:20}}>
-        <Image
-            source={{ uri: userDetails.user.photo }}
-            style={{ width: 100, height: 100, borderRadius:50 }}
-        />
-      </View>
+      {/*<View style={{alignSelf:"center", marginVertical:20}}>*/}
+      {/*  <Image*/}
+      {/*      source={{ uri: userDetails?.user?.photo }}*/}
+      {/*      style={{ width: 100, height: 100, borderRadius:50 }}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      <View style={{alignSelf:"center", marginVertical:10}}>
-        <Text style={{fontWeight:"500"}}>{userDetails.user.givenName} {userDetails.user.familyName}</Text>
-      </View>
+      {/*<View style={{alignSelf:"center", marginVertical:10}}>*/}
+      {/*  <Text style={{fontWeight:"500"}}>{userDetails.user.givenName} {userDetails.user.familyName}</Text>*/}
+      {/*</View>*/}
 
       <View style={{borderTopWidth:1, marginVertical:10, borderColor:"grey"}}></View>
 

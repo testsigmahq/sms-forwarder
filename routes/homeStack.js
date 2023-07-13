@@ -160,15 +160,15 @@ const DrawerStack = () => {
             {/*        name: "setting-name"*/}
             {/*    }}*/}
             {/*/>*/}
-            {/*<Drawer.Screen*/}
-            {/*    name="Setting"*/}
-            {/*    component={Setting}*/}
-            {/*    options={{*/}
-            {/*        ...drawerOptionSetting,*/}
-            {/*        id: "setting-id",*/}
-            {/*        name: "setting-name"*/}
-            {/*    }}*/}
-            {/*/>*/}
+            <Drawer.Screen
+                name="Setting"
+                component={Setting}
+                options={{
+                    ...drawerOptionSetting,
+                    id: "setting-id",
+                    name: "setting-name"
+                }}
+            />
             {/*<Drawer.Screen*/}
             {/*    name="FAQ"*/}
             {/*    component={Setting}*/}
@@ -205,16 +205,15 @@ const HomeStack = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{headerShown: false}}>
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="SmsRelay" component={SmsRelay}  options={options} />
-                <Stack.Screen name="Wrapper" component={Wrapper} />
-                <Stack.Screen name="MessageTemplate" component={MessageTemplate} />
-
+                {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
                 <Stack.Screen
                     name="DrawerStack"
                     component={DrawerStack}
                     options={options}
                 />
+                <Stack.Screen name="SmsRelay" component={SmsRelay}  options={options} />
+                <Stack.Screen name="Wrapper" component={Wrapper} />
+                <Stack.Screen name="MessageTemplate" component={MessageTemplate} />
 
             </Stack.Navigator>
         </NavigationContainer>

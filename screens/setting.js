@@ -1,89 +1,47 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Dimensions, TouchableOpacity, Text} from "react-native";
-import {createDrawerNavigator} from "@react-navigation/drawer";
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { RadioButton, Text } from 'react-native-paper';
 import CustomHeader from "../components/custom-header";
-import {useNavigation} from "@react-navigation/native";
-
-const Drawer = createDrawerNavigator();
 
 const Setting = () => {
-    const navigation = useNavigation();
-    const [activate,setActivate] = useState(false);
-    const [showNotification,setShowNotification] = useState(false);
-    const [results,setResults] = useState(false);
-    return (
-        <View>
-            <View style={{margin:10, marginHorizontal:15}}>
-                <CustomHeader
-                    title="Settings"
-                    onPressBackButton={() => navigation.goBack()} />
-            </View>
+    const [selectedValue, setSelectedValue] = useState('');
 
-            <View style={{margin:10}}>
-                <Text style={styles.heading}>
-                    App Settings
-                </Text>
-                <TouchableOpacity style={styles.optionContainer} onPress={() => setActivate(!activate)}>
-                    <Text style={{ fontSize: 16 }}>Activate</Text>
-                    <View style={[styles.toggleButton, activate && styles.toggleButtonActive]}>
-                        <View style={[styles.toggleKnob, activate && styles.toggleKnobActive]} />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.optionContainer} onPress={() => setShowNotification(!showNotification)}>
-                    <Text style={{ fontSize: 16 }}>Show result Notification</Text>
-                    <View style={[styles.toggleButton, showNotification && styles.toggleButtonActive]}>
-                        <View style={[styles.toggleKnob, showNotification && styles.toggleKnobActive]} />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.optionContainer} onPress={() => setResults(!results)}>
-                    <Text style={{ fontSize: 16 }}>Save Results</Text>
-                    <View style={[styles.toggleButton, results && styles.toggleButtonActive]}>
-                        <View style={[styles.toggleKnob, results && styles.toggleKnobActive]} />
-                    </View>
-                </TouchableOpacity>
-            </View>
+    const onChangeValue = (value) => {
+        setSelectedValue(value);
+    };
+    const emailText="Account authentication is required to send an e-mail via Gmail.A test mail will be sent to the selected account after the account is successfully authenicated \n" +
+        "\n" +
+        "(the 'Gmail' feature must be added to your Google account. A Google account that has created with a secondary e-mail address cannot send e-mails. i.e.frzinapps@naver.com)";
+
+    return (
+        <>
+        <View style={{margin:10, marginHorizontal:15}}>
+            <CustomHeader
+                title="Settings"
+                onPressBackButton={() => navigation.goBack()} />
         </View>
+
+         <View>
+            <RadioButton.Group onValueChange={onChangeValue} value={selectedValue}>
+                <View>
+                    <RadioButton.Item  value="None" label="None" />
+                </View>
+                <View>
+                    <RadioButton.Item label="Via Gmail API" value="Via Gmail API" />
+                    {selectedValue==="Via Gmail API" &&
+                        <View>
+                            <Text style={{margin:15}}>{emailText}</Text>
+                        </View>
+                    }
+                </View>
+                <View>
+                    <RadioButton.Item label="Via SMTP" value="Via SMTP" />
+                </View>
+            </RadioButton.Group>
+        </View>
+
+        </>
     );
 };
-
-const styles = StyleSheet.create({
-    heading :{
-        color: "green",
-        marginVertical:10,
-        fontSize:18,
-    },
-    content :{
-        flexDirection:"row",
-        marginVertical:10,
-    },
-    optionContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-    },
-    toggleButton: {
-        width: 33,
-        height: 17,
-        borderRadius: 8,
-        backgroundColor: '#ccc',
-        justifyContent: 'center',
-    },
-    toggleButtonActive: {
-        backgroundColor: '#B1D8B7',
-    },
-    toggleKnob: {
-        width: 18,
-        height: 18,
-        borderRadius: 7,
-        alignSelf: 'flex-start',
-        backgroundColor: '#fff',
-    },
-    toggleKnobActive: {
-        alignSelf: 'flex-end',
-        backgroundColor: 'green',
-    },
-});
 
 export default Setting;
