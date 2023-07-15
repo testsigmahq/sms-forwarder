@@ -8,7 +8,7 @@ import {
     Dimensions,
     Image,
     Modal,
-    TouchableOpacity, ScrollView,
+    TouchableOpacity, ScrollView, TouchableWithoutFeedback,
 } from 'react-native';
 
 import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
@@ -249,7 +249,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
         }
 
         if(filterIdForCreate){
-           Database.insertFilter(filterIdForCreate, "active")
+           Database.insertFilter(filterIdForCreate, "active",0)
             .then((filter) => {
                 console.log('Inserted filter:', filter.id);
             })
@@ -358,6 +358,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
             </View>
 
             <Modal visible={showModal} animationType="none" transparent={true}>
+                <TouchableWithoutFeedback onPress={()=>setShowModal(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Add</Text>
@@ -372,6 +373,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
                 <Modal visible={error} animationType="none" transparent={true} style={{}}>

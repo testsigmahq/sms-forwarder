@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'SMSPoint.db';
+const database_name = 'relay.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -97,7 +97,7 @@ const Database = {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    'INSERT INTO filters (filter_name, status, forward_all) VALUES (?, ?, "1")',
+                    'INSERT INTO filters (filter_name, status, forward_all) VALUES (?, ?, 0)',
                     [filterName, status],
                     (tx, insertResult) => {
                         const { insertId } = insertResult;

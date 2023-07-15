@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {
+    Dimensions,
+    Image,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
+} from 'react-native';
 import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -226,6 +236,7 @@ const BorderBox = props => {
             </View>
 
             <Modal visible={showModal} animationType="slide-up" transparent={true}>
+                <TouchableWithoutFeedback onPress={()=>setShowModal(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                          <View>
@@ -282,10 +293,12 @@ const BorderBox = props => {
                         </View>
                     </View>
                 </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 
             <Modal visible={ruleModel} animationType="slide-up" transparent={true}>
+                <TouchableWithoutFeedback onPress={()=>setRuleModel(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View>
@@ -341,12 +354,14 @@ const BorderBox = props => {
                         </View>
                     </View>
                 </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 
 
 
             <Modal visible={tap} animationType="slide-up" transparent={true}>
+                <TouchableWithoutFeedback onPress={()=>setTap(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                          <View>
@@ -366,10 +381,12 @@ const BorderBox = props => {
                         </View>
                     </View>
                 </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 
             <Modal visible={enter} animationType="slide-up" transparent={true}>
+                <TouchableWithoutFeedback onPress={()=>setEnter(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
 
@@ -378,7 +395,6 @@ const BorderBox = props => {
                                 onChangeText={setNumber}
                                 style={styles.input}
                                 value={number}
-
                             />
 
                             <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
@@ -396,6 +412,7 @@ const BorderBox = props => {
                         </View>
                     </View>
                 </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 

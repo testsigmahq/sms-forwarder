@@ -11,7 +11,6 @@ import {Image} from 'react-native';
 import SmsRelay from "../screens/smsRelay";
 import Wrapper from "../screens/wrapper";
 import MessageTemplate from "../screens/messageTemplate";
-import HomeScreen from "../components/home-screen";
 import Setting from "../screens/setting";
 
 const Stack = createStackNavigator();
@@ -205,7 +204,6 @@ const HomeStack = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{headerShown: false}}>
-                {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
                 <Stack.Screen
                     name="DrawerStack"
                     component={DrawerStack}
