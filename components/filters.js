@@ -15,14 +15,14 @@ const Filters = ({ navigation }) => {
             .catch((err) => {
                 // console.log('Error occurred:', err);
             });
-    }, [[navigation]])
+    }, [navigation])
 
     const handleToggleChange = (id,status) => {
         let newStatus = "active";
         if(status === "active"){
             newStatus = "inactive"
         }
-        Database.updateFilterForStatus(id,newStatus);
+        Database.updateFilterForStatus(id,newStatus );
     };
 
     const handleImagePress = () => {
@@ -43,51 +43,24 @@ const Filters = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                {filter.length === 0 ? (
-                    <View style={styles.centerContainer}>
-                        <Text style={styles.emptyFilterText}>
-                            Touch the '+' button to add a filter
-                        </Text>
+                {filter.map((filterItem) => (
+                    <TouchableOpacity activeOpacity={1} key={filterItem.id} onPress={()=>{handleFilterNavigation(filterItem.id)}}>
+                    <View style={styles.card} >
+                            <Text style={styles.cardText}>Filters {filterItem.id}</Text>
+                        <View style={styles.switchContainer}>
+                            <Switch
+                                value={filterItem.status === "active"}
+                                onValueChange={() => handleToggleChange(filterItem?.id, filterItem?.status)}
+                                trackColor={{ false: '#767577', true: 'white' }}
+                                thumbColor={filterItem.status === "active" ? 'lightgreen' : '#f4f3f4'}
+                                ios_backgroundColor="#3e3e3e"
+                                style={styles.switch}
+                            />
+                        </View>
                     </View>
-                ) : (
-                    filter.map((filterItem) => (
-                        <TouchableOpacity
-                            activeOpacity={1}
-                            key={filterItem.id}
-                            onPress={() => {
-                                handleFilterNavigation(filterItem.id);
-                            }}
-                        >
-                            <View style={styles.card}>
-                                <Text style={styles.cardText}>Filters {filterItem.id}</Text>
-                                <View style={styles.switchContainer}>
-                                    <Switch
-                                        value={filterItem.status === 'active'}
-                                        onValueChange={() =>
-                                            handleToggleChange(
-                                                filterItem?.id,
-                                                filterItem?.status
-                                            )
-                                        }
-                                        trackColor={{
-                                            false: '#767577',
-                                            true: 'white',
-                                        }}
-                                        thumbColor={
-                                            filterItem.status === 'active'
-                                                ? 'lightgreen'
-                                                : '#f4f3f4'
-                                        }
-                                        ios_backgroundColor="#3e3e3e"
-                                        style={styles.switch}
-                                    />
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    ))
-                )}
+                    </TouchableOpacity>
+                ))}
             </ScrollView>
-
 
             <TouchableOpacity onPress={handleImagePress}>
                 <View style={styles.imageContainer}>
@@ -178,19 +151,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         fontWeight: '500',
         fontSize: 18,
-    },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyFilterText: {
-        fontSize: 16,
-        color: 'gray',
-        fontWeight:500,
-        marginVertical:300,
-        letterSpacing:0.5,
-    },
+    }
 });
 
 export default Filters;
