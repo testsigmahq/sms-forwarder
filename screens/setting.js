@@ -1,5 +1,15 @@
-import React, { useState } from 'react';
-import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    ScrollView,
+    TouchableOpacity,
+    Button,
+    Alert,
+    TouchableHighlight
+} from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import CustomHeader from "../components/custom-header";
 import GoogleSignupButton from "../components/google-signup-button";
@@ -7,8 +17,10 @@ import { useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import RNSmtpMailer from "react-native-smtp-mailer";
 
-const Setting = options => {
-    const navigation = useNavigation();
+import Database from "../database";
+
+const Setting = () => {
+    const navigation= useNavigation();
     const [selectedValue, setSelectedValue] = useState('');
     const [text, onChangeText] = useState('');
     const [loginId, setLoginId] = useState('');
@@ -17,6 +29,8 @@ const Setting = options => {
     const [host, setHost] = useState('');
     const [port, setPort] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
+
+    const [userInfo,setUserInfo]=useState('')
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
     };
@@ -28,6 +42,7 @@ const Setting = options => {
     const emailText = "Account authentication is required to send an e-mail via Gmail. A test mail will be sent to the selected account after the account is successfully authenticated.\n\n(the 'Gmail' feature must be added to your Google account. A Google account that has been created with a secondary e-mail address cannot send e-mails. i.e. frzinapps@naver.com)";
 
     const handleGoogleSignup = (userInfo) => {
+        setUserInfo(userInfo);
         console.log(userInfo);
     };
 
@@ -51,7 +66,6 @@ const Setting = options => {
         setPort(value);
     };
 
-
     const [showAuth, setShowAuth] = useState(false);
     const [showSSL, setShowSSL] = useState(false);
     const [showTLS,setShowTLS]=useState(false)
@@ -67,21 +81,81 @@ const Setting = options => {
         setShowTLS(!showTLS);
     };
 
+    const handleValidation = () => {
+        let isValid = true;
 
+
+        if (selectedValue==="Via SMTP") {
+
+        if (loginId.trim() === '') {
+            isValid = false;
+            Alert.alert('Invalid Input', 'Please enter a valid login ID.');
+        } else if (password.trim() === '') {
+            isValid = false;
+            Alert.alert('Invalid Input', 'Please enter a valid password.');
+        } else if (emailAddress.trim() === '' || !validateEmail(emailAddress)) {
+            isValid = false;
+            Alert.alert('Invalid Input', 'Please enter a valid email address.');
+        } else if (host.trim() === '') {
+            isValid = false;
+            Alert.alert('Invalid Input', 'Please enter a valid host.');
+        } else if (port.toString().trim() === '') {
+            isValid = false;
+            Alert.alert('Invalid Input', 'Please enter a valid port number.');
+        }
+
+        if (isValid && (selectedValue === "Via SMTP")) {
+            Database.insertUser(
+                loginId,
+                password,
+                emailAddress,
+                host,
+                port,
+                showAuth,
+                showSSL,
+                showTLS
+            ).then(r => console.log(r));
+            navigation.goBack();
+        }
+        else
+        {
+            navigation.goBack();
+        }
+    }
+    };
+
+
+    const validateEmail = (email) => {
+        const emailRegex = /\S+@\S+\.\S+/;
+        return emailRegex.test(email);
+    };
+
+    useEffect(()=>{
+       Database.fetchUserById(1).then((e)=>{
+           setLoginId(e.loginId);
+           setPassword(e.password);
+           setEmailAddress(e.emailAddress);
+           setHost(e.host);
+           setPort(e.port);
+           setShowAuth(e.showAuth);
+           setShowSSL(e.showSSL);
+           setShowTLS(e.showTLS);
+       })
+    },[])
     const sendEmail = () => {
         RNSmtpMailer.sendMail({
             mailhost: "smtp.gmail.com",
             port: "465",
-            ssl: true,
+            ssl: false,
             username: "ragulrahul973@gmail.com",
-            password: "dybyaighgandbktw",
-            from: "selvarasuragul18711@gmail.com",
+            password: "dujcscywemttnbkv",
+            from: "ragulrahul973@gmail.com",
             recipients: "selvarasuragul18711@gmail.com",
             subject: "subject",
             htmlBody: "<h1>header</h1><p>body</p>"
         })
             .then(success => console.log(success))
-            .catch(err => console.log(err))
+            .catch(error => console.log("Error:", error));
     };
 
     return (
@@ -89,7 +163,7 @@ const Setting = options => {
             <View style={{ margin: 10, marginHorizontal: 15 }}>
                 <CustomHeader
                     title="Settings"
-                    onPressBackButton={() => navigation.goBack()}
+                    onPressBackButton={handleValidation}
                 />
             </View>
 
@@ -105,10 +179,11 @@ const Setting = options => {
                                 <Text style={{ margin: 15 }}>{emailText}</Text>
                                 <TextInput
                                     style={styles.input}
-                                    onChangeText={onChangeText}
-                                    value={text}
+                                    value={userInfo?.user?.email}
                                 />
+                                <View style={{margin:10}}>
                                 <GoogleSignupButton onSignup={handleGoogleSignup} />
+                                </View>
                             </View>
                         )}
                     </View>
@@ -120,6 +195,7 @@ const Setting = options => {
                                     style={styles.input}
                                     placeholder="Login ID"
                                     onChangeText={handleLoginIdChange}
+                                    value={loginId}
                                 />
                             <View style={styles.inputContainer}>
                                 <TextInput
@@ -127,6 +203,7 @@ const Setting = options => {
                                     placeholder="Password"
                                     secureTextEntry={!passwordVisible}
                                     onChangeText={handlePasswordChange}
+                                    value={password}
                                 />
                                 <Icon
                                     name={passwordVisible ? 'eye-slash' : 'eye'}
@@ -139,16 +216,20 @@ const Setting = options => {
                                     style={styles.input}
                                     placeholder="Email Address"
                                     onChangeText={handleEmailAddressChange}
+                                    value={emailAddress}
                                 />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Host"
                                     onChangeText={handleHostChange}
+                                    value={host}
                                 />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Port"
                                     onChangeText={handlePortChange}
+                                    value={port.toString()}
+                                    keyboardType="numeric"
                                 />
                                 <TouchableOpacity style={styles.optionContainer} onPress={toggleAuth}>
                                     <Text style={{ fontSize: 16 }}>Use authentication</Text>
@@ -168,16 +249,13 @@ const Setting = options => {
                                         <View style={[styles.toggleKnob, showTLS && styles.toggleKnobActive]} />
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={sendEmail}>
-                                    <Text >Send Email</Text>
-                                </TouchableOpacity>
                             </View>
                         )}
                     </View>
                 </RadioButton.Group>
             </ScrollView>
         </>
-    );
+    );x
 };
 
 const styles = StyleSheet.create({
@@ -240,7 +318,6 @@ const styles = StyleSheet.create({
     toggleKnobActive: {
         alignSelf: 'flex-end',
         backgroundColor: 'green',
-
     },
 });
 

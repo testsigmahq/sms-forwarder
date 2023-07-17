@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'relay.db';
+const database_name = 'relay123.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -28,7 +28,7 @@ const Database = {
     createFilterTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS filters (id INTEGER PRIMARY KEY AUTOINCREMENT, filter_name TEXT, status TEXT,  forward_all TEXT)',
+                'CREATE TABLE IF NOT EXISTS filters (id INTEGER PRIMARY KEY AUTOINCREMENT, filter_name TEXT, status TEXT,  forward_all BOOLEAN)',
                 [],
                 () => {
                     console.log('Table "filters" created successfully');
@@ -39,7 +39,6 @@ const Database = {
             );
         });
     },
-
     createResultTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
@@ -72,6 +71,82 @@ const Database = {
             });
         });
     },
+    createUsersTable: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY AUTOINCREMENT, loginId TEXT, password TEXT, emailAddress TEXT, host TEXT, port INTEGER, showAuth BOOLEAN, showSSL BOOLEAN, showTLS BOOLEAN)',
+                [],
+                () => {
+                    console.log('Table "Users" created successfully');
+                },
+                (err) => {
+                    console.log('Error occurred while creating the table "Users":', err);
+                }
+            );
+        });
+    },
+
+    insertUser: (loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'INSERT INTO Users (loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    [loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS],
+                    (_, { rowsAffected }) => {
+                        console.log('User inserted successfully');
+                        resolve(rowsAffected); // Resolve the Promise with the number of affected rows
+                    },
+                    (err) => {
+                        console.log('Error occurred while inserting user:', err);
+                        reject(err); // Reject the Promise with the error
+                    }
+                );
+            });
+        });
+    },
+    fetchUserById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM Users WHERE id = ?',
+                    [id],
+                    (_, { rows }) => {
+                        const user = rows.item(0);
+                        if (user) {
+                            console.log('User fetched successfully:');
+                            console.log('User:', user);
+                            resolve(user);
+                        } else {
+                            reject('User not found');
+                        }
+                    },
+                    (err) => {
+                        console.log('Error occurred while fetching user:', err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
+
+    updateUserById: (id, loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE Users SET loginId = ?, password = ?, emailAddress = ?, host = ?, port = ?, showAuth = ?, showSSL = ?, showTLS = ? WHERE id = ?',
+                    [loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS, id],
+                    (_, { rowsAffected }) => {
+                        console.log(`User with ID ${id} updated successfully`);
+                        resolve(rowsAffected);
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating user with ID ${id}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
 
 
     // Function to read the contents of the "results" table
@@ -93,11 +168,11 @@ const Database = {
         });
     },
 
-    insertFilter: (filterName, status) => {
+    insertFilter: (filterName, status,forward_all) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    'INSERT INTO filters (filter_name, status, forward_all) VALUES (?, ?, 0)',
+                    'INSERT INTO filters (filter_name, status, forward_all) VALUES (?, ?, ?)',
                     [filterName, status],
                     (tx, insertResult) => {
                         const { insertId } = insertResult;
@@ -126,7 +201,7 @@ const Database = {
             });
         });
     },
-    updateFilterForStatus: (id, status) =>{
+    updateFilterForStatus: (id, status) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
@@ -260,7 +335,7 @@ const Database = {
     createEmailTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS emails (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS emails (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
                     console.log('Table "emails" created successfully');
@@ -292,7 +367,7 @@ const Database = {
     createPhoneNumberTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS phone_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, phone_number TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS phone_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, phone_number TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
                     console.log('Table "phone_numbers" created successfully');
@@ -324,7 +399,7 @@ const Database = {
     createUrlTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS url (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, type TEXT, key TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS url (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, type TEXT, key TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
                     console.log('Table "url" created successfully');
@@ -357,7 +432,7 @@ const Database = {
     createSenderNumberTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS sender_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, sendStatus TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS sender_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, sendStatus TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
                     console.log('Table "sender_numbers" created successfully');
@@ -513,7 +588,7 @@ const Database = {
     createTextTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS texts (id INTEGER PRIMARY KEY AUTOINCREMENT, messageText TEXT, sendStatus TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS texts (id INTEGER PRIMARY KEY AUTOINCREMENT, messageText TEXT, sendStatus TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
                     console.log('Table "texts" created successfully');
@@ -573,7 +648,7 @@ const Database = {
     createChangeContentTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS change_contents (id INTEGER PRIMARY KEY AUTOINCREMENT, oldWord TEXT, newWord TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id))',
+                'CREATE TABLE IF NOT EXISTS change_contents (id INTEGER PRIMARY KEY AUTOINCREMENT, oldWord TEXT, newWord TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
                     console.log('Table "change_contents" created successfully');
