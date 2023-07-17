@@ -41,6 +41,7 @@
     "react-native-screens": "^3.21.1",
     "react-native-sim-data": "^3.0.0",
     "react-native-sms": "^1.11.0",
+    "react-native-smtp-mailer": "^1.2.5",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-vector-icons": "^9.2.0",

@@ -5,7 +5,7 @@ import CustomHeader from "../components/custom-header";
 import GoogleSignupButton from "../components/google-signup-button";
 import { useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import SMTPMailer from "react-native-smtp-mailer";
+import RNSmtpMailer from "react-native-smtp-mailer";
 
 const Setting = options => {
     const navigation = useNavigation();
@@ -69,32 +69,19 @@ const Setting = options => {
 
 
     const sendEmail = () => {
-        const smtpConfig = {
-            host: host,
-            port: port,
-            secure: showSSL,
-            auth: {
-                user: loginId, // Replace with your SMTP server login ID
-                pass: password, // Replace with your SMTP server password
-            },
-        };
-
-        const mailOptions = {
-            from: emailAddress,
-            to: "selvarasuragul18711@gmail.com",
-            subject: "Test Email",
-            body: "This is a test email sent using SMTP.",
-        };
-
-        SMTPMailer.sendMail(smtpConfig, mailOptions)
-            .then((response) => {
-                console.log("Email sent successfully");
-                console.log(response);
-            })
-            .catch((error) => {
-                console.log("Failed to send email");
-                console.log(error.message);
-            });
+        RNSmtpMailer.sendMail({
+            mailhost: "smtp.gmail.com",
+            port: "465",
+            ssl: true,
+            username: "ragulrahul973@gmail.com",
+            password: "dybyaighgandbktw",
+            from: "selvarasuragul18711@gmail.com",
+            recipients: "selvarasuragul18711@gmail.com",
+            subject: "subject",
+            htmlBody: "<h1>header</h1><p>body</p>"
+        })
+            .then(success => console.log(success))
+            .catch(err => console.log(err))
     };
 
     return (
