@@ -6,7 +6,6 @@ import Database from "../database";
 import axios from 'axios';
 import { encode } from 'base-64';
 import {useSelector} from "react-redux";
-import google from "../redux/reducers/google";
 import moment from "moment";
 
 const DirectSms = NativeModules.DirectSms;
@@ -102,16 +101,17 @@ const Result = () => {
 
     async function canForwardMessage(id, latestObject){
         const rule = await  Database.fetchAllByRule(id);
-        // console.log("rules : ", rule);
+        console.log("rules : ", rule);
         let booleanValue = false;
         const forwardCondition = await Database.fetchFilters(id)
-        if((rule.senderNumbers.length > 0 || rule.texts.length > 0) && forwardCondition.forward_all === "0" ) {
+        console.log("forwardCondition",forwardCondition.forward_all);
+        if((rule.senderNumbers.length > 0 || rule.texts.length > 0)) {
             if (rule.senderNumbers.length > 0) {
-                // console.log("inside sender rule");
+                console.log("inside sender rule");
                 rule.senderNumbers.forEach((number) => {
-                    // console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,",latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
+                    console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,",latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
                     if (number.sender === latestObject.address.slice(3) && number.sendStatus === "1") {
-                        // console.log("inside sender number status 1");
+                        console.log("inside sender number status 1");
                         booleanValue = true;
                     }
                 })
@@ -121,24 +121,24 @@ const Result = () => {
                 for (const text of rule.texts) {
                     if (text.sendStatus === "1" && !latestObject?.body.includes(text.messageText)) {
                         booleanValue = false;
-                        // console.log("before return 1 statement , ", text.messageText, booleanValue);
+                        console.log("before return 1 statement , ", text.messageText, booleanValue);
                         return;
                     }
                     if (text.sendStatus === "0" && latestObject?.body.includes(text.messageText)) {
                         booleanValue = false;
-                        // console.log("before return 0 statement , ", text.messageText, booleanValue);
+                        console.log("before return 0 statement , ", text.messageText, booleanValue);
                         return;
                     }
                     booleanValue = true;
-                    // console.log("before else , ", text.messageText, booleanValue);
+                    console.log("before else , ", text.messageText, booleanValue);
                 }
             }
         }
         else {
-            // console.log("inside else no text and sender rule");
+            console.log("inside else no text and sender rule");
             booleanValue = true;
         }
-        // console.log("before booleanValue return : \t ", booleanValue)
+        console.log("before booleanValue return : \t ", booleanValue)
         return booleanValue;
     }
 
@@ -156,13 +156,13 @@ const Result = () => {
             })
         }
         newMessage = `From : ${latestObject?.address} \n` + newMessage;
-        // console.log("before returning newMessage : ", newMessage);
+        console.log("before returning newMessage : ", newMessage);
         return newMessage;
     }
     async function fetchRecipients(id, latestObject) {
         try {
             const recipients = await Database.fetchAllRecords(id);
-            // console.log("recipients : ", recipients);
+            console.log("recipients : ", recipients);
             let messageCondition = await canForwardMessage(id, latestObject);
             let newMessage = await changeMessageText(id,latestObject);
             if (recipients?.phoneNumbers) {
@@ -234,6 +234,7 @@ const Result = () => {
     console.log("api",api.googleInfo.serverAuthCode)
 
     const sendEmail = async (to, from,text) => {
+        console.log("is true")
         const config = {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -269,7 +270,7 @@ const Result = () => {
             console.log('Access Token:', access_token);
             console.log('Refresh Token:', refresh_token);
         } catch (error) {
-            console.error('Error retrieving access token:', error);
+            console.error('Error retrieving access token  :', error);
         }
     };
 

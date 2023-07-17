@@ -33,6 +33,7 @@ export default function App() {
         Database.createChangeContentTable();
         Database.createResultTable();
         Database.createSettings();
+        Database.createUsersTable();
     }, []);
 
 
