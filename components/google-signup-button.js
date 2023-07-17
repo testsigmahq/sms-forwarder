@@ -7,13 +7,15 @@ import {useDispatch} from "react-redux";
 const GoogleSignupButton = ({ onSignup }) => {
     const dispatch = useDispatch();
     const handleGoogleSignup = async () => {
-
         try {
+            // Log out the user before signing in
+            await GoogleSignin.signOut();
+
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
             onSignup(userInfo);
-            console.log("userInfo",userInfo);
-            if(userInfo){
+            console.log('userInfo', userInfo);
+            if (userInfo) {
                 dispatch(googleInfo(userInfo));
             }
             const { serverAuthCode } = await GoogleSignin.getTokens();
@@ -31,10 +33,11 @@ const GoogleSignupButton = ({ onSignup }) => {
         }
     };
 
+
     return (
         <View>
         <GoogleSigninButton
-            style={{ width: deviceWidth*0.8, height: 48,}}
+            style={{ width: deviceWidth*0.6, height: 45,alignSelf:'center',borderRadius:8}}
             size={GoogleSigninButton.Size.Wide}
             color={GoogleSigninButton.Color.Light}
             onPress={handleGoogleSignup}
