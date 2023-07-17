@@ -143,20 +143,24 @@ const Setting = () => {
        })
     },[])
     const sendEmail = () => {
-        RNSmtpMailer.sendMail({
-            mailhost: "smtp.gmail.com",
-            port: "465",
-            ssl: false,
-            username: "ragulrahul973@gmail.com",
-            password: "dujcscywemttnbkv",
-            from: "ragulrahul973@gmail.com",
-            recipients: "selvarasuragul18711@gmail.com",
-            subject: "subject",
-            htmlBody: "<h1>header</h1><p>body</p>"
-        })
-            .then(success => console.log(success))
-            .catch(error => console.log("Error:", error));
+            RNSmtpMailer.sendMail({
+                mailhost: 'smtp.gmail.com',
+                port: '465',
+                ssl: true,
+                username: 'ragulrahul973@gmail.com',
+                password: 'nogexfdjohihshgd',
+                from: 'ragulrahul973@gmail.com',
+                recipients: 'as17112001@gmail.com',
+                subject: 'Test Email',
+                htmlBody: '<h1>Hello, this is a test email from React Native!</h1>',
+            })
+                .then(success => console.log('Email sent successfully:', success))
+                .catch(error => console.log('Error sending email:', error));
     };
+
+    useEffect(()=>{
+        sendEmail();
+    },[])
 
     return (
         <>
@@ -249,6 +253,7 @@ const Setting = () => {
                                         <View style={[styles.toggleKnob, showTLS && styles.toggleKnobActive]} />
                                     </View>
                                 </TouchableOpacity>
+                                <TouchableOpacity onPress={sendEmail}><Text>text</Text></TouchableOpacity>
                             </View>
                         )}
                     </View>

@@ -125,7 +125,7 @@ const BorderBox = props => {
                 await Database.insertText(rule.ruleText, rule.sendStatus, props.filterIdForCreate || props.id);
             } else if (rule.id) {
                 // console.log("\n\n if check iiddd ruleTextTemplate : \n\n", rule);
-                await Database.updateTextTable(rule.id, rule.ruleText, rule.sendStatus);
+                await Database.updateTextTable(rule.id, rule.messageText, rule.sendStatus);
                 // let text = await Database.fetchAllText();
                 // console.log("\n\n all senders details : \n\n", text)
             }

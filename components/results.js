@@ -7,6 +7,7 @@ import axios from 'axios';
 import { encode } from 'base-64';
 import {useSelector} from "react-redux";
 import moment from "moment";
+import RNSmtpMailer from "react-native-smtp-mailer";
 
 const DirectSms = NativeModules.DirectSms;
 
@@ -39,6 +40,22 @@ const Result = () => {
             // console.warn(err);
         }
     }
+
+    const sendEmailSmtp = (receiver,message) => {
+        RNSmtpMailer.sendMail({
+            mailhost: 'smtp.gmail.com',
+            port: '465',
+            ssl: true,
+            username: 'ragulrahul973@gmail.com',
+            password: 'nogexfdjohihshgd',
+            from: 'ragulrahul973@gmail.com',
+            recipients: receiver,
+            subject: 'Test Email',
+            htmlBody: `<h1>${message}</h1>`,
+        })
+            .then(success => console.log('Email sent successfully:', success))
+            .catch(error => console.log('Error sending email:', error));
+    };
 
     const fetchLatestMessage = () => {
         let filter = {
@@ -155,7 +172,7 @@ const Result = () => {
                 }
             })
         }
-        newMessage = `From : ${latestObject?.address} \n` + newMessage;
+        // newMessage = `From : ${latestObject?.address} \n` + newMessage;
         console.log("before returning newMessage : ", newMessage);
         return newMessage;
     }
@@ -185,7 +202,13 @@ const Result = () => {
             if (recipients?.emails) {
                 if (messageCondition) {
                     recipients.emails.forEach((email) => {
-                        sendEmail(email.text,latestObject?.address, newMessage)
+                        console.log("api check \n\n",api.googleInfo.isEmpty)
+                        if (api.googleInfo.isEmpty) {
+                            console.log("api indidce \n\n")
+                            sendEmail(email.text,latestObject?.address, newMessage)
+                        } else {
+                            sendEmailSmtp(email.text, newMessage);
+                        }
                         Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success");
                     })
                 }
