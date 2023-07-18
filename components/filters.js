@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { View, Text, StyleSheet, Switch, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import Database from "./../database";
 
@@ -7,23 +7,40 @@ const Filters = ({ navigation }) => {
     const [showModal, setShowModal] = useState(false);
     const [filter, setFilter] = useState([]);
 
-    useEffect(() => {
+    const fetchFilters = useCallback(() => {
         Database.fetchAllFilters()
             .then((filters) => {
                 setFilter(filters);
             })
             .catch((err) => {
-                // console.log('Error occurred:', err);
+                console.log('Error occurred:', err);
             });
-    }, [navigation])
+    }, []);
 
-    const handleToggleChange = (id,status) => {
-        let newStatus = "active";
-        if(status === "active"){
-            newStatus = "inactive"
-        }
-        Database.updateFilterForStatus(id,newStatus );
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchFilters();
+        });
+
+        return unsubscribe;
+    }, [navigation, fetchFilters]);
+
+    const handleToggleChange = (id, status) => {
+        const newStatus = status === "active" ? "inactive" : "active";
+
+        Database.updateFilterForStatus(id, newStatus)
+            .then(() => {
+                // Update the filter state by creating a new array with updated filters
+                const updatedFilters = filter.map((filterItem) =>
+                    filterItem.id === id ? { ...filterItem, status: newStatus } : filterItem
+                );
+                setFilter(updatedFilters);
+            })
+            .catch((error) => {
+                console.log('Error updating filter status:', error);
+            });
     };
+
 
     const handleImagePress = () => {
         // setShowModal(true);

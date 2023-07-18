@@ -34,6 +34,7 @@ export default function App() {
         Database.createResultTable();
         Database.createSettings();
         Database.createUsersTable();
+        Database.createAuthCodesTable();
     }, []);
 
 

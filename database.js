@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'relay123.db';
+const database_name = 'relay1235787.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -24,6 +24,59 @@ const Database = {
 
     errorCB: (err) => {
         console.log('Error occurred while initializing the database:', err);
+    },
+    createAuthCodesTable: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `CREATE TABLE IF NOT EXISTS authCodes (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          serverAuthCode TEXT NOT NULL
+        );`,
+                [],
+                () => {
+                    console.log('Table "authCodes" created successfully.');
+                },
+                (err) => {
+                    console.log('Error creating "authCodes" table:', err);
+                }
+            );
+        });
+    },
+    insertAuthCode: (serverAuthCode) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT OR REPLACE INTO authCodes (id, serverAuthCode) VALUES (1, ?);',
+                [serverAuthCode],
+                (txObj, resultSet) => {
+                    console.log('AuthCode inserted or replaced successfully.');
+                },
+                (txObj, error) => {
+                    console.log('Inserting AuthCode - userId:', id, 'serverAuthCode:', serverAuthCode);
+                }
+            );
+        });
+    },
+    fetchAuthCodeById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT serverAuthCode FROM authCodes WHERE id = ?;',
+                    [id],
+                    (txObj, resultSet) => {
+                        if (resultSet.rows.length > 0) {
+                            const authCode = resultSet.rows.item(0).serverAuthCode;
+                            resolve(authCode);
+                        } else {
+                            resolve(null);
+                        }
+                    },
+                    (txObj, error) => {
+                        console.log('Error fetching AuthCode by id:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
     },
     createFilterTable: () => {
         db.transaction((tx) => {
@@ -85,19 +138,18 @@ const Database = {
             );
         });
     },
-
     insertUser: (loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    'INSERT INTO Users (loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    [loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS],
+                    'INSERT OR REPLACE INTO Users (id, loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [1, loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS],
                     (_, { rowsAffected }) => {
-                        console.log('User inserted successfully');
+                        console.log('User inserted or replaced successfully');
                         resolve(rowsAffected); // Resolve the Promise with the number of affected rows
                     },
                     (err) => {
-                        console.log('Error occurred while inserting user:', err);
+                        console.log('Error occurred while inserting or replacing user:', err);
                         reject(err); // Reject the Promise with the error
                     }
                 );

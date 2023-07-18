@@ -117,32 +117,47 @@ const Setting = () => {
             ).then(r => console.log(r));
             navigation.goBack();
         }
-        else
-        {
+    }
+        if(selectedValue ==="Via Gmail API"){
+            console.log(userInfo.serverAuthCode);
+            Database.insertAuthCode(userInfo.serverAuthCode);
             navigation.goBack();
         }
-    }
+        if(selectedValue ==="None"){
+            navigation.goBack();
+        }
     };
-
 
     const validateEmail = (email) => {
         const emailRegex = /\S+@\S+\.\S+/;
         return emailRegex.test(email);
-    };
+    }
 
-    useEffect(()=>{
-       Database.fetchUserById(1).then((e)=>{
-           setLoginId(e.loginId);
-           setPassword(e.password);
-           setEmailAddress(e.emailAddress);
-           setHost(e.host);
-           setPort(e.port);
-           setShowAuth(e.showAuth);
-           setShowSSL(e.showSSL);
-           setShowTLS(e.showTLS);
-       })
-    },[])
-    const sendEmail = () => {
+    useEffect(() => {
+
+        Database.fetchUserById(1)
+            .then((e) => {
+                if (e) {
+                    setLoginId(e.loginId);
+                    setPassword(e.password);
+                    setEmailAddress(e.emailAddress);
+                    setHost(e.host);
+                    setPort(e.port);
+                    setShowAuth(e.showAuth);
+                    setShowSSL(e.showSSL);
+                    setShowTLS(e.showTLS);
+                } else {
+                    console.log('User data not found for ID 1.');
+                }
+            })
+            .catch((error) => {
+                console.log('Error fetching user data:', error);
+            });
+    },[]);
+
+
+
+        const sendEmail = () => {
             RNSmtpMailer.sendMail({
                 mailhost: 'smtp.gmail.com',
                 port: '465',
@@ -152,15 +167,12 @@ const Setting = () => {
                 from: 'ragulrahul973@gmail.com',
                 recipients: 'as17112001@gmail.com',
                 subject: 'Test Email',
-                htmlBody: '<h1>Hello, this is a test email from React Native!</h1>',
+                htmlBody: '<h1>Hello, this is a test email from sms forwarder</h1>',
             })
                 .then(success => console.log('Email sent successfully:', success))
                 .catch(error => console.log('Error sending email:', error));
     };
 
-    useEffect(()=>{
-        sendEmail();
-    },[])
 
     return (
         <>
@@ -253,14 +265,18 @@ const Setting = () => {
                                         <View style={[styles.toggleKnob, showTLS && styles.toggleKnobActive]} />
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={sendEmail}><Text>text</Text></TouchableOpacity>
+                                <View style={{ top: 10 }}>
+                                    <TouchableHighlight onPress={sendEmail}>
+                                        <Button title="Send Test Mail" onPress={sendEmail} />
+                                    </TouchableHighlight>
+                                </View>
                             </View>
                         )}
                     </View>
                 </RadioButton.Group>
             </ScrollView>
         </>
-    );x
+    );
 };
 
 const styles = StyleSheet.create({

@@ -15,6 +15,7 @@ const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const [smsResult, setSmsResult] = useState([]);
     const [accessToken,setAccessToken]=useState('')
+    const [smtp,setSMTP]=useState('')
 
     useEffect(() => {
         requestReadSMSPermission()
@@ -42,6 +43,8 @@ const Result = () => {
     }
 
     const sendEmailSmtp = (receiver,message) => {
+        console.log("xsendEmailSmtp",smtp)
+
         RNSmtpMailer.sendMail({
             mailhost: 'smtp.gmail.com',
             port: '465',
@@ -311,10 +314,10 @@ const Result = () => {
         return base64EncodedMessage;
     };
 
-
     useEffect(()=>{
         getAccessToken();
-    },[])
+        Database.fetchUserById(1).then(r => console.log(setSMTP(r)));
+    }, [])
 
 
     return (

@@ -35,36 +35,36 @@ const CustomSidebarMenu = props => {
       {/*  <Text style={{fontWeight:"500"}}>{userDetails.user.givenName} {userDetails.user.familyName}</Text>*/}
       {/*</View>*/}
 
-      <View style={{borderTopWidth:1, marginVertical:10, borderColor:"grey"}}></View>
+      {/*<View style={{borderTopWidth:1, marginVertical:10, borderColor:"grey"}}></View>*/}
 
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
-        <DrawerItem
-          label="Logout"
-          labelStyle={styles.logout}
-          icon={({focused, color, size}) => {
-            return (
-              <Image
-                source={require('../assets/logout.png')}
-                style={[
-                  {
-                    height: 13,
-                    width: 18,
-                    alignSelf: 'center',
-                    resizeMode: 'contain',
-                  },
-                ]}
-              />
-            );
-          }}
-          onPress={() => {
-            handleGoogleSignout().then(r => console.log("log-out successfully!!"));
-            props.navigation.navigate('Home')
+        {/*<DrawerItem*/}
+        {/*  label="Logout"*/}
+        {/*  labelStyle={styles.logout}*/}
+        {/*  icon={({focused, color, size}) => {*/}
+        {/*    return (*/}
+        {/*      <Image*/}
+        {/*        source={require('../assets/logout.png')}*/}
+        {/*        style={[*/}
+        {/*          {*/}
+        {/*            height: 13,*/}
+        {/*            width: 18,*/}
+        {/*            alignSelf: 'center',*/}
+        {/*            resizeMode: 'contain',*/}
+        {/*          },*/}
+        {/*        ]}*/}
+        {/*      />*/}
+        {/*    );*/}
+        {/*  }}*/}
+        {/*  onPress={() => {*/}
+        {/*    handleGoogleSignout().then(r => console.log("log-out successfully!!"));*/}
+        {/*    props.navigation.navigate('Home')*/}
 
-          }}
-          testId={"log-out"}
-          name={"log-out"}
-        />
+        {/*  }}*/}
+        {/*  testId={"log-out"}*/}
+        {/*  name={"log-out"}*/}
+        {/*/>*/}
       </DrawerContentScrollView>
     </SafeAreaView>
   );
