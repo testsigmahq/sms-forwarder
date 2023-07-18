@@ -271,6 +271,24 @@ const Database = {
             });
         });
     },
+    updateFilterForName: (id, filter_name) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'UPDATE filters SET filter_name = ? WHERE id = ?',
+                    [filter_name, id],
+                    () => {
+                        console.log(`filter with ID ${id} updated successfully, with value of ${name}`);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log(`Error occurred while updating filter with ID ${id}:`, err);
+                        reject(err);
+                    }
+                );
+            });
+        });
+    },
     updateFilterForCondition: (id, forward) =>{
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {

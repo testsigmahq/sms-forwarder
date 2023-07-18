@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, SafeAreaView, Dimensions, StyleSheet, TouchableOpacity, Button} from 'react-native';
+import {View, Text, SafeAreaView, Dimensions, StyleSheet, TouchableOpacity, Button, TextInput} from 'react-native';
 import { Input } from 'react-native-elements';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {useDispatch} from "react-redux";
@@ -12,14 +12,51 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
         console.log("SIM card info:", simInfo);
     }, []);
     const [inputValue, setInputValue] = useState();
+    const [inputValueUpdated, setInputValueUpdated] = useState(false);
 
+    React.useEffect(() => {
+        if (saveClicked) {
+            onSave();
+        }
+    }, [saveClicked]);
+
+    function onSave() {
+        if(filterIdForCreate){
+            Database.insertFilter(inputValue || `Filter ${filterIdForCreate}`, "active",0)
+                .then((filter) => {
+                    console.log('Inserted filter:', filter.id);
+                })
+                .catch((error) => {
+                    console.log('Error occurred:', error);
+                });
+        }
+    }
     useEffect(()=>{
         if(id) {
-            Database.filterById(id).then((res)=>setInputValue(`Filter ${res.id}`));
+            Database.filterById(id).then((res)=>setInputValue(res.filter_name));
         }
     },[]);
     const handleChangeText = (value) => {
         setInputValue(value);
+        setInputValueUpdated(true);
+    };
+    useEffect(() => {
+        if (inputValueUpdated) {
+            updateDatabase();
+        }
+    }, [inputValueUpdated]);
+
+    const updateDatabase = () => {
+        if (id) {
+            Database.updateFilterForName(id, inputValue)
+                .then(() => {
+                    console.log('Filter name updated successfully.');
+                })
+                .catch((error) => {
+                    console.log('Error occurred:', error);
+                });
+        }
+        setInputValueUpdated(false);
     };
 
     const [open1, setOpen1] = useState(false);
@@ -44,12 +81,11 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
         <SafeAreaView style={styles.container}>
             <Text style={{ margin: 20, fontWeight: '500', fontSize: 18 }}>More Settings</Text>
             <View style={styles.inputContainer}>
-                <Input
+                  <TextInput
                     placeholder="Filter Name"
                     value={inputValue}
                     onChangeText={handleChangeText}
-                    containerStyle={styles.inputBox}
-                    inputContainerStyle={styles.inputBoxInner}
+                    style={styles.input}
                 />
             </View>
             <View style={[styles.blackCard,{zIndex:2}]}>
@@ -176,6 +212,12 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         backgroundColor: 'green',
 
+    },
+    input: {
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
     },
 });
 

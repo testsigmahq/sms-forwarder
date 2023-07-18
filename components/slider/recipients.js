@@ -52,7 +52,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
     useEffect(() => {
         setRecipients(fetch);
         // console.log("fetch",fetch)
-    }, [fetch]);
+    }, [fetch]) ;
 
     const [showModal, setShowModal] = useState(false);
 
@@ -247,16 +247,6 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
                 then(()=>console.log(` updating phoneNumbers with ${id}`));
             })
         }
-
-        if(filterIdForCreate){
-           Database.insertFilter(filterIdForCreate, "active",0)
-            .then((filter) => {
-                console.log('Inserted filter:', filter.id);
-            })
-            .catch((error) => {
-                console.log('Error occurred:', error);
-            });
-            }
 
         console.log("recipient info ==// ", recipientsInfo.phoneNumber, recipientsInfo.email, recipientsInfo.url)
         if (recipientsInfo.phoneNumber || recipientsInfo.email || recipientsInfo.url){

@@ -30,7 +30,6 @@ const Filters = ({ navigation }) => {
 
         Database.updateFilterForStatus(id, newStatus)
             .then(() => {
-                // Update the filter state by creating a new array with updated filters
                 const updatedFilters = filter.map((filterItem) =>
                     filterItem.id === id ? { ...filterItem, status: newStatus } : filterItem
                 );
@@ -63,7 +62,7 @@ const Filters = ({ navigation }) => {
                 {filter.map((filterItem) => (
                     <TouchableOpacity activeOpacity={1} key={filterItem.id} onPress={()=>{handleFilterNavigation(filterItem.id)}}>
                     <View style={styles.card} >
-                            <Text style={styles.cardText}>Filters {filterItem.id}</Text>
+                            <Text style={styles.cardText}>{filterItem.filterName}</Text>
                         <View style={styles.switchContainer}>
                             <Switch
                                 value={filterItem.status === "active"}
