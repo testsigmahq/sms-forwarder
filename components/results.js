@@ -43,6 +43,8 @@ const Result = () => {
     }
 
     const sendEmailSmtp = (receiver,message) => {
+        const jsonStringMessage = JSON.stringify(message);
+
         console.log("xsendEmailSmtp",smtp)
         console.log("ss",typeof smtp.port.toString());
         console.log("cc",typeof(smtp.host))
@@ -55,10 +57,25 @@ const Result = () => {
             from: smtp.emailAddress,
             recipients: receiver,
             subject: 'from STMP',
-            htmlBody: `<h1>${message}</h1>`,
+            htmlBody: `<h1>${jsonStringMessage}</h1>`,
         })
-            .then(success => console.log('Email sent successfully:', success))
-            .catch(error => console.log('Error sending email:', error));
+            .then((success) => {
+                console.log('Email sent successfully:', success)
+                // Alert.alert("email sended to smtp",success)
+                console.log("receiver", receiver);
+                console.log("message", message);
+                console.log("typeof message", typeof message);
+                console.log("message as string", message.toString());
+
+                if (typeof message !== 'string') {
+                    console.log("message is not a string");
+
+                }
+            })
+            .catch((error) => {
+                console.log('Error sending email:', error)
+                // Alert.alert("error",error);
+            });
     };
 
     const fetchLatestMessage = () => {
@@ -210,15 +227,15 @@ const Result = () => {
                         if (api.googleInfo.serverAuthCode) {
                             console.log("api indidce \n\n")
                             sendEmail(email.text,latestObject?.address, newMessage)
-                        }
+                        }else {
                             sendEmailSmtp(email.text, newMessage);
-
+                        }
                         Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success");
                     })
                 }
             }
         } catch (error) {
-            // console.error("Error occurred while fetching recipients:", error);
+            console.error("Error occurred while fetching recipients:", error);
         }
     }
 
