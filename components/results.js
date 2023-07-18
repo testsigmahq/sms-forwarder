@@ -44,16 +44,17 @@ const Result = () => {
 
     const sendEmailSmtp = (receiver,message) => {
         console.log("xsendEmailSmtp",smtp)
-
+        console.log("ss",typeof smtp.port.toString());
+        console.log("cc",typeof(smtp.host))
         RNSmtpMailer.sendMail({
-            mailhost: 'smtp.gmail.com',
-            port: '465',
+            mailhost:smtp.host,
+            port: smtp.port.toString(),
             ssl: true,
-            username: 'ragulrahul973@gmail.com',
-            password: 'nogexfdjohihshgd',
-            from: 'ragulrahul973@gmail.com',
+            username:smtp.loginId,
+            password:smtp.password,
+            from: smtp.emailAddress,
             recipients: receiver,
-            subject: 'Test Email',
+            subject: 'from STMP',
             htmlBody: `<h1>${message}</h1>`,
         })
             .then(success => console.log('Email sent successfully:', success))
@@ -206,12 +207,12 @@ const Result = () => {
                 if (messageCondition) {
                     recipients.emails.forEach((email) => {
                         console.log("api check \n\n",api.googleInfo.isEmpty)
-                        if (api.googleInfo.isEmpty) {
+                        if (api.googleInfo.serverAuthCode) {
                             console.log("api indidce \n\n")
                             sendEmail(email.text,latestObject?.address, newMessage)
-                        } else {
-                            sendEmailSmtp(email.text, newMessage);
                         }
+                            sendEmailSmtp(email.text, newMessage);
+
                         Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success");
                     })
                 }
