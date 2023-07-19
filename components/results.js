@@ -44,38 +44,39 @@ const Result = () => {
 
     const sendEmailSmtp = (receiver,message) => {
         const jsonStringMessage = JSON.stringify(message);
+     if(smtp) {
+         console.log("xsendEmailSmtp", smtp)
+         console.log("ss", typeof smtp.port.toString());
+         console.log("cc", typeof (smtp.host))
+         RNSmtpMailer.sendMail({
+             mailhost: smtp.host,
+             port: smtp.port.toString(),
+             ssl: true,
+             username: smtp.loginId,
+             password: smtp.password,
+             from: smtp.emailAddress,
+             recipients: receiver,
+             subject: 'from STMP',
+             htmlBody: `<h1>${jsonStringMessage}</h1>`,
+         })
+             .then((success) => {
+                 console.log('Email sent successfully:', success)
+                 // Alert.alert("email sended to smtp",success)
+                 console.log("receiver", receiver);
+                 console.log("message", message);
+                 console.log("typeof message", typeof message);
+                 console.log("message as string", message.toString());
 
-        console.log("xsendEmailSmtp",smtp)
-        console.log("ss",typeof smtp.port.toString());
-        console.log("cc",typeof(smtp.host))
-        RNSmtpMailer.sendMail({
-            mailhost:smtp.host,
-            port: smtp.port.toString(),
-            ssl: true,
-            username:smtp.loginId,
-            password:smtp.password,
-            from: smtp.emailAddress,
-            recipients: receiver,
-            subject: 'from STMP',
-            htmlBody: `<h1>${jsonStringMessage}</h1>`,
-        })
-            .then((success) => {
-                console.log('Email sent successfully:', success)
-                // Alert.alert("email sended to smtp",success)
-                console.log("receiver", receiver);
-                console.log("message", message);
-                console.log("typeof message", typeof message);
-                console.log("message as string", message.toString());
+                 if (typeof message !== 'string') {
+                     console.log("message is not a string");
 
-                if (typeof message !== 'string') {
-                    console.log("message is not a string");
-
-                }
-            })
-            .catch((error) => {
-                console.log('Error sending email:', error)
-                // Alert.alert("error",error);
-            });
+                 }
+             })
+             .catch((error) => {
+                 console.log('Error sending email:', error)
+                 // Alert.alert("error",error);
+             });
+     }
     };
 
     const fetchLatestMessage = () => {
@@ -226,7 +227,9 @@ const Result = () => {
                         console.log("api check \n\n",api.googleInfo.isEmpty)
                         if (api.googleInfo.serverAuthCode) {
                             console.log("api indidce \n\n")
-                            sendEmail(email.text,latestObject?.address, newMessage)
+                            if(accessToken) {
+                                sendEmail(email.text, latestObject?.address, newMessage)
+                            }
                         }else {
                             sendEmailSmtp(email.text, newMessage);
                         }
@@ -278,7 +281,7 @@ const Result = () => {
     console.log("api",api.googleInfo.serverAuthCode)
 
     const sendEmail = async (to, from,text) => {
-        console.log("is true")
+        console.log("is true",accessToken)
         const config = {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
