@@ -61,7 +61,7 @@ const Result = () => {
          })
              .then((success) => {
                  console.log('Email sent successfully:', success)
-                 // Alert.alert("email sended to smtp",success)
+                 Alert.alert("email sent",JSON.stringify(success));
                  console.log("receiver", receiver);
                  console.log("message", message);
                  console.log("typeof message", typeof message);
@@ -74,7 +74,7 @@ const Result = () => {
              })
              .catch((error) => {
                  console.log('Error sending email:', error)
-                 // Alert.alert("error",error);
+                 Alert.alert("error",JSON.stringify(error));
              });
      }
     };
@@ -224,13 +224,14 @@ const Result = () => {
             if (recipients?.emails) {
                 if (messageCondition) {
                     recipients.emails.forEach((email) => {
-                        console.log("api check \n\n",api.googleInfo.isEmpty)
+                        console.log("api.googleInfo.serverAuthCode==>",api.googleInfo.serverAuthCode);
+                        console.log("accessToken===>",accessToken);
                         if (api.googleInfo.serverAuthCode) {
-                            console.log("api indidce \n\n")
                             if(accessToken) {
                                 sendEmail(email.text, latestObject?.address, newMessage)
                             }
-                        }else {
+                        }
+                        else {
                             sendEmailSmtp(email.text, newMessage);
                         }
                         Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success");
@@ -298,26 +299,29 @@ const Result = () => {
                 raw: createRawMessage(email),
             }, config);
             console.log('Email sent:', response.data);
+            Alert.alert('Email sent:',JSON.stringify(response.data));
         } catch (error) {
             console.error('Error sending email:', error);
         }
     };
 
     const getAccessToken = async () => {
-        try {
-            const response = await axios.post('https://oauth2.googleapis.com/token', {
-                code: api.googleInfo.serverAuthCode,
-                client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
-                client_secret: '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',
-                redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
-                grant_type: 'authorization_code',
-            });
-            const { access_token, refresh_token } = response.data;
-            setAccessToken(access_token);
-            console.log('Access Token:', access_token);
-            console.log('Refresh Token:', refresh_token);
-        } catch (error) {
-            console.error('Error retrieving access token  :', error);
+        if(api.googleInfo.serverAuthCode) {
+            try {
+                const response = await axios.post('https://oauth2.googleapis.com/token', {
+                    code: api.googleInfo.serverAuthCode,
+                    client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
+                    client_secret: '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',
+                    redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
+                    grant_type: 'authorization_code',
+                });
+                const {access_token, refresh_token} = response.data;
+                setAccessToken(access_token);
+                console.log('Access Token:', access_token);
+                console.log('Refresh Token:', refresh_token);
+            } catch (error) {
+                console.error('Error retrieving access token  :', error);
+            }
         }
     };
 
@@ -338,7 +342,8 @@ const Result = () => {
     useEffect(()=>{
         getAccessToken();
         Database.fetchUserById(1).then(r => console.log(setSMTP(r)));
-    }, [])
+        console.log("got it")
+    }, [api.googleInfo.serverAuthCode || ''])
 
 
     return (
