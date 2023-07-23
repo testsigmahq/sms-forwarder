@@ -6,36 +6,7 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import Database from './database';
 import HomeStack from './routes/homeStack';
-import BackgroundService from 'react-native-background-actions';
 
-const Stack = createStackNavigator();
-
-const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
-
-const veryIntensiveTask = async (taskDataArguments) => {
-    const { delay } = taskDataArguments;
-    await new Promise(async (resolve) => {
-        for (let i = 0; BackgroundService.isRunning(); i++) {
-            console.log(i);
-            await sleep(delay);
-        }
-    });
-};
-
-const options = {
-    taskName: 'Example',
-    taskTitle: 'ExampleTask title',
-    taskDesc: 'ExampleTask description',
-    taskIcon: {
-        name: 'ic_launcher',
-        type: 'mipmap',
-    },
-    color: '#ff00ff',
-    linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
-    parameters: {
-        delay: 1000,
-    },
-};
 
 export default function App() {
     useEffect(() => {
@@ -68,44 +39,6 @@ export default function App() {
         Database.createSettings();
         Database.createUsersTable();
         Database.createAuthCodesTable();
-    }, []);
-
-    useEffect(() => {
-        const startBackgroundTask = async () => {
-            try {
-                // Start the background service with the intensive task
-                await BackgroundService.start(veryIntensiveTask, options);
-                console.log('Background task started.');
-            } catch (error) {
-                console.error('Error starting background task:', error);
-            }
-        };
-
-        const updateBackgroundNotification = async () => {
-            try {
-                // Update the background task notification with a new description
-                await BackgroundService.updateNotification({ taskDesc: 'New ExampleTask description' });
-                console.log('Background notification updated.');
-            } catch (error) {
-                console.error('Error updating background notification:', error);
-            }
-        };
-
-        const stopBackgroundTask = async () => {
-            try {
-                // Stop the background task
-                await BackgroundService.stop();
-                console.log('Background task stopped.');
-            } catch (error) {
-                console.error('Error stopping background task:', error);
-            }
-        };
-
-        // Start the background task and update the notification
-        startBackgroundTask();
-        updateBackgroundNotification();
-
-
     }, []);
 
     return (
