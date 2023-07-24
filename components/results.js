@@ -5,20 +5,19 @@ import { NativeModules } from 'react-native';
 import Database from "../database";
 import axios from 'axios';
 import { encode } from 'base-64';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import moment from "moment";
 import RNSmtpMailer from "react-native-smtp-mailer";
-
+import {updateLastForwardedTimestamp} from '../redux/actions/setUpRecipients'
 const DirectSms = NativeModules.DirectSms;
-
 import BackgroundService from 'react-native-background-actions';
-
 
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const [smsResult, setSmsResult] = useState([]);
     const [accessToken,setAccessToken]=useState('')
     const [smtp,setSMTP]=useState('')
+    const dispatch = useDispatch();
 
     useEffect(() => {
         requestReadSMSPermission()
@@ -37,7 +36,7 @@ const Result = () => {
         color: '#ff00ff',
         linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
         parameters: {
-            delay: 1000,
+            delay: 5000,
         },
     };
     const veryIntensiveTask = async (taskDataArguments) => {
@@ -45,7 +44,7 @@ const Result = () => {
         await new Promise(async (resolve) => {
             for (let i = 0; BackgroundService.isRunning(); i++) {
                 console.log(i);
-                // fetchLatestMessage();
+                await fetchLatestMessage();
                 await sleep(delay);
             }
         });
@@ -64,7 +63,6 @@ const Result = () => {
         const updateBackgroundNotification = async () => {
             try {
                 if (BackgroundService.isRunning()) {
-                    // Update the background task notification with a new description
                     await BackgroundService.updateNotification({ taskDesc: 'New ExampleTask description' });
                     console.log('Background notification updated.');
                 }
@@ -147,35 +145,62 @@ const Result = () => {
              });
      }
     };
+    const [lastForwardedTimestamp, setLastForwardedTimestamp] = useState(null);
+    const convertToUnixTimestamp = (androidTimestamp) => {
+        return androidTimestamp;
+    };
+
+
+      const timeStampforLast = useSelector((state) => {return (state.storeTime.lastForwardedTimestamp)});
+      console.log("timeStampforLast===>",timeStampforLast);
+
+        const storeTime = async (timeStamp) => {
+            dispatch(updateLastForwardedTimestamp(timeStamp));
+        };
+
 
     const fetchLatestMessage = () => {
-        let filter = {
-            box: 'inbox',
-            indexFrom: 0,
-            maxCount: 1,
-        };
-        SmsAndroid.list(
-            JSON.stringify(filter),
-            (fail) => {
-                // console.log('Failed with this error: ', fail);
-            },
-            (count, smsList) => {
-                // console.log('Count: ', count);
-                // console.log('List: ', smsList);
-                var arr = JSON.parse(smsList);
+            let filter = {
+                box: 'inbox',
+                indexFrom: 0,
+                maxCount: 1,
+                minDate: lastForwardedTimestamp !== null ? lastForwardedTimestamp : 0,
+            };
+            SmsAndroid.list(
+                JSON.stringify(filter),
+                (fail) => {
 
-                if (arr.length > 0) {
-                    const latestObject = arr[0];
-                    // console.log('Latest Object: ', latestObject);
-                    // console.log('--> ' , latestObject.address);
-                    // console.log('--> ' , latestObject.body);
-                    if (latestObject.body !== latestMessage) {
-                        setLatestMessage(latestObject.body);
-                        forwardMessage(latestObject); // Forward the received message
+                },
+                async (count, smsList) => {
+                    // console.log('Count: ', count);
+                    // console.log('List: ', smsList);
+                    var arr = JSON.parse(smsList);
+
+                    if (arr.length > 0) {
+                        const latestObject = arr[0];
+                        // console.log('Latest Object: ', latestObject);
+                        // console.log('--> ' , latestObject.address);
+                        // console.log('--> ' , latestObject.body);
+
+                        if (latestObject.date_sent !== null) {
+                            const latestTimestamp = convertToUnixTimestamp(latestObject.date_sent);
+
+                            console.log("latestTimestamp==>", latestTimestamp);
+                            console.log("lastForwardedTimestamp", timeStampforLast)
+                            // Only forward if the current message's timestamp is greater than the last forwarded timestamp
+                            if (timeStampforLast < latestTimestamp || !timeStampforLast) {
+                                console.log("lastForwardedTimestamp==>", latestTimestamp);
+                                console.log("latestTimestamp===>", timeStampforLast);
+                                console.log("inside");
+                                setLatestMessage(latestObject.body);
+                                await forwardMessage(latestObject); // Wait for the forwarding process to complete
+                            } else {
+                                console.log("no new message to forward")
+                            }
+                        }
                     }
                 }
-            }
-        );
+            );
     };
 
     function formatDateTime(timestamp) {
@@ -326,6 +351,7 @@ const Result = () => {
 
     const forwardMessage =  (latestObject) => {
         fetchFilters("active", latestObject);
+        setLastForwardedTimestamp(latestObject.date_sent);
     };
 
     useEffect(() => {
