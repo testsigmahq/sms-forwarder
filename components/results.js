@@ -17,8 +17,9 @@ import BackgroundService from 'react-native-background-actions';
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const smsResultRef = useRef([]);
-    const [accessToken,setAccessToken]=useState('')
     const [smtp,setSMTP]=useState('')
+    const accessTokenRef = useRef(null);
+
 
     useEffect(() => {
         requestReadSMSPermission();
@@ -300,9 +301,9 @@ const Result = () => {
                 if (messageCondition) {
                     recipients.emails.forEach((email) => {
                         console.log("api.googleInfo.serverAuthCode========================>",api.googleInfo.serverAuthCode);
-                        console.log("accessToken===========================================>",accessToken);
+                        console.log(" accessTokenRef.current===========================================>",accessTokenRef.current);
                         if (api.googleInfo.serverAuthCode) {
-                            if(accessToken) {
+                            if( accessTokenRef.current) {
                                 sendEmail(email.text, latestObject?.address, newMessage)
                             }
                         }
@@ -353,10 +354,10 @@ const Result = () => {
     console.log("api",api.googleInfo.serverAuthCode)
 
     const sendEmail = async (to, from,text) => {
-        console.log("is true",accessToken)
+        console.log("is true", accessTokenRef.current)
         const config = {
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                'Authorization': `Bearer ${accessTokenRef.current}`,
                 'Content-Type': 'application/json',
             },
         };
@@ -377,6 +378,7 @@ const Result = () => {
     };
 
     const getAccessToken = async () => {
+        console.log("api.googleInfo.serverAuthCode==========-----------====>",api.googleInfo.serverAuthCode);
         if(api.googleInfo.serverAuthCode) {
             try {
                 const response = await axios.post('https://oauth2.googleapis.com/token', {
@@ -387,8 +389,8 @@ const Result = () => {
                     grant_type: 'authorization_code',
                 });
                 const {access_token, refresh_token} = response.data;
-                setAccessToken(access_token);
-                console.log('Access Token:', access_token);
+                accessTokenRef.current = access_token;
+                console.log('Access Token======================================================================================>>>>>>>>>>>>:', access_token);
                 console.log('Refresh Token:', refresh_token);
             } catch (error) {
                 console.error('Error retrieving access token  :', error);
