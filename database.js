@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'relay1235787.db';
+const database_name = 'pointrealy34.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -95,7 +95,7 @@ const Database = {
     createResultTable: () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, receiver TEXT, timing TEXT, status TEXT)',
+                'CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, receiver TEXT, timing TEXT, status TEXT,date INTEGER)',
                 [],
                 () => {
                     console.log('Table "results" created successfully');
@@ -106,12 +106,12 @@ const Database = {
             );
         });
     },
-    insertResults: (message, sender, receiver, timing, status) => {
+    insertResults: (message, sender, receiver, timing, status,date) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    'INSERT INTO results (message, sender, receiver, timing, status) VALUES (?, ?, ?, ?, ?)',
-                    [message, sender, receiver, timing, status],
+                    'INSERT INTO results (message, sender, receiver, timing, status,date) VALUES (?, ?, ?, ?, ?, ?)',
+                    [message, sender, receiver, timing, status,date],
                     (_, { rowsAffected }) => {
                         console.log('Data inserted successfully');
                         resolve(rowsAffected); // Resolve the Promise with the number of affected rows
@@ -325,6 +325,7 @@ const Database = {
                                     id: row.id,
                                     filterName: row.filter_name,
                                     status: row.status,
+                                    date:row.date,
                                 });
                             }
                         } else {

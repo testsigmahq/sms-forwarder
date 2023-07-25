@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {View, Text, Alert, StyleSheet, Dimensions, ScrollView, PermissionsAndroid} from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
 import axios from 'axios';
 import { encode } from 'base-64';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import moment from "moment";
 import RNSmtpMailer from "react-native-smtp-mailer";
 
@@ -16,12 +16,12 @@ import BackgroundService from 'react-native-background-actions';
 
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
-    const [smsResult, setSmsResult] = useState([]);
+    const smsResultRef = useRef([]);
     const [accessToken,setAccessToken]=useState('')
     const [smtp,setSMTP]=useState('')
 
     useEffect(() => {
-        requestReadSMSPermission()
+        requestReadSMSPermission();
     },[])
     const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
@@ -35,17 +35,17 @@ const Result = () => {
             type: 'mipmap',
         },
         color: '#ff00ff',
-        linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
+        linkingURI: 'yourSchemeHere://chat/jane', // See  Deep Linking for more info
         parameters: {
-            delay: 1000,
+            delay: 10000,
         },
     };
     const veryIntensiveTask = async (taskDataArguments) => {
         const { delay } = taskDataArguments;
         await new Promise(async (resolve) => {
             for (let i = 0; BackgroundService.isRunning(); i++) {
-                console.log(i);
-                // fetchLatestMessage();
+               await fetchResult();
+              await  fetchLatestMessage();
                 await sleep(delay);
             }
         });
@@ -104,7 +104,7 @@ const Result = () => {
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                 // console.log('Read SMS permission granted');
             } else {
-                // console.log('Read SMS permission denied');
+                // console.log('  SMS permission  denied');
             }
         } catch (err) {
             // console.warn(err);
@@ -148,7 +148,7 @@ const Result = () => {
      }
     };
 
-    const fetchLatestMessage = () => {
+    const fetchLatestMessage = useCallback(() => {
         let filter = {
             box: 'inbox',
             indexFrom: 0,
@@ -157,7 +157,7 @@ const Result = () => {
         SmsAndroid.list(
             JSON.stringify(filter),
             (fail) => {
-                // console.log('Failed with this error: ', fail);
+                // console.log('Failed with this error: ' , fail);
             },
             (count, smsList) => {
                 // console.log('Count: ', count);
@@ -166,17 +166,22 @@ const Result = () => {
 
                 if (arr.length > 0) {
                     const latestObject = arr[0];
-                    // console.log('Latest Object: ', latestObject);
-                    // console.log('--> ' , latestObject.address);
+                    // console.log('Latest Object: ', latestObject );
+                    // console.log('--> ' , latestObject.addres s);
                     // console.log('--> ' , latestObject.body);
-                    if (latestObject.body !== latestMessage) {
+                    console.log("smsResult-=========>",smsResultRef.current)
+                    console.log("latestObject._id====>",latestObject._id)
+                    console.log("smsResult[smsResult.length - 1]?.date",smsResultRef.current[smsResultRef.current.length - 1]?.date);
+                    if (latestObject._id > (smsResultRef.current[smsResultRef.current.length - 1]?.date || 0)) {
+                        console.log("inside")
                         setLatestMessage(latestObject.body);
-                        forwardMessage(latestObject); // Forward the received message
+                        forwardMessage(latestObject);
                     }
                 }
             }
         );
-    };
+    }, []);
+
 
     function formatDateTime(timestamp) {
         const dateObject = new Date(timestamp);
@@ -278,7 +283,8 @@ const Result = () => {
                 if (messageCondition) {
                     DirectSms.sendDirectSms(phoneNumbersRecipient, newMessage);
                     for (const phoneNumber of phoneNumbersRecipient) {
-                        await Database.insertResults(newMessage, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success");
+                        console.log("latestObject?.body?.date_sent==>",latestObject?.body?.date_sent);
+                        await Database.insertResults(newMessage, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success",latestObject?._id);
                     }
                 }
             }
@@ -286,15 +292,15 @@ const Result = () => {
                 if (messageCondition) {
                     recipients?.urls?.forEach((url) => {
                         forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
-                        Database.insertResults(newMessage, latestObject?.address, url.text, formatDateTime(moment()), "Success");
+                        Database.insertResults(newMessage, latestObject?.address, url.text, formatDateTime(moment()), "Success",latestObject?._id);
                     });
                 }
             }
             if (recipients?.emails) {
                 if (messageCondition) {
                     recipients.emails.forEach((email) => {
-                        console.log("api.googleInfo.serverAuthCode==>",api.googleInfo.serverAuthCode);
-                        console.log("accessToken===>",accessToken);
+                        console.log("api.googleInfo.serverAuthCode========================>",api.googleInfo.serverAuthCode);
+                        console.log("accessToken===========================================>",accessToken);
                         if (api.googleInfo.serverAuthCode) {
                             if(accessToken) {
                                 sendEmail(email.text, latestObject?.address, newMessage)
@@ -303,7 +309,7 @@ const Result = () => {
                         else {
                             sendEmailSmtp(email.text, newMessage);
                         }
-                        Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success");
+                        Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success",latestObject?._id);
                     })
                 }
             }
@@ -325,26 +331,23 @@ const Result = () => {
     }
 
     const forwardMessage =  (latestObject) => {
-        fetchFilters("active", latestObject);
+        fetchFilters("active", latestObject).then(r => console.log("success"));
     };
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            Database.readResults()
-                .then((resultRows) => {
-                    // console.log('Fetched result rows:', resultRows);
-                    if (resultRows) {
-                        setSmsResult(resultRows);
-                    } else {
-                        // console.log('No result rows found.');
-                    }
-                })
-                .catch((error) => {
-                    // console.log('Error occurred while fetching data:', error);
-                });
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [latestMessage]);
+
+    const fetchResult = async()=> {
+        Database.readResults()
+            .then((resultRows) => {
+                if (resultRows) {
+                    smsResultRef.current = resultRows;
+                } else {
+                    // console.log('No result rows found.');
+                }
+            })
+            .catch((error) => {
+                // console.log('Error occurred while fetching data:', error);
+            });
+    }
 
     const api = useSelector((state) => {return (state.google)});
     console.log("api",api.googleInfo.serverAuthCode)
@@ -407,17 +410,16 @@ const Result = () => {
         return base64EncodedMessage;
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         getAccessToken();
         Database.fetchUserById(1).then(r => console.log(setSMTP(r)));
-        console.log("got it")
-    }, [api.googleInfo.serverAuthCode || ''])
-
+        console.log("got it");
+    }, [api.googleInfo.serverAuthCode]);
 
     return (
         <View style={{ flex: 1}}>
             <ScrollView>
-            {smsResult && smsResult.length > 0 && smsResult.map((result, index) => (
+            {smsResultRef.current && smsResultRef.current.length > 0 && smsResultRef.current.map((result, index) => (
                 <View key={index}><View style={{padding:10}}>
                     <Text style={{fontWeight:"bold"}}>From : {result.sender}</Text>
                     <Text style={{fontWeight:"bold"}}>To : {result.receiver}</Text>
