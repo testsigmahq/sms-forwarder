@@ -302,11 +302,9 @@ const Result = () => {
                     recipients.emails.forEach((email) => {
                         console.log("api.googleInfo.serverAuthCode========================>",api.googleInfo.serverAuthCode);
                         console.log(" accessTokenRef.current===========================================>",accessTokenRef.current);
-                        if (api.googleInfo.serverAuthCode) {
                             if( accessTokenRef.current) {
                                 sendEmail(email.text, latestObject?.address, newMessage)
                             }
-                        }
                         else {
                             sendEmailSmtp(email.text, newMessage);
                         }
@@ -377,27 +375,6 @@ const Result = () => {
         }
     };
 
-    const getAccessToken = async () => {
-        console.log("api.googleInfo.serverAuthCode==========-----------====>",api.googleInfo.serverAuthCode);
-        if(api.googleInfo.serverAuthCode) {
-            try {
-                const response = await axios.post('https://oauth2.googleapis.com/token', {
-                    code: api.googleInfo.serverAuthCode,
-                    client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
-                    client_secret: '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',
-                    redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
-                    grant_type: 'authorization_code',
-                });
-                const {access_token, refresh_token} = response.data;
-                accessTokenRef.current = access_token;
-                console.log('Access Token======================================================================================>>>>>>>>>>>>:', access_token);
-                console.log('Refresh Token:', refresh_token);
-            } catch (error) {
-                console.error('Error retrieving access token  :', error);
-            }
-        }
-    };
-
     const createRawMessage = (email) => {
         const message = [
             `From: ${email.from}`,
@@ -413,9 +390,27 @@ const Result = () => {
     };
 
     useEffect(() => {
-        getAccessToken();
-        Database.fetchUserById(1).then(r => console.log(setSMTP(r)));
-        console.log("got it");
+        const fetchData = async () => {
+            if (api.googleInfo.serverAuthCode) {
+                try {
+                    const response = await axios.post('https://oauth2.googleapis.com/token', {
+                        code: api.googleInfo.serverAuthCode,
+                        client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
+                        client_secret: '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',
+                        redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
+                        grant_type: 'authorization_code',
+                    });
+
+                    const { access_token, refresh_token } = response.data;
+                    accessTokenRef.current = access_token;
+                    console.log('Access Token:', access_token);
+                    console.log('Refresh Token:', refresh_token);
+                } catch (error) {
+                    console.error('Error retrieving access token:', error);
+                }
+            }
+        };
+        fetchData();
     }, [api.googleInfo.serverAuthCode]);
 
     return (
