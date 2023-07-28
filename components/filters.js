@@ -78,7 +78,7 @@ const Filters = ({ navigation }) => {
                 ))}
             </ScrollView>
 
-            <TouchableOpacity onPress={handleImagePress}>
+            <TouchableOpacity onPress={handleImagePress} style={styles.floatingButton}>
                 <View style={styles.imageContainer}>
                     <Image source={require('../assets/plus.png')} style={styles.image} />
                 </View>
@@ -132,14 +132,18 @@ const styles = StyleSheet.create({
     switch: {
         transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
     },
+    floatingButton: {
+        position: 'relative',
+    },
     imageContainer: {
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        marginBottom: 15,
+        margin: 5,
     },
     image: {
-        width: 45,
-        height: 45,
+        width: 40,
+        height: 40,
+        backgroundColor:"#fff",
+        borderRadius:50,
     },
     modalContainer: {
         flex: 1,

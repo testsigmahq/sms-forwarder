@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {Dimensions, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import BottomTabs from '../components/bottom-tabs';
 import { PermissionsAndroid } from 'react-native';
 import Database from "../database";
@@ -165,6 +165,9 @@ function SmsRelay({ navigation }) {
     );
 }
 
+const deviceWidth = Math.round(Dimensions.get('window').width);
+const deviceHeight = Math.round(Dimensions.get('window').height);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -188,11 +191,11 @@ const styles = StyleSheet.create({
         top: 15,
     },
     bottomTabsContainer: {
-        position: 'absolute',
+        position: 'relative',
         left: 0,
         right: 0,
         bottom: 0,
-        height: 700,
+        height: deviceHeight*0.92,
         backgroundColor: '#FFFFFF',
         borderTopWidth: 1,
         borderTopColor: '#FFFFFF',
