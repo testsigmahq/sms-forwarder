@@ -45,6 +45,7 @@ const Result = () => {
         const { delay } = taskDataArguments;
         await new Promise(async (resolve) => {
             for (let i = 0; BackgroundService.isRunning(); i++) {
+                console.log(i)
                await fetchResult();
               await  fetchLatestMessage();
                 await sleep(delay);
@@ -170,9 +171,9 @@ const Result = () => {
                     // console.log('Latest Object: ', latestObject );
                     // console.log('--> ' , latestObject.addres s);
                     // console.log('--> ' , latestObject.body);
-                    console.log("smsResult-=========>",smsResultRef.current)
-                    console.log("latestObject._id====>",latestObject._id)
-                    console.log("smsResult[smsResult.length - 1]?.date",smsResultRef.current[smsResultRef.current.length - 1]?.date);
+                    // console.log("smsResult-=========>",smsResultRef.current)
+                    // console.log("latestObject._id====>",latestObject._id)
+                    // console.log("smsResult[smsResult.length - 1]?.date",smsResultRef.current[smsResultRef.current.length - 1]?.date);
                     if (latestObject._id > (smsResultRef.current[smsResultRef.current.length - 1]?.date || 0)) {
                         console.log("inside")
                         setLatestMessage(latestObject.body);
