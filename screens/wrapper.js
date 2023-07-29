@@ -8,6 +8,8 @@ import {View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal} from "react
 import CustomHeader from "../components/custom-header";
 import {useNavigation, useRoute} from "@react-navigation/native";
 import Database from "../database";
+import {useSelector} from "react-redux";
+import recipients from "../redux/reducers/recipients";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -15,8 +17,22 @@ const Wrapper = () => {
     const navigation = useNavigation();
     const [deleteWarning, setDeleteWarning] = useState(false);
     const [saveClicked, setSaveClicked] = useState(false);
+    const recipients = useSelector((state) => {return (state.recipients)});
+   const [error,setError]=useState(false)
     const handleSaveButton = () => {
-        setSaveClicked(prevState => !prevState);
+        console.log("recipients==>",recipients);
+        const isAllTextNotEmpty = (recipients.recipients).every((recipient) => recipient.text.trim() !== '');
+       console.log("isAllTextNotEmpty",isAllTextNotEmpty)
+
+        if(recipients.recipients.length !== 0 && isAllTextNotEmpty) {
+            setSaveClicked(prevState => !prevState);
+            setError(false)
+        }
+        else
+        {
+            setError(prevState => !prevState);
+            setSaveClicked(false);
+        }
     };
 
     const route = useRoute();
@@ -30,10 +46,10 @@ const Wrapper = () => {
     };
 
     const component = [
-        <Recipients saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
-        <ForwardConditions saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch}/>,
-        <MessageContents saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
-        <MoreSettings saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} />,
+        <Recipients saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} errorMessage={error} />,
+        <ForwardConditions saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} errorMessage={error}/>,
+        <MessageContents saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} errorMessage={error}/>,
+        <MoreSettings saveClicked={saveClicked} filterIdForCreate={filterIdForCreate} id={filterIdForFetch} errorMessage={error} />,
     ];
 
     const [activeSlide, setActiveSlide] = React.useState(0);

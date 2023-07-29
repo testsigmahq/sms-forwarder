@@ -18,15 +18,20 @@ import {useNavigation} from "@react-navigation/native";
 
 
 
-const Recipients = ({saveClicked,id,filterIdForCreate}) => {
+const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
 
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
-   const [fetch,setFetch]=useState([])
-    const [error, setError] = useState(false);
+    const [fetch,setFetch]=useState([])
+    const [error, setError] = useState();
     const [condition, setCondition] = useState(false);
+    console.log("error Message",error);
 
+
+    useEffect(()=>{
+        setError(errorMessage);
+    },[errorMessage])
     useEffect(() => {
         if (id) {
             Database.fetchAllRecords(id)
@@ -83,6 +88,9 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
         }
     }, [selectedOption]);
 
+    useEffect(() => {
+        dispatch(SetRecipientsInfo(recipients));
+    }, [recipients]);
 
     function removeRecipient(index,id,type) {
         const updatedRecipients = [...recipients];
@@ -227,9 +235,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate}) => {
                 });
         });
 
-
-        dispatch(SetRecipientsInfo(recipientsInfo));
-    }
+      }
 
 
       if(emailsDefined){
