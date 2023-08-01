@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'pointrealy34.db';
+const database_name = 'OOO.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -56,6 +56,37 @@ const Database = {
             );
         });
     },
+    createAccessToken: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `CREATE TABLE IF NOT EXISTS accessToken (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          accessTokenCode TEXT NOT NULL
+        );`,
+                [],
+                () => {
+                    console.log('Table "accessTokenCode" created successfully.');
+                },
+                (err) => {
+                    console.log('Error creating "accessTokenCode" table:', err);
+                }
+            );
+        });
+    },
+    insertAccessToken: (accessTokenCode) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT OR REPLACE INTO accessToken (id, accessTokenCode) VALUES (1, ?);',
+                [accessTokenCode],
+                (txObj, resultSet) => {
+                    console.log('AuthCode inserted or replaced successfully.');
+                },
+                (txObj, error) => {
+                    console.log('Inserting AuthCode - userId:', id, 'accessTokenCode:', accessTokenCode);
+                }
+            );
+        });
+    },
     fetchAuthCodeById: (id) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -72,6 +103,28 @@ const Database = {
                     },
                     (txObj, error) => {
                         console.log('Error fetching AuthCode by id:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+    fetchAccessAuthById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT accessTokenCode FROM accessToken WHERE id = ?;',
+                    [id],
+                    (txObj, resultSet) => {
+                        if (resultSet.rows.length > 0) {
+                            const authCode = resultSet.rows.item(0).accessTokenCode;
+                            resolve(authCode);
+                        } else {
+                            resolve(null);
+                        }
+                    },
+                    (txObj, error) => {
+                        console.log('Error fetching accessTokenCode by id:', error);
                         reject(error);
                     }
                 );
@@ -1047,9 +1100,92 @@ const Database = {
             });
         });
     },
+    createAuthSettingsTable: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `CREATE TABLE IF NOT EXISTS authSettings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        none INTEGER NOT NULL,
+        smtp INTEGER NOT NULL,
+        gmail INTEGER NOT NULL
+      );`,
+                [],
+                () => {
+                    console.log('Table "authSettings" created successfully.');
+                },
+                (err) => {
+                    console.log('Error creating "authSettings" table:', err);
+                }
+            );
+        });
+    },
+    insertAuthSettings: (none, smtp, gmail) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'SELECT COUNT(*) AS rowCount FROM authSettings WHERE id = 1;',
+                [],
+                (txObj, resultSet) => {
+                    const rowCount = resultSet.rows.item(0).rowCount;
+                    if (rowCount > 0) {
+                        // A row with id = 1 already exists, update it
+                        tx.executeSql(
+                            'UPDATE authSettings SET none = ?, smtp = ?, gmail = ? WHERE id = 1;',
+                            [none ? 1 : 0, smtp ? 1 : 0, gmail ? 1 : 0],
+                            (txObj, resultSet) => {
+                                console.log('AuthSettings updated successfully.');
+                            },
+                            (txObj, error) => {
+                                console.log('Error updating AuthSettings:', error);
+                            }
+                        );
+                    } else {
+                        // No row with id = 1 exists, insert a new row
+                        tx.executeSql(
+                            'INSERT INTO authSettings (id, none, smtp, gmail) VALUES (1, ?, ?, ?);',
+                            [none ? 1 : 0, smtp ? 1 : 0, gmail ? 1 : 0],
+                            (txObj, resultSet) => {
+                                console.log('AuthSettings inserted successfully.');
+                            },
+                            (txObj, error) => {
+                                console.log('Error inserting AuthSettings:', error);
+                            }
+                        );
+                    }
+                },
+                (txObj, error) => {
+                    console.log('Error fetching row count from authSettings:', error);
+                }
+            );
+        });
+    },
+    fetchAuthSettings: (callback) => {
+        // Make sure 'db' is accessible within this scope.
+        if (!db) {
+            console.log('Error: Database not initialized.');
+            callback(null);
+            return;
+        }
 
-
-
+        db.transaction((tx) => {
+            tx.executeSql(
+                'SELECT none, smtp, gmail FROM authSettings WHERE id = 1;',
+                [],
+                (txObj, resultSet) => {
+                    if (resultSet.rows.length > 0) {
+                        const { none, smtp, gmail } = resultSet.rows.item(0);
+                        callback({ none: none === 1, smtp: smtp === 1, gmail: gmail === 1 });
+                    } else {
+                        // If the table is empty or no row found with id = 1
+                        callback(null);
+                    }
+                },
+                (txObj, error) => {
+                    console.log('Error fetching AuthSettings:', error);
+                    callback(null);
+                }
+            );
+        });
+    },
 
 
 };
