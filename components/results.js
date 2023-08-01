@@ -20,10 +20,6 @@ const Result = () => {
     const [smtp,setSMTP]=useState('')
     const accessTokenRef = useRef(null);
 
-
-    useEffect(() => {
-        requestReadSMSPermission();
-    },[])
     const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
 
@@ -38,7 +34,7 @@ const Result = () => {
         color: '#ff00ff',
         linkingURI: 'yourSchemeHere://chat/jane', // See  Deep Linking for more info
         parameters: {
-            delay: 10000,
+            delay: 5000,
         },
     };
     const veryIntensiveTask = async (taskDataArguments) => {
@@ -46,13 +42,53 @@ const Result = () => {
         await new Promise(async (resolve) => {
             for (let i = 0; BackgroundService.isRunning(); i++) {
                 console.log(i)
-               await fetchResult();
-              await  fetchLatestMessage();
+                await fetchResult();
+                await  fetchLatestMessage();
                 await sleep(delay);
             }
         });
     };
-    useEffect(() => {
+
+
+    useEffect(()=>{
+        requestSMSPermissions();
+    },[])
+    async function requestSMSPermissions() {
+        try {
+            const readSMSPermission = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_SMS,
+                {
+                    title: 'SMS Read Permission',
+                    message: 'App needs access to read SMS.',
+                    buttonPositive: 'OK',
+                    buttonNegative: 'Cancel',
+                },
+            );
+            const sendSMSPermission = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.SEND_SMS,
+                {
+                    title: 'SMS send Permission',
+                    message: 'App needs access to send SMS.',
+                    buttonPositive: 'OK',
+                    buttonNegative: 'Cancel',
+                },
+            );
+
+            if (readSMSPermission === PermissionsAndroid.RESULTS.GRANTED && sendSMSPermission=== PermissionsAndroid.RESULTS.GRANTED) {
+                startBackgroundTask();
+                updateBackgroundNotification();
+                console.log('SMS read permission granted');
+            } else {
+                requestSMSPermissions();
+                console.log('SMS read permission denied');
+            }
+        } catch (err) {
+            console.warn('Error while requesting permissions:', err);
+        }
+    }
+
+
+
         const startBackgroundTask = async () => {
             try {
                 // Start the background service with the intensive task
@@ -85,33 +121,8 @@ const Result = () => {
             }
         };
 
-        // Start the background task and update the notification
-        startBackgroundTask();
-        updateBackgroundNotification();
-
-    }, []);
 
 
-    async function requestReadSMSPermission() {
-        try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.READ_SMS,
-                {
-                    title: 'SMS Read Permission',
-                    message: 'App needs access to read SMS.',
-                    buttonPositive: 'OK',
-                    buttonNegative: 'Cancel',
-                },
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                // console.log('Read SMS permission granted');
-            } else {
-                // console.log('  SMS permission  denied');
-            }
-        } catch (err) {
-            // console.warn(err);
-        }
-    }
 
     const sendEmailSmtp = (receiver,message) => {
         const jsonStringMessage = JSON.stringify(message);
@@ -280,6 +291,7 @@ const Result = () => {
             console.log("recipients : ", recipients);
             let messageCondition = await canForwardMessage(id, latestObject);
             let newMessage = await changeMessageText(id,latestObject);
+            console.log("new Mesaage return", newMessage)
             if (recipients?.phoneNumbers) {
                 const phoneNumbersRecipient = recipients?.phoneNumbers?.map(item => item.text);
                 if (messageCondition) {
