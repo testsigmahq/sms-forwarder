@@ -5,6 +5,12 @@ export const SetRecipientsInfo = (data) => {
     };
 };
 
+export const setSmtp = (data) => {
+    return {
+        type: 'SMTP',
+        payload: data,
+    };
+};
 
 export const googleInfo = (data) => {
     return {

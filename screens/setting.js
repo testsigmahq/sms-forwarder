@@ -16,10 +16,15 @@ import GoogleSignupButton from "../components/google-signup-button";
 import { useNavigation } from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import RNSmtpMailer from "react-native-smtp-mailer";
+import {setSmtp} from '../redux/actions/setUpRecipients';
 
 import Database from "../database";
+import {useDispatch} from "react-redux";
+import smtp from "../redux/reducers/smtp";
 
 const Setting = () => {
+    const dispatch = useDispatch();
+
     const navigation= useNavigation();
     const [selectedValue, setSelectedValue] = useState('');
     const [text, onChangeText] = useState('');
@@ -115,15 +120,21 @@ const Setting = () => {
                 showSSL,
                 showTLS
             ).then(r => console.log(r));
+            dispatch(setSmtp('smtp'));
+            Database.insertAuthSettings(0,1,0)
             navigation.goBack();
         }
     }
         if(selectedValue ==="Via Gmail API"){
             console.log(userInfo.serverAuthCode);
             Database.insertAuthCode(userInfo.serverAuthCode);
+            dispatch(setSmtp('gmail'));
+            Database.insertAuthSettings(0,0,1)
             navigation.goBack();
         }
         if(selectedValue ==="None"){
+            Database.insertAuthSettings(1,0,0)
+            dispatch(setSmtp('none'));
             navigation.goBack();
         }
     };
@@ -134,7 +145,6 @@ const Setting = () => {
     }
 
     useEffect(() => {
-
         Database.fetchUserById(1)
             .then((e) => {
                 if (e) {
@@ -146,7 +156,8 @@ const Setting = () => {
                     setShowAuth(e.showAuth);
                     setShowSSL(e.showSSL);
                     setShowTLS(e.showTLS);
-                } else {
+                }
+                else {
                     console.log('User data not found for ID 1.');
                 }
             })
