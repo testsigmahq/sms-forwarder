@@ -17,9 +17,11 @@ import BackgroundService from 'react-native-background-actions';
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const smsResultRef = useRef([]);
-    const [smtp,setSMTP]=useState('')
+    // const [smtp,setSMTP]=useState('')
     const accessTokenRef = useRef(null);
-
+    const smtpRef=useRef([]);
+    const gmailActive =useRef();
+    const smtpActive =useRef();
     const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
 
@@ -122,26 +124,29 @@ const Result = () => {
         };
 
 
-
-
     const sendEmailSmtp = (receiver,message) => {
         const jsonStringMessage = JSON.stringify(message);
-     if(smtp) {
-         console.log("xsendEmailSmtp", smtp)
-         console.log("ss", typeof smtp.port.toString());
-         console.log("cc", typeof (smtp.host))
-         RNSmtpMailer.sendMail({
-             mailhost: smtp.host,
-             port: smtp.port.toString(),
-             ssl: true,
-             username: smtp.loginId,
-             password: smtp.password,
-             from: smtp.emailAddress,
+        console.log("xsendEmailSmtp", smtpRef.current)
+
+        if(smtpRef.current) {
+         console.log("xsendEmailSmtp", smtpRef.current)
+         console.log("1", smtpRef.current.port.toString());
+          console.log("2",smtpRef.current.loginId)
+            console.log("3",  smtpRef.current.host)
+            console.log("4", smtpRef.current.password)
+            console.log("5",  smtpRef.current.emailAddress)
+
+            RNSmtpMailer.sendMail({
+             mailhost:smtpRef.current.host,
+             port:smtpRef.current.port.toString(),
+             ssl:true,
+             username:smtpRef.current.loginId,
+             password:smtpRef.current.password,
+             from:smtpRef.current.emailAddress,
              recipients: receiver,
              subject: 'from STMP',
              htmlBody: `<h1>${jsonStringMessage}</h1>`,
-         })
-             .then((success) => {
+         }).then((success) => {
                  console.log('Email sent successfully:', success)
                  Alert.alert("email sent",JSON.stringify(success));
                  console.log("receiver", receiver);
@@ -151,7 +156,6 @@ const Result = () => {
 
                  if (typeof message !== 'string') {
                      console.log("message is not a string");
-
                  }
              })
              .catch((error) => {
@@ -315,13 +319,21 @@ const Result = () => {
                     recipients.emails.forEach((email) => {
                         console.log("api.googleInfo.serverAuthCode========================>",api.googleInfo.serverAuthCode);
                         console.log(" accessTokenRef.current===========================================>",accessTokenRef.current);
-                            if( accessTokenRef.current) {
+                        console.log("gmailActive.current",gmailActive.current)
+                        if(gmailActive.current) {
+                            if (accessTokenRef.current) {
                                 sendEmail(email.text, latestObject?.address, newMessage)
+                                Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success",latestObject?._id);
+
                             }
-                        else {
-                            sendEmailSmtp(email.text, newMessage);
                         }
-                        Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success",latestObject?._id);
+                        console.log("smtpActive.current",smtpActive.current)
+                        if(smtpActive.current) {
+                            if (smtpRef.current) {
+                                sendEmailSmtp(email.text, newMessage);
+                                Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success",latestObject?._id);
+                            }
+                        }
                     })
                 }
             }
@@ -362,6 +374,8 @@ const Result = () => {
     }
 
     const api = useSelector((state) => {return (state.google)});
+    const op = useSelector((state) => {return (state.smtp)});
+    console.log("smtp",op.smtp);
     console.log("api",api.googleInfo.serverAuthCode)
 
     const sendEmail = async (to, from,text) => {
@@ -403,6 +417,15 @@ const Result = () => {
     };
 
     useEffect(() => {
+        Database.fetchAuthSettings((authSettings) => {
+            if (authSettings) {
+                console.log("none",authSettings.none);
+                console.log("smtp",authSettings.smtp);
+                console.log("gmail",authSettings.gmail);
+            } else {
+                console.log('AuthSettings not found or error occurred.');
+            }
+        });
         const fetchData = async () => {
             if (api.googleInfo.serverAuthCode) {
                 try {
@@ -422,9 +445,47 @@ const Result = () => {
                     console.error('Error retrieving access token:', error);
                 }
             }
+
+            Database.fetchAuthSettings((authSettings) => {
+                if (authSettings) {
+                    gmailActive.current=true;
+                    smtpActive.current=false;
+                    console.log("none",authSettings.none);
+                    console.log("smtp",authSettings.smtp);
+                    console.log("gmail=====>",authSettings.gmail);
+                } else {
+                    console.log('AuthSettings not found or error occurred.');
+                }
+            });
         };
         fetchData();
     }, [api.googleInfo.serverAuthCode]);
+
+
+    useEffect(() => {
+        Database.fetchAuthSettings((authSettings) => {
+            if (authSettings) {
+                smtpActive.current=authSettings.smtp;
+                gmailActive.current=false;
+            } else {
+                console.log('AuthSettings not found or error occurred.');
+            }
+        });
+       if(op.smtp) {
+           Database.fetchUserById(1)
+               .then((e) => {
+                   if (e) {
+                       smtpRef.current=e;
+                   } else {
+                       console.log('User data not found for ID 1.');
+                   }
+               })
+               .catch((error) => {
+                   console.log('Error fetching user data:', error);
+               });
+       }
+    }, [op.smtp]);
+
 
     return (
         <View style={{ flex: 1}}>
