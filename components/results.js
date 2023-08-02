@@ -427,39 +427,44 @@ const Result = () => {
             }
         });
         const fetchData = async () => {
-            if (api.googleInfo.serverAuthCode) {
-                try {
-                    const response = await axios.post('https://oauth2.googleapis.com/token', {
-                        code: api.googleInfo.serverAuthCode,
-                        client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
-                        client_secret: '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',
-                        redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
-                        grant_type: 'authorization_code',
-                    });
+            if(op.smtp=="gmail") {
+                console.log("insdie gmail acccc")
+                if (api.googleInfo.serverAuthCode) {
+                    try {
+                        const response = await axios.post('https://oauth2.googleapis.com/token', {
+                            code: api.googleInfo.serverAuthCode,
+                            client_id: '473722209735-7tcidkd4hji670ckn20g9r6eu2dlivit.apps.googleusercontent.com',
+                            client_secret: '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',
+                            redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
+                            grant_type: 'authorization_code',
+                        });
 
-                    const { access_token, refresh_token } = response.data;
-                    accessTokenRef.current = access_token;
-                    console.log('Access Token:', access_token);
-                    console.log('Refresh Token:', refresh_token);
-                } catch (error) {
-                    console.error('Error retrieving access token:', error);
+                        const {access_token, refresh_token} = response.data;
+                        accessTokenRef.current = access_token;
+                        console.log('Access Token:', access_token);
+                        console.log('Refresh Token:', refresh_token);
+                    } catch (error) {
+                        console.error('Error retrieving access token:', error);
+                    }
                 }
             }
 
-            Database.fetchAuthSettings((authSettings) => {
-                if (authSettings) {
-                    gmailActive.current=true;
-                    smtpActive.current=false;
-                    console.log("none",authSettings.none);
-                    console.log("smtp",authSettings.smtp);
-                    console.log("gmail=====>",authSettings.gmail);
-                } else {
-                    console.log('AuthSettings not found or error occurred.');
-                }
-            });
+            if(op.smtp == "gmail") {
+                Database.fetchAuthSettings((authSettings) => {
+                    if (authSettings) {
+                        gmailActive.current = true;
+                        smtpActive.current = false;
+                        console.log("none", authSettings.none);
+                        console.log("smtp", authSettings.smtp);
+                        console.log("gmail=====>", authSettings.gmail);
+                    } else {
+                        console.log('AuthSettings not found or error occurred.');
+                    }
+                });
+            }
         };
         fetchData();
-    }, [api.googleInfo.serverAuthCode]);
+    }, [op.smtp]);
 
 
     useEffect(() => {
