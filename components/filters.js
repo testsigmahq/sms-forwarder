@@ -1,5 +1,16 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { View, Text, StyleSheet, Switch, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Switch,
+    Image,
+    TouchableOpacity,
+    Modal,
+    ScrollView,
+    Platform,
+    PermissionsAndroid
+} from 'react-native';
 import Database from "./../database";
 
 const Filters = ({ navigation }) => {
@@ -25,6 +36,37 @@ const Filters = ({ navigation }) => {
         return unsubscribe;
     }, [navigation, fetchFilters]);
 
+    const requestContactsPermission = async () => {
+        if (Platform.OS === 'android') {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+                    {
+                        title: 'Contacts Permission',
+                        message: 'This app needs access to your contacts.',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK',
+                    }
+                );
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    // You now have the permission to access contacts
+                    // Proceed with fetching contacts using the Contacts library
+                } else {
+                    // Permission denied
+                }
+            } catch (err) {
+                console.warn(err);
+            }
+        } else if (Platform.OS === 'ios') {
+            // iOS handles permissions through Info.plist settings
+            // Make sure you've added the required keys in Info.plist
+        }
+    };
+
+    useEffect(()=>{
+        requestContactsPermission();
+    },[])
     const handleToggleChange = (id, status) => {
         const newStatus = status === "active" ? "inactive" : "active";
 

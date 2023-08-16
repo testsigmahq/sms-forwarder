@@ -22,6 +22,7 @@ const BorderBox = props => {
     const [enter,setEnter]=useState(false);
     const [openContact,setOpenContact]=useState(false);
     const [number,setNumber]=useState();
+    const [contact,setContact]=useState();
     const [senderId, setSenderId] = useState([]);
     const [textId, setTextId] = useState([]);
     const [editSender, setEditSender] = useState(false);
@@ -88,6 +89,11 @@ const BorderBox = props => {
         setShowModal(false);
         if (!editSender && number) {
             const sendStatus = value2.toLowerCase() === "send";
+            Database.fetchContactById(1).then((fetchedContact) => {
+                console.log("fetchedContact",fetchedContact);
+                setContact(fetchedContact); // Update the contact state
+            });
+
             const newData = { number, sendStatus };
             setRuleNumber((prevMessages) => [...prevMessages, newData]);
         }
@@ -187,6 +193,15 @@ const BorderBox = props => {
             setRuleModel(false)
         }
     }
+
+
+    const handleCloseContactModal = () => {
+        setOpenContact(false);
+        Database.fetchContactById(1).then((e)=>{
+            setNumber(e);
+            console.log("w",e);
+        })
+    };
 
     return (
         <View>
@@ -428,7 +443,7 @@ const BorderBox = props => {
                             <Text style={{fontSize:18,marginLeft:10}}>Select contacts
                             </Text>
                             </View>
-                      <ContactPicker/>
+                      <ContactPicker  onCloseModal={handleCloseContactModal} />
                         </View>
                     </View>
                 </View>

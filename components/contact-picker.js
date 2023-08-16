@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, View, Text, StyleSheet } from 'react-native';
 import Contacts from 'react-native-contacts';
 import Contact from '../components/contact';
+import Database from "../database";
 
-const ContactPicker = () => {
+const ContactPicker = ({ onCloseModal }) => {
     const [contacts, setContacts] = useState([]);
 
     useEffect(() => {
@@ -18,8 +19,10 @@ const ContactPicker = () => {
     };
 
     const handleContactPress = (contact) => {
-        // console.log('Contact pressed:', contact);
-        // Handle the contact press event here
+        const cleanedPhoneNumber = contact.phoneNumbers[0].number.replace("+91 ", "");
+        Database.insertContact(cleanedPhoneNumber);
+        console.log('Contact pressed:', contact.phoneNumbers[0].number.replace("+91 ", ""));
+        onCloseModal();
     };
 
     const renderItem = ({ item, index }) => {
