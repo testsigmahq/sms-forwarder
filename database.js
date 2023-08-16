@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-const database_name = 'OOO.db';
+const database_name = 'opO.db';
 const database_version = '1.0';
 const database_displayname = 'Sample Database';
 const database_size = 500000000;
@@ -40,6 +40,112 @@ const Database = {
                     console.log('Error creating "authCodes" table:', err);
                 }
             );
+        });
+    },
+    createGmailTable: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `CREATE TABLE IF NOT EXISTS gmail (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          gmail TEXT NOT NULL
+        );`,
+                [],
+                () => {
+                    console.log('Table "gmail" created successfully.');
+                },
+                (err) => {
+                    console.log('Error creating "gmail" table:', err);
+                }
+            );
+        });
+    },
+    insertGmail: (gmail) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT OR REPLACE INTO gmail (id, gmail) VALUES (1, ?);',
+                [gmail],
+                (txObj, resultSet) => {
+                    console.log('gmail inserted or replaced successfully.');
+                },
+                (txObj, error) => {
+                    console.log('Inserting AuthCode - userId:', id, 'serverAuthCode:', gmail);
+                }
+            );
+        });
+    },
+    fetchGmailById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT gmail FROM gmail WHERE id = ?;',
+                    [id],
+                    (txObj, resultSet) => {
+                        if (resultSet.rows.length > 0) {
+                            const authCode = resultSet.rows.item(0).gmail;
+                            resolve(authCode);
+                        } else {
+                            resolve(null);
+                        }
+                    },
+                    (txObj, error) => {
+                        console.log('Error fetching gmail by id:', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+    createContactTable: () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `CREATE TABLE IF NOT EXISTS contact (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          contact TEXT NOT NULL
+        );`,
+                [],
+                () => {
+                    console.log('Table "contact" created successfully.');
+                },
+                (err) => {
+                    console.log('Error creating "contact" table:', err);
+                }
+            );
+        });
+    },
+    insertContact: (contact) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'INSERT OR REPLACE INTO contact (id, contact) VALUES (1, ?);',
+                [contact],
+                (txObj, resultSet) => {
+                    console.log('contact inserted or replaced successfully.');
+                },
+                (txObj, error) => {
+                    console.log('Inserting contact - userId:', id, 'contact:', contact);
+                }
+            );
+        });
+    },
+    fetchContactById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT contact FROM contact WHERE id = ?;',
+                    [id],
+                    (txObj, resultSet) => {
+                        if (resultSet.rows.length > 0) {
+                            const authCode = resultSet.rows.item(0).contact;
+                            resolve(authCode);
+                        } else {
+                            resolve(null);
+                        }
+                    },
+                    (txObj, error) => {
+                        console.log('Error fetching contact by id:', error);
+                        reject(error);
+                    }
+                );
+            });
         });
     },
     insertAuthCode: (serverAuthCode) => {
@@ -264,6 +370,23 @@ const Database = {
                     (_, { rows }) => {
                         const results = rows.raw();
                         resolve(results);
+                    },
+                    (error) => {
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },
+
+    deleteResultById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM results WHERE id = ?',
+                    [id],
+                    () => {
+                        resolve();
                     },
                     (error) => {
                         reject(error);

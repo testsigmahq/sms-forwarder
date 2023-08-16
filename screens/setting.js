@@ -34,7 +34,7 @@ const Setting = () => {
     const [host, setHost] = useState('');
     const [port, setPort] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-
+    const [email,setEmail]=useState('');
     const [userInfo,setUserInfo]=useState('')
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -128,6 +128,7 @@ const Setting = () => {
         if(selectedValue ==="Via Gmail API"){
             console.log(userInfo.serverAuthCode);
             Database.insertAuthCode(userInfo.serverAuthCode);
+            Database.insertGmail(userInfo?.user?.email)
             dispatch(setSmtp('gmail'));
             Database.insertAuthSettings(0,0,1)
             navigation.goBack();
@@ -164,6 +165,11 @@ const Setting = () => {
             .catch((error) => {
                 console.log('Error fetching user data:', error);
             });
+
+        Database.fetchGmailById(1).then((e)=> {
+            console.log("eeee==>", e)
+            setEmail(e);
+        })
     },[]);
 
 
@@ -206,7 +212,7 @@ const Setting = () => {
                                 <Text style={{ margin: 15 }}>{emailText}</Text>
                                 <TextInput
                                     style={styles.input}
-                                    value={userInfo?.user?.email}
+                                    value={userInfo?.user?.email || email}
                                 />
                                 <View style={{margin:10}}>
                                 <GoogleSignupButton onSignup={handleGoogleSignup} />
