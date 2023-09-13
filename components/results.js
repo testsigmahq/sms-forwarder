@@ -1,5 +1,14 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
-import {View, Text, Alert, StyleSheet, Dimensions, ScrollView, PermissionsAndroid} from 'react-native';
+import {
+    View,
+    Text,
+    Alert,
+    StyleSheet,
+    Dimensions,
+    ScrollView,
+    PermissionsAndroid,
+    TouchableOpacity, Modal, TouchableWithoutFeedback
+} from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { NativeModules } from 'react-native';
 import Database from "../database";
@@ -22,9 +31,10 @@ const Result = () => {
     const smtpRef=useRef([]);
     const gmailActive =useRef();
     const smtpActive =useRef();
+    const currentResult=useRef();
     const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
-
-
+   const [model,setModel]=useState(false)
+   const [modelResult,setModelResult]=useState([]);
     const options = {
         taskName: 'Example',
         taskTitle: 'ExampleTask title',
@@ -45,7 +55,7 @@ const Result = () => {
             for (let i = 0; BackgroundService.isRunning(); i++) {
                 console.log(i)
                 await fetchResult();
-                await  fetchLatestMessage();
+                await fetchLatestMessage();
                 await sleep(delay);
             }
         });
@@ -77,8 +87,11 @@ const Result = () => {
             );
 
             if (readSMSPermission === PermissionsAndroid.RESULTS.GRANTED && sendSMSPermission=== PermissionsAndroid.RESULTS.GRANTED) {
-                startBackgroundTask();
-                updateBackgroundNotification();
+                if(!BackgroundService.isRunning()){
+                   startBackgroundTask();
+                    updateBackgroundNotification();
+                }
+                console.log("output====>",!BackgroundService.isRunning())
                 console.log('SMS read permission granted');
             } else {
                 requestSMSPermissions();
@@ -192,6 +205,7 @@ const Result = () => {
                     if (latestObject._id > (smsResultRef.current[smsResultRef.current.length - 1]?.date || 0)) {
                         console.log("inside")
                         setLatestMessage(latestObject.body);
+                        currentResult.current=latestObject.bottom
                         forwardMessage(latestObject);
                     }
                 }
@@ -429,7 +443,7 @@ const Result = () => {
         const fetchData = async () => {
             if(op.smtp=="gmail") {
                 console.log("insdie gmail acccc")
-                if (api.googleInfo.serverAuthCode) {
+                if (!!api.googleInfo.serverAuthCode) {
                     try {
                         const response = await axios.post('https://oauth2.googleapis.com/token', {
                             code: api.googleInfo.serverAuthCode,
@@ -438,9 +452,9 @@ const Result = () => {
                             redirect_uri: 'http://localhost:8080/login/oauth2/code/google',
                             grant_type: 'authorization_code',
                         });
-
                         const {access_token, refresh_token} = response.data;
                         accessTokenRef.current = access_token;
+                        Database.insertAccessToken(access_token);
                         console.log('Access Token:', access_token);
                         console.log('Refresh Token:', refresh_token);
                     } catch (error) {
@@ -492,10 +506,54 @@ const Result = () => {
     }, [op.smtp]);
 
 
+    useEffect(()=>{
+        Database.readResults()
+            .then((resultRows) => {
+                if (resultRows) {
+                    smsResultRef.current = resultRows;
+                } else {
+                    // console.log('No result rows found.');
+                }
+            })
+            .catch((error) => {
+                // console.log('Error occurred while fetching data:', error);
+            });
+    },[currentResult.current])
+
+    useEffect(()=>{
+        Database.readResults()
+            .then((resultRows) => {
+                if (resultRows) {
+                    smsResultRef.current = resultRows;
+                } else {
+                    //  console.log('No result rows found.');
+                }
+            })
+            .catch((error) => {
+                // console.log('Error occurred while fetching data:', error);
+            });
+    },[model])
+
+    async function deleteById(id) {
+        try {
+            await Database.deleteResultById(id); // Wait for the deletion to complete
+            setModel(false); // Close the modal after deletion
+
+            // Update smsResultRef to remove the deleted result
+            smsResultRef.current = smsResultRef.current.filter(result => result.id !== id);
+        } catch (error) {
+            console.error('Error deleting result:', error);
+        }
+    }
+
     return (
         <View style={{ flex: 1}}>
             <ScrollView>
             {smsResultRef.current && smsResultRef.current.length > 0 && smsResultRef.current.map((result, index) => (
+                <TouchableOpacity key={index} onPress={() => {
+                    setModel(true)
+                    setModelResult(result);
+                } }>
                 <View key={index}><View style={{padding:10}}>
                     <Text style={{fontWeight:"bold"}}>From : {result.sender}</Text>
                     <Text style={{fontWeight:"bold"}}>To : {result.receiver}</Text>
@@ -504,8 +562,28 @@ const Result = () => {
                 </View>
                 <View style={{borderTopWidth:1}}></View>
                 </View>
+                </TouchableOpacity>
             ))}
             </ScrollView>
+            <Modal visible={model } animationType="slide-up" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <View style={{ padding: 10 }}>
+                            <Text style={{ fontWeight: "bold",fontSize:15 }}>From : {modelResult?.sender}</Text>
+                            <Text style={{ fontWeight: "bold" ,fontSize:15}}>To : {modelResult?.receiver}</Text>
+                            <Text style={{fontSize:17}}>{modelResult?.message}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
+                            <TouchableOpacity onPress={() => setModel(false)}>
+                                <Text style={styles.bottom}>CANCEL</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => deleteById(modelResult.id)}>
+                                <Text style={styles.bottom}>DELETE</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -527,6 +605,25 @@ const styles = StyleSheet.create({
     resultText: {
         fontSize: 15,
         fontWeight: '500',
+    },
+    modalContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: '#FFF',
+        borderRadius: 3,
+        padding: 15,
+        width:deviceWidth*0.9,
+    },
+    bottom:{
+        letterSpacing:3,
+        fontWeight:500,
+        fontSize:18,
+        color: 'green',
+        margin:10,
     },
 });
 

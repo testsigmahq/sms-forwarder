@@ -436,10 +436,12 @@ const BorderBox = props => {
                     <View style={styles.modalContent}>
                         <View style={{height:700}}>
                             <View style={{flexDirection:'row',margin:7}}>
-                            <Image
+                                <TouchableOpacity onPress={()=>{setOpenContact(false)}}>
+                             <Image
                                 source={require('../assets/back.png')}
                                 style={styles.arrowLeft}
-                            />
+                             />
+                                </TouchableOpacity>
                             <Text style={{fontSize:18,marginLeft:10}}>Select contacts
                             </Text>
                             </View>

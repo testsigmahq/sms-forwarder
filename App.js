@@ -40,6 +40,9 @@ export default function App() {
         Database.createUsersTable();
         Database.createAuthCodesTable();
         Database.createAuthSettingsTable();
+        Database.createAccessToken();
+        Database.createGmailTable();
+        Database.createContactTable();
 
     }, []);
 

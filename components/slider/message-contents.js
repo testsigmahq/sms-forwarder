@@ -73,9 +73,9 @@ const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
                     <Text style={styles.text}>Message Template</Text>
                 </View>
                 <View style={{position:"absolute", alignSelf:"flex-end"}}>
-                <TouchableOpacity onPress={forward}>
+                {/*<TouchableOpacity onPress={forward}>*/}
                     <Image  source={require('../../assets/edit.png')} style={styles.editIcon} />
-                </TouchableOpacity>
+                {/*</TouchableOpacity>*/}
                 </View>
                     <View style={styles.line}></View>
                 <View style={{flexDirection:'row',margin:18,marginTop:0}}>
