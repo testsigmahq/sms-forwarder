@@ -10,10 +10,10 @@ import {
     Alert,
     TouchableHighlight
 } from 'react-native';
-import { RadioButton } from 'react-native-paper';
+import {RadioButton} from 'react-native-paper';
 import CustomHeader from "../components/custom-header";
 import GoogleSignupButton from "../components/google-signup-button";
-import { useNavigation } from "@react-navigation/native";
+import {useNavigation} from "@react-navigation/native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import RNSmtpMailer from "react-native-smtp-mailer";
 import {setSmtp} from '../redux/actions/setUpRecipients';
@@ -25,7 +25,7 @@ import smtp from "../redux/reducers/smtp";
 const Setting = () => {
     const dispatch = useDispatch();
 
-    const navigation= useNavigation();
+    const navigation = useNavigation();
     const [selectedValue, setSelectedValue] = useState('');
     const [text, onChangeText] = useState('');
     const [loginId, setLoginId] = useState('');
@@ -34,8 +34,8 @@ const Setting = () => {
     const [host, setHost] = useState('');
     const [port, setPort] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [email,setEmail]=useState('');
-    const [userInfo,setUserInfo]=useState('')
+    const [email, setEmail] = useState('');
+    const [userInfo, setUserInfo] = useState('')
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
     };
@@ -73,7 +73,7 @@ const Setting = () => {
 
     const [showAuth, setShowAuth] = useState(false);
     const [showSSL, setShowSSL] = useState(false);
-    const [showTLS,setShowTLS]=useState(false)
+    const [showTLS, setShowTLS] = useState(false)
 
     const toggleAuth = () => {
         setShowAuth(!showAuth);
@@ -90,51 +90,51 @@ const Setting = () => {
         let isValid = true;
 
 
-        if (selectedValue==="Via SMTP") {
+        if (selectedValue === "Via SMTP") {
 
-        if (loginId.trim() === '') {
-            isValid = false;
-            Alert.alert('Invalid Input', 'Please enter a valid login ID.');
-        } else if (password.trim() === '') {
-            isValid = false;
-            Alert.alert('Invalid Input', 'Please enter a valid password.');
-        } else if (emailAddress.trim() === '' || !validateEmail(emailAddress)) {
-            isValid = false;
-            Alert.alert('Invalid Input', 'Please enter a valid email address.');
-        } else if (host.trim() === '') {
-            isValid = false;
-            Alert.alert('Invalid Input', 'Please enter a valid host.');
-        } else if (port.toString().trim() === '') {
-            isValid = false;
-            Alert.alert('Invalid Input', 'Please enter a valid port number.');
-        }
+            if (loginId.trim() === '') {
+                isValid = false;
+                Alert.alert('Invalid Input', 'Please enter a valid login ID.');
+            } else if (password.trim() === '') {
+                isValid = false;
+                Alert.alert('Invalid Input', 'Please enter a valid password.');
+            } else if (emailAddress.trim() === '' || !validateEmail(emailAddress)) {
+                isValid = false;
+                Alert.alert('Invalid Input', 'Please enter a valid email address.');
+            } else if (host.trim() === '') {
+                isValid = false;
+                Alert.alert('Invalid Input', 'Please enter a valid host.');
+            } else if (port.toString().trim() === '') {
+                isValid = false;
+                Alert.alert('Invalid Input', 'Please enter a valid port number.');
+            }
 
-        if (isValid && (selectedValue === "Via SMTP")) {
-            Database.insertUser(
-                loginId,
-                password,
-                emailAddress,
-                host,
-                port,
-                showAuth,
-                showSSL,
-                showTLS
-            ).then(r => console.log(r));
-            dispatch(setSmtp('smtp'));
-            Database.insertAuthSettings(0,1,0)
-            navigation.goBack();
+            if (isValid && (selectedValue === "Via SMTP")) {
+                Database.insertUser(
+                    loginId,
+                    password,
+                    emailAddress,
+                    host,
+                    port,
+                    showAuth,
+                    showSSL,
+                    showTLS
+                ).then(r => console.log(r));
+                dispatch(setSmtp('smtp'));
+                Database.insertAuthSettings(0, 1, 0)
+                navigation.goBack();
+            }
         }
-    }
-        if(selectedValue ==="Via Gmail API"){
+        if (selectedValue === "Via Gmail API") {
             console.log(userInfo.serverAuthCode);
             Database.insertAuthCode(userInfo.serverAuthCode);
             Database.insertGmail(userInfo?.user?.email)
             dispatch(setSmtp('gmail'));
-            Database.insertAuthSettings(0,0,1)
+            Database.insertAuthSettings(0, 0, 1)
             navigation.goBack();
         }
-        if(selectedValue ==="None"){
-            Database.insertAuthSettings(1,0,0)
+        if (selectedValue === "None") {
+            Database.insertAuthSettings(1, 0, 0)
             dispatch(setSmtp('none'));
             navigation.goBack();
         }
@@ -146,6 +146,21 @@ const Setting = () => {
     }
 
     useEffect(() => {
+
+        Database.fetchAuthSettings((authSettings) => {
+            if (authSettings) {
+                if (authSettings.none) {
+                    setSelectedValue("None")
+                } else if (authSettings.smtp) {
+                    setSelectedValue("Via SMTP")
+                } else {
+                    setSelectedValue("Via Gmail API")
+                }
+            } else {
+                console.log('AuthSettings not found or error occurred.');
+            }
+        });
+
         Database.fetchUserById(1)
             .then((e) => {
                 if (e) {
@@ -157,8 +172,7 @@ const Setting = () => {
                     setShowAuth(e.showAuth);
                     setShowSSL(e.showSSL);
                     setShowTLS(e.showTLS);
-                }
-                else {
+                } else {
                     console.log('User data not found for ID 1.');
                 }
             })
@@ -166,34 +180,33 @@ const Setting = () => {
                 console.log('Error fetching user data:', error);
             });
 
-        Database.fetchGmailById(1).then((e)=> {
+        Database.fetchGmailById(1).then((e) => {
             console.log("eeee==>", e)
             setEmail(e);
         })
-    },[]);
+    }, []);
 
 
-
-        const sendEmail = () => {
-            RNSmtpMailer.sendMail({
-                mailhost: 'smtp.gmail.com',
-                port: '465',
-                ssl: true,
-                username: 'ragulrahul973@gmail.com',
-                password: 'nogexfdjohihshgd',
-                from: 'ragulrahul973@gmail.com',
-                recipients: 'as17112001@gmail.com',
-                subject: 'Test Email',
-                htmlBody: '<h1>Hello, this is a test email from sms forwarder</h1>',
-            })
-                .then(success => console.log('Email sent successfully:', success))
-                .catch(error => console.log('Error sending email:', error));
+    const sendEmail = () => {
+        RNSmtpMailer.sendMail({
+            mailhost: 'smtp.gmail.com',
+            port: '465',
+            ssl: true,
+            username: 'ragulrahul973@gmail.com',
+            password: 'nogexfdjohihshgd',
+            from: 'ragulrahul973@gmail.com',
+            recipients: 'as17112001@gmail.com',
+            subject: 'Test Email',
+            htmlBody: '<h1>Hello, this is a test email from sms forwarder</h1>',
+        })
+            .then(success => console.log('Email sent successfully:', success))
+            .catch(error => console.log('Error sending email:', error));
     };
 
 
     return (
         <>
-            <View style={{ margin: 10, marginHorizontal: 15 }}>
+            <View style={{margin: 10, marginHorizontal: 15}}>
                 <CustomHeader
                     title="Settings"
                     onPressBackButton={handleValidation}
@@ -203,25 +216,25 @@ const Setting = () => {
             <ScrollView contentContainerStyle={styles.container}>
                 <RadioButton.Group onValueChange={onChangeRadio} value={selectedValue}>
                     <View>
-                        <RadioButton.Item value="None" label="None" />
+                        <RadioButton.Item value="None" label="None"/>
                     </View>
                     <View>
-                        <RadioButton.Item label="Via Gmail API" value="Via Gmail API" />
+                        <RadioButton.Item label="Via Gmail API" value="Via Gmail API"/>
                         {selectedValue === "Via Gmail API" && (
                             <View>
-                                <Text style={{ margin: 15 }}>{emailText}</Text>
+                                <Text style={{margin: 15}}>{emailText}</Text>
                                 <TextInput
                                     style={styles.input}
                                     value={userInfo?.user?.email || email}
                                 />
-                                <View style={{margin:10}}>
-                                <GoogleSignupButton onSignup={handleGoogleSignup} />
+                                <View style={{margin: 10}}>
+                                    <GoogleSignupButton onSignup={handleGoogleSignup}/>
                                 </View>
                             </View>
                         )}
                     </View>
                     <View>
-                        <RadioButton.Item label="Via SMTP" value="Via SMTP" />
+                        <RadioButton.Item label="Via SMTP" value="Via SMTP"/>
                         {selectedValue === "Via SMTP" && (
                             <View>
                                 <TextInput
@@ -230,21 +243,21 @@ const Setting = () => {
                                     onChangeText={handleLoginIdChange}
                                     value={loginId}
                                 />
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input1}
-                                    placeholder="Password"
-                                    secureTextEntry={!passwordVisible}
-                                    onChangeText={handlePasswordChange}
-                                    value={password}
-                                />
-                                <Icon
-                                    name={passwordVisible ? 'eye-slash' : 'eye'}
-                                    size={20}
-                                    onPress={togglePasswordVisibility}
-                                    style={styles.passwordIcon}
-                                />
-                            </View>
+                                <View style={styles.inputContainer}>
+                                    <TextInput
+                                        style={styles.input1}
+                                        placeholder="Password"
+                                        secureTextEntry={!passwordVisible}
+                                        onChangeText={handlePasswordChange}
+                                        value={password}
+                                    />
+                                    <Icon
+                                        name={passwordVisible ? 'eye-slash' : 'eye'}
+                                        size={20}
+                                        onPress={togglePasswordVisibility}
+                                        style={styles.passwordIcon}
+                                    />
+                                </View>
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Email Address"
@@ -265,26 +278,26 @@ const Setting = () => {
                                     keyboardType="numeric"
                                 />
                                 <TouchableOpacity style={styles.optionContainer} onPress={toggleAuth}>
-                                    <Text style={{ fontSize: 16 }}>Use authentication</Text>
+                                    <Text style={{fontSize: 16}}>Use authentication</Text>
                                     <View style={[styles.toggleButton, showAuth && styles.toggleButtonActive]}>
-                                        <View style={[styles.toggleKnob, showAuth && styles.toggleKnobActive]} />
+                                        <View style={[styles.toggleKnob, showAuth && styles.toggleKnobActive]}/>
                                     </View>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.optionContainer} onPress={toggleSSL}>
-                                    <Text style={{ fontSize: 16 }}>Use SSL</Text>
+                                    <Text style={{fontSize: 16}}>Use SSL</Text>
                                     <View style={[styles.toggleButton, showSSL && styles.toggleButtonActive]}>
-                                        <View style={[styles.toggleKnob, showSSL && styles.toggleKnobActive]} />
+                                        <View style={[styles.toggleKnob, showSSL && styles.toggleKnobActive]}/>
                                     </View>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.optionContainer} onPress={toggleTLS}>
-                                    <Text style={{ fontSize: 16 }}>Use TLS/StartTLS</Text>
+                                    <Text style={{fontSize: 16}}>Use TLS/StartTLS</Text>
                                     <View style={[styles.toggleButton, showTLS && styles.toggleButtonActive]}>
-                                        <View style={[styles.toggleKnob, showTLS && styles.toggleKnobActive]} />
+                                        <View style={[styles.toggleKnob, showTLS && styles.toggleKnobActive]}/>
                                     </View>
                                 </TouchableOpacity>
-                                <View style={{ top: 10 }}>
+                                <View style={{top: 10}}>
                                     <TouchableHighlight onPress={sendEmail}>
-                                        <Button title="Send Test Mail" onPress={sendEmail} />
+                                        <Button title="Send Test Mail" onPress={sendEmail}/>
                                     </TouchableHighlight>
                                 </View>
                             </View>

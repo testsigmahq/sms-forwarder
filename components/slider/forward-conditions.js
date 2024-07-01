@@ -20,7 +20,7 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
        async function fetchFilter(){
           let filter = await Database.fetchFilters(id);
           // console.log("filters ==> //", filter)
-          setForwardCondition(filter?.forward_all === "1" )
+          setForwardCondition(filter[0]?.forward_all === 1 )
        }
        fetchFilter();
     },[])

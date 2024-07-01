@@ -140,7 +140,7 @@ function SmsRelay({ navigation }) {
                     <TouchableOpacity
                         testID="left-navigator"
                         name="NavigationBar"
-                        style={{ width: "15%", height: "15%" }}
+                        style={{ width: "15%", height: "100%",}}
                         onPress={() => navigation.openDrawer()}
                     >
                         <View>

@@ -26,6 +26,8 @@ import BackgroundService from 'react-native-background-actions';
 const Result = () => {
     const [latestMessage, setLatestMessage] = useState("");
     const smsResultRef = useRef([]);
+    const [results, setResults] = useState([]);
+
     // const [smtp,setSMTP]=useState('')
     const accessTokenRef = useRef(null);
     const smtpRef=useRef([]);
@@ -378,6 +380,7 @@ const Result = () => {
             .then((resultRows) => {
                 if (resultRows) {
                     smsResultRef.current = resultRows;
+                    setResults(resultRows);
                 } else {
                     // console.log('No result rows found.');
                 }
@@ -511,6 +514,7 @@ const Result = () => {
             .then((resultRows) => {
                 if (resultRows) {
                     smsResultRef.current = resultRows;
+                    setResults(resultRows);
                 } else {
                     // console.log('No result rows found.');
                 }
@@ -524,7 +528,9 @@ const Result = () => {
         Database.readResults()
             .then((resultRows) => {
                 if (resultRows) {
+                    // console.log('initial results data', resultRows);
                     smsResultRef.current = resultRows;
+                    setResults(resultRows);
                 } else {
                     //  console.log('No result rows found.');
                 }
@@ -549,7 +555,7 @@ const Result = () => {
     return (
         <View style={{ flex: 1}}>
             <ScrollView>
-            {smsResultRef.current && smsResultRef.current.length > 0 && smsResultRef.current.map((result, index) => (
+                {results.length > 0 && results.map((result, index) => (
                 <TouchableOpacity key={index} onPress={() => {
                     setModel(true)
                     setModelResult(result);

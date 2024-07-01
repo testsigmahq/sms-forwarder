@@ -5,7 +5,12 @@ import {Image, StyleSheet, Text, View, TouchableOpacity, Dimensions} from 'react
 const CustomHeader = props => {
     return (
         <View style={styles.container}>
-            <TouchableOpacity testID={"go-back"} name={"navigate-back"} onPress={props.onPressBackButton}>
+            <TouchableOpacity
+                testID={"go-back"}
+                name={"navigate-back"}
+                style={styles.touchableArea}
+                onPress={props.onPressBackButton}
+            >
                 <Image
                     source={require('../assets/back.png')}
                     style={styles.arrowLeft}
@@ -31,9 +36,15 @@ const styles = StyleSheet.create({
         margin:-10,
     },
     arrowLeft: {
-        width: 25,
+        width: deviceWidth * 0.1,
         height: 25,
         resizeMode: 'contain',
+    },
+    touchableArea: {
+        width: deviceWidth * 0.15,
+        height: 50,                 
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     title: {
         left: 20,

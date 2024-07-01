@@ -472,7 +472,7 @@ const Database = {
                     'UPDATE filters SET forward_all = ? WHERE id = ?',
                     [forward, id],
                     () => {
-                        console.log(`filter with ID ${id} updated successfully, with value of ${status}`);
+                        console.log(`filter with ID ${id} updated successfully, with value of ${forward}`);
                         resolve();
                     },
                     (err) => {
