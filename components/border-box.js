@@ -13,7 +13,7 @@ import {
 import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
-import Database from "../database";
+import Database from "../repository/database";
 
 const BorderBox = props => {
    const [ruleModel,setRuleModel]=useState(false)

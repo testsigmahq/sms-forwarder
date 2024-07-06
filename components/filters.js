@@ -11,7 +11,7 @@ import {
     Platform,
     PermissionsAndroid
 } from 'react-native';
-import Database from "./../database";
+import Database from "../repository/database";
 
 const Filters = ({ navigation }) => {
     const [toggleValue, setToggleValue] = useState(false);

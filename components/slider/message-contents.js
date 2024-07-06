@@ -5,7 +5,7 @@ import CheckBox from "../checkbox";
 import {Input} from "react-native-elements";
 import {FontAwesome5} from "@expo/vector-icons";
 import {useDispatch, useSelector} from "react-redux";
-import Database from "../../database";
+import Database from "../../repository/database";
 const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
     const navigation = useNavigation();
 

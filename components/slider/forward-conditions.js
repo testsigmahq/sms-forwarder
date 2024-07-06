@@ -3,7 +3,7 @@ import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions, ScrollView} fr
 import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
-import Database from "../../database";
+import Database from "../../repository/database";
 
 const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
     const [forwardCondition, setForwardCondition] = useState(false);

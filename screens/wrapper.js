@@ -7,7 +7,7 @@ import MoreSettings from "../components/slider/more-settings";
 import {View, StyleSheet, Dimensions, TouchableOpacity, Text, Modal} from "react-native";
 import CustomHeader from "../components/custom-header";
 import {useNavigation, useRoute} from "@react-navigation/native";
-import Database from "../database";
+import Database from "../repository/database";
 import {useSelector} from "react-redux";
 import recipients from "../redux/reducers/recipients";
 

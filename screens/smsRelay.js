@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {Dimensions, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import BottomTabs from '../components/bottom-tabs';
 import { PermissionsAndroid } from 'react-native';
-import Database from "../database";
+import Database from "../repository/database";
 
 function SmsRelay({ navigation }) {
 

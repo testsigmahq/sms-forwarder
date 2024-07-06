@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import Database from './database';
+import Database from './repository/database';
 import HomeStack from './routes/homeStack';
 
 

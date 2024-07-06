@@ -4,7 +4,7 @@ import { Input } from 'react-native-elements';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {useDispatch} from "react-redux";
 import SimData from 'react-native-sim-data'
-import Database from "../../database";
+import Database from "../../repository/database";
 const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
     const dispatch = useDispatch();
     useEffect(() => {

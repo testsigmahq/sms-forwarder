@@ -1,26 +1,26 @@
-import React, {useState, useEffect, useCallback, useRef} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-    View,
-    Text,
     Alert,
-    StyleSheet,
     Dimensions,
-    ScrollView,
+    Modal,
+    NativeModules,
     PermissionsAndroid,
-    TouchableOpacity, Modal, TouchableWithoutFeedback
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
-import { NativeModules } from 'react-native';
-import Database from "../database";
+import Database from "../repository/database";
 import axios from 'axios';
-import { encode } from 'base-64';
-import {useDispatch, useSelector} from "react-redux";
+import {encode} from 'base-64';
+import {useSelector} from "react-redux";
 import moment from "moment";
 import RNSmtpMailer from "react-native-smtp-mailer";
+import BackgroundService from 'react-native-background-actions';
 
 const DirectSms = NativeModules.DirectSms;
-
-import BackgroundService from 'react-native-background-actions';
 
 
 const Result = () => {
@@ -30,13 +30,13 @@ const Result = () => {
 
     // const [smtp,setSMTP]=useState('')
     const accessTokenRef = useRef(null);
-    const smtpRef=useRef([]);
-    const gmailActive =useRef();
-    const smtpActive =useRef();
-    const currentResult=useRef();
+    const smtpRef = useRef([]);
+    const gmailActive = useRef();
+    const smtpActive = useRef();
+    const currentResult = useRef();
     const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
-   const [model,setModel]=useState(false)
-   const [modelResult,setModelResult]=useState([]);
+    const [model, setModel] = useState(false)
+    const [modelResult, setModelResult] = useState([]);
     const options = {
         taskName: 'Example',
         taskTitle: 'ExampleTask title',
@@ -46,138 +46,123 @@ const Result = () => {
             type: 'mipmap',
         },
         color: '#ff00ff',
-        linkingURI: 'yourSchemeHere://chat/jane', // See  Deep Linking for more info
+        linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
         parameters: {
             delay: 5000,
         },
     };
+
     const veryIntensiveTask = async (taskDataArguments) => {
-        const { delay } = taskDataArguments;
-        await new Promise(async (resolve) => {
-            for (let i = 0; BackgroundService.isRunning(); i++) {
-                console.log(i)
-                await fetchResult();
-                await fetchLatestMessage();
-                await sleep(delay);
-            }
-        });
+        const {delay} = taskDataArguments;
+        while (BackgroundService.isRunning()) {
+            console.log('Running task');
+            await fetchResult();
+            await fetchLatestMessage();
+            await sleep(delay);
+        }
     };
 
-
-    useEffect(()=>{
-        requestSMSPermissions();
-    },[])
-    async function requestSMSPermissions() {
+    const requestSMSPermissions = async () => {
         try {
-            const readSMSPermission = await PermissionsAndroid.request(
+            const permissions = [
                 PermissionsAndroid.PERMISSIONS.READ_SMS,
-                {
-                    title: 'SMS Read Permission',
-                    message: 'App needs access to read SMS.',
-                    buttonPositive: 'OK',
-                    buttonNegative: 'Cancel',
-                },
-            );
-            const sendSMSPermission = await PermissionsAndroid.request(
                 PermissionsAndroid.PERMISSIONS.SEND_SMS,
-                {
-                    title: 'SMS send Permission',
-                    message: 'App needs access to send SMS.',
-                    buttonPositive: 'OK',
-                    buttonNegative: 'Cancel',
-                },
-            );
+            ];
 
-            if (readSMSPermission === PermissionsAndroid.RESULTS.GRANTED && sendSMSPermission=== PermissionsAndroid.RESULTS.GRANTED) {
-                if(!BackgroundService.isRunning()){
-                   startBackgroundTask();
+            const granted = await PermissionsAndroid.requestMultiple(permissions, {
+                title: 'SMS Permissions',
+                message: 'App needs access to read and send SMS.',
+                buttonPositive: 'OK',
+                buttonNegative: 'Cancel',
+            });
+
+            if (
+                granted[PermissionsAndroid.PERMISSIONS.READ_SMS] === PermissionsAndroid.RESULTS.GRANTED &&
+                granted[PermissionsAndroid.PERMISSIONS.SEND_SMS] === PermissionsAndroid.RESULTS.GRANTED
+            ) {
+                if (!BackgroundService.isRunning()) {
+                    startBackgroundTask();
                     updateBackgroundNotification();
                 }
-                console.log("output====>",!BackgroundService.isRunning())
-                console.log('SMS read permission granted');
+                console.log('SMS permissions granted');
             } else {
-                requestSMSPermissions();
-                console.log('SMS read permission denied');
+                console.log('SMS permissions denied. Requesting again');
+                await requestSMSPermissions();
             }
         } catch (err) {
             console.warn('Error while requesting permissions:', err);
         }
-    }
+    };
 
+    const startBackgroundTask = async () => {
+        try {
+            await BackgroundService.start(veryIntensiveTask, options);
+            console.log('Background task started.');
+        } catch (error) {
+            console.error('Error starting background task:', error);
+        }
+    };
 
-
-        const startBackgroundTask = async () => {
-            try {
-                // Start the background service with the intensive task
-                await BackgroundService.start(veryIntensiveTask, options);
-                console.log('Background task started.');
-            } catch (error) {
-                console.error('Error starting background task:', error);
+    const updateBackgroundNotification = async () => {
+        try {
+            if (BackgroundService.isRunning()) {
+                await BackgroundService.updateNotification({taskDesc: 'New ExampleTask description'});
+                console.log('Background notification updated.');
             }
-        };
+        } catch (error) {
+            console.error('Error updating background notification:', error);
+        }
+    };
 
-        const updateBackgroundNotification = async () => {
-            try {
-                if (BackgroundService.isRunning()) {
-                    // Update the background task notification with a new description
-                    await BackgroundService.updateNotification({ taskDesc: 'New ExampleTask description' });
-                    console.log('Background notification updated.');
-                }
-            } catch (error) {
-                console.error('Error updating background notification:', error);
-            }
-        };
-
-        const stopBackgroundTask = async () => {
-            try {
-                // Stop the background task
-                await BackgroundService.stop();
-                console.log('Background task stopped.');
-            } catch (error) {
-                console.error('Error stopping background task:', error);
-            }
-        };
+    const stopBackgroundTask = async () => {
+        try {
+            await BackgroundService.stop();
+            console.log('Background task stopped.');
+        } catch (error) {
+            console.error('Error stopping background task:', error);
+        }
+    };
 
 
-    const sendEmailSmtp = (receiver,message) => {
+    const sendEmailSmtp = (receiver, message) => {
         const jsonStringMessage = JSON.stringify(message);
         console.log("xsendEmailSmtp", smtpRef.current)
 
-        if(smtpRef.current) {
-         console.log("xsendEmailSmtp", smtpRef.current)
-         console.log("1", smtpRef.current.port.toString());
-          console.log("2",smtpRef.current.loginId)
-            console.log("3",  smtpRef.current.host)
+        if (smtpRef.current) {
+            console.log("xsendEmailSmtp", smtpRef.current)
+            console.log("1", smtpRef.current.port.toString());
+            console.log("2", smtpRef.current.loginId)
+            console.log("3", smtpRef.current.host)
             console.log("4", smtpRef.current.password)
-            console.log("5",  smtpRef.current.emailAddress)
+            console.log("5", smtpRef.current.emailAddress)
 
             RNSmtpMailer.sendMail({
-             mailhost:smtpRef.current.host,
-             port:smtpRef.current.port.toString(),
-             ssl:true,
-             username:smtpRef.current.loginId,
-             password:smtpRef.current.password,
-             from:smtpRef.current.emailAddress,
-             recipients: receiver,
-             subject: 'from STMP',
-             htmlBody: `<h1>${jsonStringMessage}</h1>`,
-         }).then((success) => {
-                 console.log('Email sent successfully:', success)
-                 Alert.alert("email sent",JSON.stringify(success));
-                 console.log("receiver", receiver);
-                 console.log("message", message);
-                 console.log("typeof message", typeof message);
-                 console.log("message as string", message.toString());
+                mailhost: smtpRef.current.host,
+                port: smtpRef.current.port.toString(),
+                ssl: true,
+                username: smtpRef.current.loginId,
+                password: smtpRef.current.password,
+                from: smtpRef.current.emailAddress,
+                recipients: receiver,
+                subject: 'from STMP',
+                htmlBody: `<h1>${jsonStringMessage}</h1>`,
+            }).then((success) => {
+                console.log('Email sent successfully:', success)
+                Alert.alert("email sent", JSON.stringify(success));
+                console.log("receiver", receiver);
+                console.log("message", message);
+                console.log("typeof message", typeof message);
+                console.log("message as string", message.toString());
 
-                 if (typeof message !== 'string') {
-                     console.log("message is not a string");
-                 }
-             })
-             .catch((error) => {
-                 console.log('Error sending email:', error)
-                 Alert.alert("error",JSON.stringify(error));
-             });
-     }
+                if (typeof message !== 'string') {
+                    console.log("message is not a string");
+                }
+            })
+                .catch((error) => {
+                    console.log('Error sending email:', error)
+                    Alert.alert("error", JSON.stringify(error));
+                });
+        }
     };
 
     const fetchLatestMessage = useCallback(() => {
@@ -198,16 +183,10 @@ const Result = () => {
 
                 if (arr.length > 0) {
                     const latestObject = arr[0];
-                    // console.log('Latest Object: ', latestObject );
-                    // console.log('--> ' , latestObject.addres s);
-                    // console.log('--> ' , latestObject.body);
-                    // console.log("smsResult-=========>",smsResultRef.current)
-                    // console.log("latestObject._id====>",latestObject._id)
-                    // console.log("smsResult[smsResult.length - 1]?.date",smsResultRef.current[smsResultRef.current.length - 1]?.date);
                     if (latestObject._id > (smsResultRef.current[smsResultRef.current.length - 1]?.date || 0)) {
                         console.log("inside")
                         setLatestMessage(latestObject.body);
-                        currentResult.current=latestObject.bottom
+                        currentResult.current = latestObject.bottom
                         forwardMessage(latestObject);
                     }
                 }
@@ -215,15 +194,19 @@ const Result = () => {
         );
     }, []);
 
-
     function formatDateTime(timestamp) {
         const dateObject = new Date(timestamp);
-        const formattedDateTime = dateObject.toLocaleString('en-GB', { day: '2-digit',month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const formattedDateTime = dateObject.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
         return `${formattedDateTime}`;
     }
 
     const forwardToURL = (method, url, key, message) => {
-        const data = { [key]: message };
+        const data = {[key]: message};
         if (method === 'post') {
             axios
                 .post(url, data)
@@ -245,17 +228,17 @@ const Result = () => {
         }
     };
 
-    async function canForwardMessage(id, latestObject){
-        const rule = await  Database.fetchAllByRule(id);
+    async function canForwardMessage(id, latestObject) {
+        const rule = await Database.fetchAllByRule(id);
         console.log("rules : ", rule);
         let booleanValue = false;
         const forwardCondition = await Database.fetchFilters(id)
-        console.log("forwardCondition",forwardCondition.forward_all);
-        if((rule.senderNumbers.length > 0 || rule.texts.length > 0)) {
+        console.log("forwardCondition", forwardCondition.forward_all);
+        if ((rule.senderNumbers.length > 0 || rule.texts.length > 0)) {
             if (rule.senderNumbers.length > 0) {
                 console.log("inside sender rule");
                 rule.senderNumbers.forEach((number) => {
-                    console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,",latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
+                    console.log("\n\n each number : \t", number.sender, "\n\n slicing : \t,", latestObject.address.slice(3), "\n\n status \t", number.sendStatus);
                     if (number.sender === latestObject.address.slice(3) && number.sendStatus === "1") {
                         console.log("inside sender number status 1");
                         booleanValue = true;
@@ -279,8 +262,7 @@ const Result = () => {
                     console.log("before else , ", text.messageText, booleanValue);
                 }
             }
-        }
-        else {
+        } else {
             console.log("inside else no text and sender rule");
             booleanValue = true;
         }
@@ -288,71 +270,72 @@ const Result = () => {
         return booleanValue;
     }
 
-    async  function changeMessageText(id,latestObject){
+    async function changeMessageText(id, latestObject) {
         let newMessage = latestObject?.body;
         const changeContent = await Database.fetchChangeContents(id);
         // console.log("Change content : \t ", changeContent);
-        if(changeContent.length > 0){
+        if (changeContent.length > 0) {
             // console.log("inside change content ");
             changeContent.forEach((content) => {
-                if (newMessage.includes(content.oldWord)){
+                if (newMessage.includes(content.oldWord)) {
                     // console.log("inside content with oldWord :\t", content.oldWord);
                     newMessage = newMessage.replace(content.oldWord, content.newWord);
                 }
             })
         }
         // newMessage = `From : ${latestObject?.address} \n` + newMessage;
-        console.log("before returning newMessage : ", newMessage);
+        console.log("NewMessage :: ", newMessage);
         return newMessage;
     }
+
     async function fetchRecipients(id, latestObject) {
         try {
             const recipients = await Database.fetchAllRecords(id);
-            console.log("recipients : ", recipients);
+            console.log("Recipients :: ", recipients);
             let messageCondition = await canForwardMessage(id, latestObject);
-            let newMessage = await changeMessageText(id,latestObject);
-            console.log("new Mesaage return", newMessage)
+            let newMessage = await changeMessageText(id, latestObject);
+            console.log("New message return :: ", newMessage)
+
             if (recipients?.phoneNumbers) {
                 const phoneNumbersRecipient = recipients?.phoneNumbers?.map(item => item.text);
                 if (messageCondition) {
                     DirectSms.sendDirectSms(phoneNumbersRecipient, newMessage);
                     for (const phoneNumber of phoneNumbersRecipient) {
-                        console.log("latestObject?.body?.date_sent==>",latestObject?.body?.date_sent);
-                        await Database.insertResults(newMessage, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success",latestObject?._id);
+                        await Database.insertResults(newMessage, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success", latestObject?._id);
                     }
                 }
             }
+
             if (recipients?.urls) {
                 if (messageCondition) {
                     recipients?.urls?.forEach((url) => {
                         forwardToURL(url.requestMethod, url.text, url.key, latestObject?.body);
-                        Database.insertResults(newMessage, latestObject?.address, url.text, formatDateTime(moment()), "Success",latestObject?._id);
+                        Database.insertResults(newMessage, latestObject?.address, url.text, formatDateTime(moment()), "Success", latestObject?._id);
                     });
                 }
             }
+
             if (recipients?.emails) {
                 if (messageCondition) {
                     recipients.emails.forEach((email) => {
-                        console.log("api.googleInfo.serverAuthCode========================>",api.googleInfo.serverAuthCode);
-                        console.log(" accessTokenRef.current===========================================>",accessTokenRef.current);
-                        console.log("gmailActive.current",gmailActive.current)
-                        if(gmailActive.current) {
+                        if (gmailActive.current) {
                             if (accessTokenRef.current) {
                                 sendEmail(email.text, latestObject?.address, newMessage)
-                                Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success",latestObject?._id);
+                                Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success", latestObject?._id);
 
                             }
                         }
-                        console.log("smtpActive.current",smtpActive.current)
-                        if(smtpActive.current) {
+                        console.log("smtpActive.current", smtpActive.current)
+                        if (smtpActive.current) {
                             if (smtpRef.current) {
                                 sendEmailSmtp(email.text, newMessage);
-                                Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success",latestObject?._id);
+                                Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success", latestObject?._id);
                             }
                         }
                     })
                 }
             }
+
         } catch (error) {
             console.error("Error occurred while fetching recipients:", error);
         }
@@ -361,41 +344,41 @@ const Result = () => {
     async function fetchFilters(status, latestObject) {
         try {
             const filterArray = await Database.fetchFiltersByStatus(status);
-            // console.log("filters : ", filterArray);
             filterArray.forEach((item) => {
                 fetchRecipients(item.id, latestObject)
             })
         } catch (error) {
-            // console.error("Error occurred while fetching filters:", error);
+            console.error("Error occurred while fetching filters ::", error);
         }
     }
 
-    const forwardMessage =  (latestObject) => {
+    const forwardMessage = (latestObject) => {
         fetchFilters("active", latestObject).then(r => console.log("success"));
     };
 
 
-    const fetchResult = async()=> {
+    const fetchResult = async () => {
         Database.readResults()
             .then((resultRows) => {
                 if (resultRows) {
                     smsResultRef.current = resultRows;
                     setResults(resultRows);
-                } else {
-                    // console.log('No result rows found.');
                 }
             })
             .catch((error) => {
-                // console.log('Error occurred while fetching data:', error);
+                console.log('Error occurred while fetching data:', error);
             });
     }
 
-    const api = useSelector((state) => {return (state.google)});
-    const op = useSelector((state) => {return (state.smtp)});
-    console.log("smtp",op.smtp);
-    console.log("api",api.googleInfo.serverAuthCode)
+    const api = useSelector((state) => {
+        return (state.google)
+    });
 
-    const sendEmail = async (to, from,text) => {
+    const op = useSelector((state) => {
+        return (state.smtp)
+    });
+
+    const sendEmail = async (to, from, text) => {
         console.log("is true", accessTokenRef.current)
         const config = {
             headers: {
@@ -413,7 +396,7 @@ const Result = () => {
                 raw: createRawMessage(email),
             }, config);
             console.log('Email sent:', response.data);
-            Alert.alert('Email sent:',JSON.stringify(response.data));
+            Alert.alert('Email sent:', JSON.stringify(response.data));
         } catch (error) {
             console.error('Error sending email:', error);
         }
@@ -428,23 +411,14 @@ const Result = () => {
             `${email.text}`,
         ].join('\r\n');
 
-        const base64EncodedMessage = encode(message);
-
-        return base64EncodedMessage;
+        return encode(message);
     };
 
     useEffect(() => {
-        Database.fetchAuthSettings((authSettings) => {
-            if (authSettings) {
-                console.log("none",authSettings.none);
-                console.log("smtp",authSettings.smtp);
-                console.log("gmail",authSettings.gmail);
-            } else {
-                console.log('AuthSettings not found or error occurred.');
-            }
-        });
+
         const fetchData = async () => {
-            if(op.smtp=="gmail") {
+
+            if (op.smtp === "gmail") {
                 console.log("insdie gmail acccc")
                 if (!!api.googleInfo.serverAuthCode) {
                     try {
@@ -466,7 +440,7 @@ const Result = () => {
                 }
             }
 
-            if(op.smtp == "gmail") {
+            if (op.smtp === "gmail") {
                 Database.fetchAuthSettings((authSettings) => {
                     if (authSettings) {
                         gmailActive.current = true;
@@ -480,70 +454,73 @@ const Result = () => {
                 });
             }
         };
+
         fetchData();
     }, [op.smtp]);
 
 
     useEffect(() => {
+
         Database.fetchAuthSettings((authSettings) => {
             if (authSettings) {
-                smtpActive.current=authSettings.smtp;
-                gmailActive.current=false;
+                smtpActive.current = authSettings.smtp;
+                gmailActive.current = false;
             } else {
                 console.log('AuthSettings not found or error occurred.');
             }
         });
-       if(op.smtp) {
-           Database.fetchUserById(1)
-               .then((e) => {
-                   if (e) {
-                       smtpRef.current=e;
-                   } else {
-                       console.log('User data not found for ID 1.');
-                   }
-               })
-               .catch((error) => {
-                   console.log('Error fetching user data:', error);
-               });
-       }
+
+        if (op.smtp) {
+            Database.fetchUserById(1)
+                .then((e) => {
+                    if (e) {
+                        smtpRef.current = e;
+                    } else {
+                        console.log('User data not found for ID 1.');
+                    }
+                })
+                .catch((error) => {
+                    console.log('Error fetching user data:', error);
+                });
+        }
+
     }, [op.smtp]);
 
 
-    useEffect(()=>{
+    useEffect(() => {
         Database.readResults()
             .then((resultRows) => {
                 if (resultRows) {
                     smsResultRef.current = resultRows;
                     setResults(resultRows);
-                } else {
-                    // console.log('No result rows found.');
                 }
             })
             .catch((error) => {
-                // console.log('Error occurred while fetching data:', error);
+                console.log('Error occurred while fetching data:', error);
             });
-    },[currentResult.current])
+    }, [currentResult.current])
 
-    useEffect(()=>{
+    useEffect(() => {
         Database.readResults()
             .then((resultRows) => {
                 if (resultRows) {
-                    // console.log('initial results data', resultRows);
                     smsResultRef.current = resultRows;
                     setResults(resultRows);
-                } else {
-                    //  console.log('No result rows found.');
                 }
             })
             .catch((error) => {
-                // console.log('Error occurred while fetching data:', error);
+                console.log('Error occurred while fetching data:', error);
             });
-    },[model])
+    }, [model])
+
+    useEffect(() => {
+        requestSMSPermissions();
+    }, []);
 
     async function deleteById(id) {
         try {
-            await Database.deleteResultById(id); // Wait for the deletion to complete
-            setModel(false); // Close the modal after deletion
+            await Database.deleteResultById(id);
+            setModel(false);
 
             // Update smsResultRef to remove the deleted result
             smsResultRef.current = smsResultRef.current.filter(result => result.id !== id);
@@ -553,33 +530,33 @@ const Result = () => {
     }
 
     return (
-        <View style={{ flex: 1}}>
+        <View style={{flex: 1}}>
             <ScrollView>
                 {results.length > 0 && results.map((result, index) => (
-                <TouchableOpacity key={index} onPress={() => {
-                    setModel(true)
-                    setModelResult(result);
-                } }>
-                <View key={index}><View style={{padding:10}}>
-                    <Text style={{fontWeight:"bold"}}>From : {result.sender}</Text>
-                    <Text style={{fontWeight:"bold"}}>To : {result.receiver}</Text>
-                    <Text>{result.message}</Text>
-                    <Text style={{alignSelf:"flex-end"}}>{result?.timing} , {result.status} </Text>
-                </View>
-                <View style={{borderTopWidth:1}}></View>
-                </View>
-                </TouchableOpacity>
-            ))}
+                    <TouchableOpacity key={index} onPress={() => {
+                        setModel(true)
+                        setModelResult(result);
+                    }}>
+                        <View key={index}><View style={{padding: 10}}>
+                            <Text style={{fontWeight: "bold"}}>From : {result.sender}</Text>
+                            <Text style={{fontWeight: "bold"}}>To : {result.receiver}</Text>
+                            <Text>{result.message}</Text>
+                            <Text style={{alignSelf: "flex-end"}}>{result?.timing} , {result.status} </Text>
+                        </View>
+                            <View style={{borderTopWidth: 1}}></View>
+                        </View>
+                    </TouchableOpacity>
+                ))}
             </ScrollView>
-            <Modal visible={model } animationType="slide-up" transparent={true}>
+            <Modal visible={model} animationType="slide-up" transparent={true}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <View style={{ padding: 10 }}>
-                            <Text style={{ fontWeight: "bold",fontSize:15 }}>From : {modelResult?.sender}</Text>
-                            <Text style={{ fontWeight: "bold" ,fontSize:15}}>To : {modelResult?.receiver}</Text>
-                            <Text style={{fontSize:17}}>{modelResult?.message}</Text>
+                        <View style={{padding: 10}}>
+                            <Text style={{fontWeight: "bold", fontSize: 15}}>From : {modelResult?.sender}</Text>
+                            <Text style={{fontWeight: "bold", fontSize: 15}}>To : {modelResult?.receiver}</Text>
+                            <Text style={{fontSize: 17}}>{modelResult?.message}</Text>
                         </View>
-                        <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
+                        <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
                             <TouchableOpacity onPress={() => setModel(false)}>
                                 <Text style={styles.bottom}>CANCEL</Text>
                             </TouchableOpacity>
@@ -622,14 +599,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         borderRadius: 3,
         padding: 15,
-        width:deviceWidth*0.9,
+        width: deviceWidth * 0.9,
     },
-    bottom:{
-        letterSpacing:3,
-        fontWeight:500,
-        fontSize:18,
+    bottom: {
+        letterSpacing: 3,
+        fontWeight: 500,
+        fontSize: 18,
         color: 'green',
-        margin:10,
+        margin: 10,
     },
 });
 

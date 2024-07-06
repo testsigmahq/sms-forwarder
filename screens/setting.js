@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import RNSmtpMailer from "react-native-smtp-mailer";
 import {setSmtp} from '../redux/actions/setUpRecipients';
 
-import Database from "../database";
+import Database from "../repository/database";
 import {useDispatch} from "react-redux";
 import smtp from "../redux/reducers/smtp";
 

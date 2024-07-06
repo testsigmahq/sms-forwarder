@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, View, Text, StyleSheet } from 'react-native';
 import Contacts from 'react-native-contacts';
 import Contact from '../components/contact';
-import Database from "../database";
+import Database from "../repository/database";
 
 const ContactPicker = ({ onCloseModal }) => {
     const [contacts, setContacts] = useState([]);
