@@ -6,7 +6,7 @@ import {Input} from "react-native-elements";
 import {FontAwesome5} from "@expo/vector-icons";
 import {useDispatch, useSelector} from "react-redux";
 import Database from "../../repository/database";
-import {getCurrentTime} from "../../utils/data";
+import {getCurrentTime} from "../../utils/date";
 const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
     const navigation = useNavigation();
 

@@ -4,7 +4,7 @@ import CustomHeader from "../components/custom-header";
 import {useNavigation} from "@react-navigation/native";
 import {messageTemplate} from '../redux/actions/setUpRecipients'
 import {useDispatch} from "react-redux";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const MessageTemplate = () => {
     const navigation = useNavigation();

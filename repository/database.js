@@ -1,5 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const database_name = 'opO.db';
 const database_version = '1.0';

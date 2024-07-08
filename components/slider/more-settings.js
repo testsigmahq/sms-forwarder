@@ -5,7 +5,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {useDispatch} from "react-redux";
 import SimData from 'react-native-sim-data'
 import Database from "../../repository/database";
-import {getCurrentTime} from "../../utils/data";
+import {getCurrentTime} from "../../utils/date";
 const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
     const dispatch = useDispatch();
     useEffect(() => {

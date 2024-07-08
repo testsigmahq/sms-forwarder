@@ -3,7 +3,7 @@ import { FlatList, View, Text, StyleSheet } from 'react-native';
 import Contacts from 'react-native-contacts';
 import Contact from '../components/contact';
 import Database from "../repository/database";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const ContactPicker = ({ onCloseModal }) => {
     const [contacts, setContacts] = useState([]);

@@ -4,7 +4,7 @@ import { Dimensions, View} from "react-native";
 import {googleInfo} from '../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
 import axios from "axios";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const GoogleSignupButton = ({ onSignup }) => {
     const dispatch = useDispatch();

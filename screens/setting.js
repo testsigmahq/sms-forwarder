@@ -22,7 +22,7 @@ import Database from "../repository/database";
 import {useDispatch} from "react-redux";
 import smtp from "../redux/reducers/smtp";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const Setting = () => {
     const dispatch = useDispatch();

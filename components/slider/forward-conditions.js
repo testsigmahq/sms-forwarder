@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
 import Database from "../../repository/database";
-import {getCurrentTime} from "../../utils/data";
+import {getCurrentTime} from "../../utils/date";
 
 const ForwardConditions = ({saveClicked, id, filterIdForCreate}) => {
     const [forwardCondition, setForwardCondition] = useState(true);

@@ -14,7 +14,7 @@ import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
 import Database from "../repository/database";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const BorderBox = props => {
    const [ruleModel,setRuleModel]=useState(false)

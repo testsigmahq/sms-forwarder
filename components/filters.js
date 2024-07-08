@@ -12,7 +12,7 @@ import {
     PermissionsAndroid
 } from 'react-native';
 import Database from "../repository/database";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const Filters = ({ navigation }) => {
     const [toggleValue, setToggleValue] = useState(false);

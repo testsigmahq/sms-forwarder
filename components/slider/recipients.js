@@ -15,7 +15,7 @@ import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
 import Database from "../../repository/database";
 import {useNavigation} from "@react-navigation/native";
-import {getCurrentTime} from "../../utils/data";
+import {getCurrentTime} from "../../utils/date";
 
 
 

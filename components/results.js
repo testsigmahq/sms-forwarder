@@ -20,7 +20,7 @@ import {encode} from "base-64";
 import RNSmtpMailer from "react-native-smtp-mailer";
 import {useSelector} from "react-redux";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const DirectSms = NativeModules.DirectSms;
 

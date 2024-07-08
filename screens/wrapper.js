@@ -10,7 +10,7 @@ import {useNavigation, useRoute} from "@react-navigation/native";
 import Database from "../repository/database";
 import {useSelector} from "react-redux";
 import recipients from "../redux/reducers/recipients";
-import {getCurrentTime} from "../utils/data";
+import {getCurrentTime} from "../utils/date";
 
 const windowWidth = Dimensions.get('window').width;
 

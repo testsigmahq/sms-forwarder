@@ -1,5 +1,5 @@
 import Database from "../repository/database";
-import {getCurrentTime} from "./data";
+import {getCurrentTime} from "./date";
 
 export function formatDateTime(timestamp) {
     const dateObject = new Date(timestamp);
