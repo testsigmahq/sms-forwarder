@@ -402,7 +402,7 @@ const Database = {
             db.transaction((tx) => {
                 tx.executeSql(
                     'INSERT INTO filters (filter_name, status, forward_all) VALUES (?, ?, ?)',
-                    [filterName, status],
+                    [filterName, status, forward_all],
                     (tx, insertResult) => {
                         const { insertId } = insertResult;
                         if (insertId) {

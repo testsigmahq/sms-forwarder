@@ -23,7 +23,7 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
 
     function onSave() {
         if(filterIdForCreate){
-            Database.insertFilter(inputValue || `Filter ${filterIdForCreate}`, "active",0)
+            Database.insertFilter(inputValue || `Filter ${filterIdForCreate}`, "active",1)
                 .then((filter) => {
                     console.log(getCurrentTime("INFO") + 'Inserted filter:', filter.id);
                 })

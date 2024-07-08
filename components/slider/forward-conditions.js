@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet, SafeAreaView, Dimensions, ScrollView} from 'react-native';
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
 import Database from "../../repository/database";
 import {getCurrentTime} from "../../utils/data";
 
-const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
-    const [forwardCondition, setForwardCondition] = useState(false);
+const ForwardConditions = ({saveClicked, id, filterIdForCreate}) => {
+    const [forwardCondition, setForwardCondition] = useState(true);
     const [ignoreCase, setIgnoreCase] = useState(false);
     const [useWildcards, setUseWildcards] = useState(false);
 
@@ -18,17 +18,21 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
     }, [saveClicked]);
 
     useEffect(() => {
-       async function fetchFilter(){
-          let filter = await Database.fetchFilters(id);
-          console.log(getCurrentTime("INFO") + "filters::", filter)
-          setForwardCondition(filter[0]?.forward_all === 1 )
-       }
-       fetchFilter();
-    },[])
+        async function fetchFilter() {
+            if (id) {
+                let filter = await Database.fetchFilters(id);
+                console.log(getCurrentTime("INFO") + "filters::", filter)
+                setForwardCondition(filter[0]?.forward_all === 1)
+            }
+        }
 
-    function  onSave(){
-        Database.updateFilterForCondition(id,forwardCondition);
+        fetchFilter();
+    }, [])
+
+    function onSave() {
+        Database.updateFilterForCondition(id, forwardCondition);
     }
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Forwarding conditions</Text>
@@ -36,7 +40,7 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
             <View style={styles.headerCard}>
                 <CheckBox
                     onPress={() => setForwardCondition(!forwardCondition)}
-                    isChecked={forwardCondition} />
+                    isChecked={forwardCondition}/>
                 <Text style={styles.headerCardText}>Forward all messages</Text>
             </View>
 
@@ -53,8 +57,8 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
                 {/*        isChecked={useWildcards} />*/}
                 {/*    <Text style={styles.checkboxLabel}>Use wildcards(*)</Text>*/}
                 {/*</View>*/}
-                <View style={{justifyContent:"center",width:deviceWidth}} >
-                <BorderBox saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
+                <View style={{justifyContent: "center", width: deviceWidth}}>
+                    <BorderBox saveClicked={saveClicked} id={id} filterIdForCreate={filterIdForCreate}/>
                 </View>
             </View>
             }
@@ -80,15 +84,15 @@ const styles = StyleSheet.create({
     headerCard: {
         flexDirection: 'row',
         padding: 10,
-        paddingVertical:15,
+        paddingVertical: 15,
         backgroundColor: 'white',
         borderRadius: 6,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 4,
-        width: deviceWidth*0.95,
+        width: deviceWidth * 0.95,
     },
     headerCardText: {
         fontSize: 18,
@@ -100,11 +104,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         borderRadius: 6,
         shadowColor: '#000',
-        shadowOffset: { width: 4, height: 2 },
+        shadowOffset: {width: 4, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 10,
-        width: deviceWidth*0.95,
+        width: deviceWidth * 0.95,
         marginTop: 20,
         alignSelf: 'center',
     },
@@ -125,7 +129,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 6,
         width: 300,
-        height:100,
+        height: 100,
     },
 });
 
