@@ -6,6 +6,7 @@ import {Input} from "react-native-elements";
 import {FontAwesome5} from "@expo/vector-icons";
 import {useDispatch, useSelector} from "react-redux";
 import Database from "../../repository/database";
+import {getCurrentTime} from "../../utils/data";
 const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
     const navigation = useNavigation();
 
@@ -16,7 +17,7 @@ const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
 
     const duplicateFields = () => {
         setWordPairs([...wordPairs, { oldWord: '', newWord: '' }]);
-        console.log("words",wordPairs);
+        console.log(getCurrentTime("INFO") + "words::",wordPairs);
     };
 
     const removeField = (index,id) => {
@@ -30,18 +31,18 @@ const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
 
     }
     const Message = useSelector((state) => {return (state.messageTemplate)});
-    console.log("messageTemplate",Message.templateTitle)
+    console.log(getCurrentTime("INFO") + "messageTemplate",Message.templateTitle)
 
 
     useEffect(()=>{
         if(id) {
             Database.fetchChangeContents(id)
                 .then((changeContents) => {
-                    console.log('Fetched change_contents:', changeContents);
+                    console.log(getCurrentTime("INFO") + 'Fetched change_contents:', changeContents);
                     setWordPairs(changeContents);
                 })
                 .catch((error) => {
-                    console.log('Error occurred while fetching change_contents:', error);
+                    console.log(getCurrentTime("INFO") + 'Error occurred while fetching change_contents:', error);
                 });
         }
     },[])

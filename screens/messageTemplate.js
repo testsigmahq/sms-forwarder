@@ -4,6 +4,7 @@ import CustomHeader from "../components/custom-header";
 import {useNavigation} from "@react-navigation/native";
 import {messageTemplate} from '../redux/actions/setUpRecipients'
 import {useDispatch} from "react-redux";
+import {getCurrentTime} from "../utils/data";
 
 const MessageTemplate = () => {
     const navigation = useNavigation();
@@ -117,7 +118,7 @@ const MessageTemplate = () => {
 
         setText(updatedText);
         setPreviewList(updatedPreviewList);
-        console.log("body",bodyTemplate);
+        console.log(getCurrentTime("INFO") + "body::",bodyTemplate);
     };
 
     const placeholders = [

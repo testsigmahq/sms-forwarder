@@ -10,6 +10,7 @@ import {useNavigation, useRoute} from "@react-navigation/native";
 import Database from "../repository/database";
 import {useSelector} from "react-redux";
 import recipients from "../redux/reducers/recipients";
+import {getCurrentTime} from "../utils/data";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -20,9 +21,9 @@ const Wrapper = () => {
     const recipients = useSelector((state) => {return (state.recipients)});
    const [error,setError]=useState(false)
     const handleSaveButton = () => {
-        console.log("recipients==>",recipients);
+        console.log(getCurrentTime("INFO") + "recipients::",recipients);
         const isAllTextNotEmpty = (recipients.recipients).every((recipient) => recipient.text.trim() !== '');
-       console.log("isAllTextNotEmpty",isAllTextNotEmpty)
+       console.log(getCurrentTime("INFO") + "isAllTextNotEmpty",isAllTextNotEmpty)
 
         if(recipients.recipients.length !== 0 && isAllTextNotEmpty) {
             setSaveClicked(prevState => !prevState);
@@ -38,7 +39,7 @@ const Wrapper = () => {
     const route = useRoute();
     const filterIdForCreate = route.params?.filterIdForCreate;
     const filterIdForFetch = route.params?.filterIdForFetch;
-    console.log("id", filterIdForFetch);
+    console.log(getCurrentTime("INFO") + "id", filterIdForFetch);
 
     const handleDelete = () => {
         Database.deleteFilter(filterIdForFetch)

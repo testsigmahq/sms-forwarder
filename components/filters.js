@@ -12,6 +12,7 @@ import {
     PermissionsAndroid
 } from 'react-native';
 import Database from "../repository/database";
+import {getCurrentTime} from "../utils/data";
 
 const Filters = ({ navigation }) => {
     const [toggleValue, setToggleValue] = useState(false);
@@ -24,7 +25,7 @@ const Filters = ({ navigation }) => {
                 setFilter(filters);
             })
             .catch((err) => {
-                console.log('Error occurred:', err);
+                console.log(getCurrentTime("ERROR") + 'Error occurred while fetching all filters, Error::', err);
             });
     }, []);
 
@@ -78,7 +79,7 @@ const Filters = ({ navigation }) => {
                 setFilter(updatedFilters);
             })
             .catch((error) => {
-                console.log('Error updating filter status:', error);
+                console.log(getCurrentTime("ERROR") +'Error updating filter status, Error::', error);
             });
     };
 

@@ -21,6 +21,8 @@ import {setSmtp} from '../redux/actions/setUpRecipients';
 import Database from "../repository/database";
 import {useDispatch} from "react-redux";
 import smtp from "../redux/reducers/smtp";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
+import {getCurrentTime} from "../utils/data";
 
 const Setting = () => {
     const dispatch = useDispatch();
@@ -47,8 +49,12 @@ const Setting = () => {
     const emailText = "Account authentication is required to send an e-mail via Gmail. A test mail will be sent to the selected account after the account is successfully authenticated.\n\n(the 'Gmail' feature must be added to your Google account. A Google account that has been created with a secondary e-mail address cannot send e-mails. i.e. frzinapps@naver.com)";
 
     const handleGoogleSignup = (userInfo) => {
+        GoogleSignin.getCurrentUser().then(res => {
+            console.log(getCurrentTime("INFO") + "user email::", res.user.email)
+            setEmail(res.user.email)
+        });
         setUserInfo(userInfo);
-        console.log(userInfo);
+        console.log(getCurrentTime("INFO") + 'Signed in userInfo::', userInfo);
     };
 
     const handleLoginIdChange = (value) => {
@@ -119,14 +125,14 @@ const Setting = () => {
                     showAuth,
                     showSSL,
                     showTLS
-                ).then(r => console.log(r));
+                ).then(r => console.log(getCurrentTime("INFO") + "User inserted successfully", r));
                 dispatch(setSmtp('smtp'));
                 Database.insertAuthSettings(0, 1, 0)
                 navigation.goBack();
             }
         }
         if (selectedValue === "Via Gmail API") {
-            console.log(userInfo.serverAuthCode);
+            console.log(getCurrentTime("INFO") + "serverAuthCode::", userInfo.serverAuthCode);
             Database.insertAuthCode(userInfo.serverAuthCode);
             Database.insertGmail(userInfo?.user?.email)
             dispatch(setSmtp('gmail'));
@@ -157,7 +163,7 @@ const Setting = () => {
                     setSelectedValue("Via Gmail API")
                 }
             } else {
-                console.log('AuthSettings not found or error occurred.');
+                console.log(getCurrentTime("ERROR") + 'AuthSettings not found or error occurred.');
             }
         });
 
@@ -173,19 +179,18 @@ const Setting = () => {
                     setShowSSL(e.showSSL);
                     setShowTLS(e.showTLS);
                 } else {
-                    console.log('User data not found for ID 1.');
+                    console.log(getCurrentTime("INFO") + 'User data not found for ID 1.');
                 }
             })
             .catch((error) => {
-                console.log('Error fetching user data:', error);
+                console.log(getCurrentTime("ERROR") + 'Error fetching user data:', error);
             });
 
-        Database.fetchGmailById(1).then((e) => {
-            console.log("eeee==>", e)
-            setEmail(e);
-        })
-    }, []);
+        GoogleSignin.getCurrentUser().then(res => {
+            setEmail(res.user.email)
+        });
 
+    }, []);
 
     const sendEmail = () => {
         RNSmtpMailer.sendMail({
@@ -199,8 +204,8 @@ const Setting = () => {
             subject: 'Test Email',
             htmlBody: '<h1>Hello, this is a test email from sms forwarder</h1>',
         })
-            .then(success => console.log('Email sent successfully:', success))
-            .catch(error => console.log('Error sending email:', error));
+            .then(success => console.log(getCurrentTime("INFO") + 'Email sent successfully:', success))
+            .catch(error => console.log(getCurrentTime("ERROR") + 'Error sending email:', error));
     };
 
 
@@ -225,7 +230,7 @@ const Setting = () => {
                                 <Text style={{margin: 15}}>{emailText}</Text>
                                 <TextInput
                                     style={styles.input}
-                                    value={userInfo?.user?.email || email}
+                                    value={email || userInfo?.user?.email}
                                 />
                                 <View style={{margin: 10}}>
                                     <GoogleSignupButton onSignup={handleGoogleSignup}/>

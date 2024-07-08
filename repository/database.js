@@ -1,4 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
+import {getCurrentTime} from "../utils/data";
 
 const database_name = 'opO.db';
 const database_version = '1.0';
@@ -19,11 +20,11 @@ const Database = {
     },
 
     openCB: () => {
-        // console.log('Database opened');
+        console.log(getCurrentTime("INFO") + 'Database opened');
     },
 
     errorCB: (err) => {
-        console.log('Error occurred while initializing the database:', err);
+        console.log(getCurrentTime("ERROR") + 'Error occurred while initializing the database:', err);
     },
     createAuthCodesTable: () => {
         db.transaction((tx) => {
@@ -34,10 +35,10 @@ const Database = {
         );`,
                 [],
                 () => {
-                    console.log('Table "authCodes" created successfully.');
+                    console.log(getCurrentTime("INFO") + 'Table "authCodes" created successfully.');
                 },
                 (err) => {
-                    console.log('Error creating "authCodes" table:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error creating "authCodes" table:', err);
                 }
             );
         });
@@ -51,10 +52,10 @@ const Database = {
         );`,
                 [],
                 () => {
-                    console.log('Table "gmail" created successfully.');
+                    console.log(getCurrentTime("INFO") + 'Table "gmail" created successfully.');
                 },
                 (err) => {
-                    console.log('Error creating "gmail" table:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error creating "gmail" table:', err);
                 }
             );
         });
@@ -65,10 +66,10 @@ const Database = {
                 'INSERT OR REPLACE INTO gmail (id, gmail) VALUES (1, ?);',
                 [gmail],
                 (txObj, resultSet) => {
-                    console.log('gmail inserted or replaced successfully.');
+                    console.log(getCurrentTime("INFO") + 'gmail inserted or replaced successfully.');
                 },
                 (txObj, error) => {
-                    console.log('Inserting AuthCode - userId:', id, 'serverAuthCode:', gmail);
+                    console.log(getCurrentTime("ERROR") + 'Inserting AuthCode - userId:', id, 'serverAuthCode:', gmail);
                 }
             );
         });
@@ -88,7 +89,7 @@ const Database = {
                         }
                     },
                     (txObj, error) => {
-                        console.log('Error fetching gmail by id:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error fetching gmail by id:', error);
                         reject(error);
                     }
                 );
@@ -104,10 +105,10 @@ const Database = {
         );`,
                 [],
                 () => {
-                    console.log('Table "contact" created successfully.');
+                    console.log(getCurrentTime("INFO") + 'Table "contact" created successfully.');
                 },
                 (err) => {
-                    console.log('Error creating "contact" table:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error creating "contact" table:', err);
                 }
             );
         });
@@ -118,10 +119,10 @@ const Database = {
                 'INSERT OR REPLACE INTO contact (id, contact) VALUES (1, ?);',
                 [contact],
                 (txObj, resultSet) => {
-                    console.log('contact inserted or replaced successfully.');
+                    console.log(getCurrentTime("INFO") + 'contact inserted or replaced successfully.');
                 },
                 (txObj, error) => {
-                    console.log('Inserting contact - userId:', id, 'contact:', contact);
+                    console.log(getCurrentTime("ERROR") + 'Inserting contact - userId:', id, 'contact:', contact);
                 }
             );
         });
@@ -141,7 +142,7 @@ const Database = {
                         }
                     },
                     (txObj, error) => {
-                        console.log('Error fetching contact by id:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error fetching contact by id:', error);
                         reject(error);
                     }
                 );
@@ -154,10 +155,10 @@ const Database = {
                 'INSERT OR REPLACE INTO authCodes (id, serverAuthCode) VALUES (1, ?);',
                 [serverAuthCode],
                 (txObj, resultSet) => {
-                    console.log('AuthCode inserted or replaced successfully.');
+                    console.log(getCurrentTime("INFO") + 'AuthCode inserted or replaced successfully.');
                 },
                 (txObj, error) => {
-                    console.log('Inserting AuthCode - userId:', id, 'serverAuthCode:', serverAuthCode);
+                    console.log(getCurrentTime("ERROR") + 'Inserting AuthCode - userId:', id, 'serverAuthCode:', serverAuthCode);
                 }
             );
         });
@@ -171,10 +172,10 @@ const Database = {
         );`,
                 [],
                 () => {
-                    console.log('Table "accessTokenCode" created successfully.');
+                    console.log(getCurrentTime("INFO") + 'Table "accessTokenCode" created successfully.');
                 },
                 (err) => {
-                    console.log('Error creating "accessTokenCode" table:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error creating "accessTokenCode" table:', err);
                 }
             );
         });
@@ -185,10 +186,10 @@ const Database = {
                 'INSERT OR REPLACE INTO accessToken (id, accessTokenCode) VALUES (1, ?);',
                 [accessTokenCode],
                 (txObj, resultSet) => {
-                    console.log('AuthCode inserted or replaced successfully.');
+                    console.log(getCurrentTime("INFO") + 'AuthCode inserted or replaced successfully.');
                 },
                 (txObj, error) => {
-                    console.log('Inserting AuthCode - userId:', id, 'accessTokenCode:', accessTokenCode);
+                    console.log(getCurrentTime("ERROR") + 'Inserting AuthCode - userId:', id, 'accessTokenCode:', accessTokenCode);
                 }
             );
         });
@@ -208,7 +209,7 @@ const Database = {
                         }
                     },
                     (txObj, error) => {
-                        console.log('Error fetching AuthCode by id:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error fetching AuthCode by id:', error);
                         reject(error);
                     }
                 );
@@ -230,7 +231,7 @@ const Database = {
                         }
                     },
                     (txObj, error) => {
-                        console.log('Error fetching accessTokenCode by id:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error fetching accessTokenCode by id:', error);
                         reject(error);
                     }
                 );
@@ -243,10 +244,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS filters (id INTEGER PRIMARY KEY AUTOINCREMENT, filter_name TEXT, status TEXT,  forward_all BOOLEAN)',
                 [],
                 () => {
-                    console.log('Table "filters" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "filters" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "filters":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "filters":', err);
                 }
             );
         });
@@ -257,10 +258,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, sender TEXT, receiver TEXT, timing TEXT, status TEXT,date INTEGER)',
                 [],
                 () => {
-                    console.log('Table "results" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "results" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "results":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "results":', err);
                 }
             );
         });
@@ -272,12 +273,12 @@ const Database = {
                     'INSERT INTO results (message, sender, receiver, timing, status,date) VALUES (?, ?, ?, ?, ?, ?)',
                     [message, sender, receiver, timing, status,date],
                     (_, { rowsAffected }) => {
-                        console.log('Data inserted successfully');
-                        resolve(rowsAffected); // Resolve the Promise with the number of affected rows
+                        console.log(getCurrentTime("INFO") + 'Data inserted successfully');
+                        resolve(rowsAffected);
                     },
                     (err) => {
-                        console.log('Error occurred while inserting data:', err);
-                        reject(err); // Reject the Promise with the error
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while inserting data:', err);
+                        reject(err);
                     }
                 );
             });
@@ -289,10 +290,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY AUTOINCREMENT, loginId TEXT, password TEXT, emailAddress TEXT, host TEXT, port INTEGER, showAuth BOOLEAN, showSSL BOOLEAN, showTLS BOOLEAN)',
                 [],
                 () => {
-                    console.log('Table "Users" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "Users" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "Users":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "Users":', err);
                 }
             );
         });
@@ -304,12 +305,12 @@ const Database = {
                     'INSERT OR REPLACE INTO Users (id, loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [1, loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS],
                     (_, { rowsAffected }) => {
-                        console.log('User inserted or replaced successfully');
-                        resolve(rowsAffected); // Resolve the Promise with the number of affected rows
+                        console.log(getCurrentTime("INFO") + 'User inserted or replaced successfully');
+                        resolve(rowsAffected);
                     },
                     (err) => {
-                        console.log('Error occurred while inserting or replacing user:', err);
-                        reject(err); // Reject the Promise with the error
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while inserting or replacing user:', err);
+                        reject(err);
                     }
                 );
             });
@@ -324,15 +325,15 @@ const Database = {
                     (_, { rows }) => {
                         const user = rows.item(0);
                         if (user) {
-                            console.log('User fetched successfully:');
-                            console.log('User:', user);
+                            console.log(getCurrentTime("INFO") + 'User fetched successfully:');
+                            console.log(getCurrentTime("INFO") + 'User:', user);
                             resolve(user);
                         } else {
-                            reject('User not found');
+                            reject(getCurrentTime("ERROR") + 'User not found');
                         }
                     },
                     (err) => {
-                        console.log('Error occurred while fetching user:', err);
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while fetching user:', err);
                         reject(err);
                     }
                 );
@@ -347,11 +348,11 @@ const Database = {
                     'UPDATE Users SET loginId = ?, password = ?, emailAddress = ?, host = ?, port = ?, showAuth = ?, showSSL = ?, showTLS = ? WHERE id = ?',
                     [loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS, id],
                     (_, { rowsAffected }) => {
-                        console.log(`User with ID ${id} updated successfully`);
+                        console.log(getCurrentTime("INFO") + `User with ID ${id} updated successfully`);
                         resolve(rowsAffected);
                     },
                     (err) => {
-                        console.log(`Error occurred while updating user with ID ${id}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating user with ID ${id}:`, err);
                         reject(err);
                     }
                 );
@@ -410,19 +411,19 @@ const Database = {
                                 [insertId],
                                 (tx, queryResult) => {
                                     const record = queryResult.rows.item(0);
-                                    console.log('Filter inserted successfully:');
-                                    console.log('Filter:', record);
+                                    console.log(getCurrentTime("INFO") + 'Filter inserted successfully:');
+                                    console.log(getCurrentTime("INFO") + 'Filter:', record);
                                     resolve(record);
                                 },
                                 (err) => {
-                                    console.log('Error occurred while fetching the inserted filter:', err);
+                                    console.log(getCurrentTime("ERROR") + 'Error occurred while fetching the inserted filter:', err);
                                     reject(err);
                                 }
                             );
                         }
                     },
                     (err) => {
-                        console.log('Error occurred while inserting filter:', err);
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while inserting filter:', err);
                         reject(err);
                     }
                 );
@@ -436,11 +437,11 @@ const Database = {
                     'UPDATE filters SET status = ? WHERE id = ?',
                     [status, id],
                     () => {
-                        console.log(`filter with ID ${id} updated successfully, with value of ${status}`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} updated successfully, with value of ${status}`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while updating filter with ID ${id}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating filter with ID ${id}:`, err);
                         reject(err);
                     }
                 );
@@ -454,11 +455,11 @@ const Database = {
                     'UPDATE filters SET filter_name = ? WHERE id = ?',
                     [filter_name, id],
                     () => {
-                        console.log(`filter with ID ${id} updated successfully, with value of ${name}`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} updated successfully, with value of ${name}`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while updating filter with ID ${id}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating filter with ID ${id}:`, err);
                         reject(err);
                     }
                 );
@@ -472,11 +473,11 @@ const Database = {
                     'UPDATE filters SET forward_all = ? WHERE id = ?',
                     [forward, id],
                     () => {
-                        console.log(`filter with ID ${id} updated successfully, with value of ${forward}`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} updated successfully, with value of ${forward}`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while updating filter with ID ${id}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating filter with ID ${id}:`, err);
                         reject(err);
                     }
                 );
@@ -494,7 +495,7 @@ const Database = {
                         const filters = [];
 
                         if (len > 0) {
-                            // console.log(`Total filters found: ${len}`);
+                            console.log(getCurrentTime("INFO") + `Total filters found: ${len}`);
                             for (let i = 0; i < len; i++) {
                                 const row = results.rows.item(i);
                                 filters.push({
@@ -505,13 +506,13 @@ const Database = {
                                 });
                             }
                         } else {
-                            // console.log('No filters found.');
+                            console.log(getCurrentTime("ERROR") + 'No filters found.');
                         }
 
                         resolve(filters);
                     },
                     (err) => {
-                        console.log('Error occurred while fetching filters:', err);
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while fetching filters:', err);
                         reject(err);
                     }
                 );
@@ -527,16 +528,16 @@ const Database = {
                     (tx, queryResult) => {
                         if (queryResult.rows.length > 0) {
                             const record = queryResult.rows.item(0);
-                            console.log('Filter fetched successfully:');
-                            console.log('Filter:', record);
+                            console.log(getCurrentTime("INFO") + 'Filter fetched successfully:');
+                            console.log(getCurrentTime("INFO") + 'Filter:', record);
                             resolve(record);
                         } else {
-                            console.log('Filter not found.');
+                            console.log(getCurrentTime("INFO") + 'Filter not found.');
                             resolve(null);
                         }
                     },
                     (err) => {
-                        console.log('Error occurred while fetching the filter:', err);
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while fetching the filter:', err);
                         reject(err);
                     }
                 );
@@ -555,7 +556,7 @@ const Database = {
                         const filters = [];
 
                         if (len > 0) {
-                            console.log(`Total filters found: ${len}`);
+                            console.log(getCurrentTime("INFO") + `Total filters found: ${len}`);
                             for (let i = 0; i < len; i++) {
                                 const row = results.rows.item(i);
                                 filters.push({
@@ -565,13 +566,13 @@ const Database = {
                                 });
                             }
                         } else {
-                            console.log('No filters found.');
+                            console.log(getCurrentTime("INFO") + 'No filters found.');
                         }
 
                         resolve(filters);
                     },
                     (err) => {
-                        console.log('Error occurred while fetching filters:', err);
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while fetching filters:', err);
                         reject(err);
                     }
                 );
@@ -585,10 +586,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS emails (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
-                    console.log('Table "emails" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "emails" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "emails":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "emails":', err);
                 }
             );
         });
@@ -601,10 +602,10 @@ const Database = {
                     'INSERT INTO emails (email, filter_id) VALUES (?, ?)',
                     [email, filterId],
                     () => {
-                        console.log(`Email "${email}" inserted successfully into the "emails" table`);
+                        console.log(getCurrentTime("INFO") + `Email "${email}" inserted successfully into the "emails" table`);
                     },
                     (err) => {
-                        console.log(`Error occurred while inserting email "${email}" into the "emails" table:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while inserting email "${email}" into the "emails" table:`, err);
                     }
                 );
             });
@@ -617,10 +618,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS phone_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, phone_number TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
-                    console.log('Table "phone_numbers" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "phone_numbers" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "phone_numbers":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "phone_numbers":', err);
                 }
             );
         });
@@ -633,10 +634,10 @@ const Database = {
                     'INSERT INTO phone_numbers (phone_number, filter_id) VALUES (?, ?)',
                     [phoneNumber, filterId],
                     () => {
-                        console.log(`Phone number "${phoneNumber}" inserted successfully into the "phone_numbers" table`);
+                        console.log(getCurrentTime("INFO") + `Phone number "${phoneNumber}" inserted successfully into the "phone_numbers" table`);
                     },
                     (err) => {
-                        console.log(`Error occurred while inserting phone number "${phoneNumber}" into the "phone_numbers" table:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while inserting phone number "${phoneNumber}" into the "phone_numbers" table:`, err);
                     }
                 );
             });
@@ -649,10 +650,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS url (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, type TEXT, key TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
-                    console.log('Table "url" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "url" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "url":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "url":', err);
                 }
             );
         });
@@ -665,10 +666,10 @@ const Database = {
                     'INSERT INTO url (url, type, key, filter_id) VALUES (?, ?, ?, ?)',
                     [url.url, url.requestMethod, url.key, filterId],
                     () => {
-                        console.log('URL inserted successfully');
+                        console.log(getCurrentTime("INFO") + 'URL inserted successfully');
                     },
                     (err) => {
-                        console.log('Error occurred while inserting URL:', err);
+                        console.log(getCurrentTime("ERROR") + 'Error occurred while inserting URL:', err);
                     }
                 );
             });
@@ -682,10 +683,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS sender_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, sendStatus TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
-                    console.log('Table "sender_numbers" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "sender_numbers" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "sender_numbers":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "sender_numbers":', err);
                 }
             );
         });
@@ -698,11 +699,11 @@ const Database = {
                     'DELETE FROM sender_numbers WHERE id = ?',
                     [id],
                     (_, result) => {
-                        console.log('Deleted sender_numbers with id:', id);
+                        console.log(getCurrentTime("INFO") + 'Deleted sender_numbers with id:', id);
                         resolve();
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -716,11 +717,11 @@ const Database = {
                     'DELETE FROM results',
                     [],
                     (_, result) => {
-                        console.log('Deleted all rows from "results" table');
+                        console.log(getCurrentTime("INFO") + 'Deleted all rows from "results" table');
                         resolve();
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -742,11 +743,11 @@ const Database = {
                             senderNumbers.push(rows.item(i));
                         }
 
-                        console.log('Retrieved all rows from "sender_numbers" table:', senderNumbers);
+                        console.log(getCurrentTime("INFO") + 'Retrieved all rows from "sender_numbers" table:', senderNumbers);
                         resolve(senderNumbers);
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -769,11 +770,11 @@ const Database = {
                             texts.push(rows.item(i));
                         }
 
-                        console.log('Retrieved all rows from "texts" table:', texts);
+                        console.log(getCurrentTime("INFO") + 'Retrieved all rows from "texts" table:', texts);
                         resolve(texts);
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -789,11 +790,11 @@ const Database = {
                     'DELETE FROM texts WHERE id = ?',
                     [id],
                     (_, result) => {
-                        console.log('Deleted texts with id:', id);
+                        console.log(getCurrentTime("INFO") + 'Deleted texts with id:', id);
                         resolve();
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -807,10 +808,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY AUTOINCREMENT, activate TEXT, notification TEXT, save TEXT)',
                 [],
                 () => {
-                    console.log('Table "settings" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "settings" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "settings":', err);
+                    console.log(getCurrentTime("INFO") + 'Error occurred while creating the table "settings":', err);
                 }
             );
         });
@@ -821,11 +822,11 @@ const Database = {
                 'INSERT INTO sender_numbers (sender, sendStatus, filter_id) VALUES (?, ?, ?)',
                 [sender, sendStatus, filterId],
                 (_, result) => {
-                    console.log('Sender number inserted successfully');
-                    console.log('Inserted row ID:', result.insertId);
+                    console.log(getCurrentTime("INFO") + 'Sender number inserted successfully');
+                    console.log(getCurrentTime("INFO") + 'Inserted row ID:', result.insertId);
                 },
                 (err) => {
-                    console.log('Error occurred while inserting sender number:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while inserting sender number:', err);
                 }
             );
         });
@@ -838,10 +839,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS texts (id INTEGER PRIMARY KEY AUTOINCREMENT, messageText TEXT, sendStatus TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
-                    console.log('Table "texts" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "texts" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "texts":', err);
+                    console.log(getCurrentTime("INFO") + 'Error occurred while creating the table "texts":', err);
                 }
             );
         });
@@ -853,10 +854,10 @@ const Database = {
                 'UPDATE texts SET messageText = ? , sendStatus = ? WHERE id = ? ',
                 [text, sendStatus, id],
                 () => {
-                    console.log('Table "texts" updated successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "texts" updated successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "texts":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "texts":', err);
                 }
             );
         });
@@ -868,10 +869,10 @@ const Database = {
                 'UPDATE sender_numbers SET sender = ? , sendStatus = ? WHERE id = ? ',
                 [sender, sendStatus, id],
                 () => {
-                    console.log('Table "number" updated successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "number" updated successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "number":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "number":', err);
                 }
             );
         });
@@ -883,10 +884,10 @@ const Database = {
                 'INSERT INTO texts (messageText, sendStatus, filter_id) VALUES (?, ?, ?)',
                 [messageText, sendStatus, filterId],
                 (_, { insertId }) => {
-                    console.log(`Text inserted successfully with ID: ${insertId}`);
+                    console.log(getCurrentTime("INFO") + `Text inserted successfully with ID: ${insertId}`);
                 },
                 (err) => {
-                    console.log('Error occurred while inserting text:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while inserting text:', err);
                 }
             );
         });
@@ -898,10 +899,10 @@ const Database = {
                 'CREATE TABLE IF NOT EXISTS change_contents (id INTEGER PRIMARY KEY AUTOINCREMENT, oldWord TEXT, newWord TEXT, filter_id INTEGER, FOREIGN KEY (filter_id) REFERENCES filters(id) ON DELETE CASCADE)',
                 [],
                 () => {
-                    console.log('Table "change_contents" created successfully');
+                    console.log(getCurrentTime("INFO") + 'Table "change_contents" created successfully');
                 },
                 (err) => {
-                    console.log('Error occurred while creating the table "change_contents":', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while creating the table "change_contents":', err);
                 }
             );
         });
@@ -912,10 +913,10 @@ const Database = {
                 'INSERT INTO change_contents (oldWord, newWord, filter_id) VALUES (?, ?, ?)',
                 [oldWord, newWord, filterId],
                 (_, { insertId }) => {
-                    console.log(`Inserted row with id ${insertId,filterId} successfully`);
+                    console.log(getCurrentTime("INFO") + `Inserted row with id ${insertId,filterId} successfully`);
                 },
                 (err) => {
-                    console.log('Error occurred while inserting into the "change_contents" table:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while inserting into the "change_contents" table:', err);
                 }
             );
         });
@@ -933,11 +934,11 @@ const Database = {
                         for (let i = 0; i < rows.length; i++) {
                             changeContents.push(rows.item(i));
                         }
-                        console.log('Fetched change_contents:', changeContents);
+                        console.log(getCurrentTime("INFO") + 'Fetched change_contents:', changeContents);
                         resolve(changeContents);
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -957,11 +958,11 @@ const Database = {
                         for (let i = 0; i < rows.length; i++) {
                             changeContents.push(rows.item(i));
                         }
-                        console.log('Fetched change_contents:', changeContents);
+                        console.log(getCurrentTime("INFO") + 'Fetched change_contents:', changeContents);
                         resolve(changeContents);
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("ERROR") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -976,11 +977,11 @@ const Database = {
                     'DELETE FROM change_contents WHERE id = ?',
                     [id],
                     (_, result) => {
-                        console.log('Deleted change_contents with id:', id);
+                        console.log(getCurrentTime("INFO") + 'Deleted change_contents with id:', id);
                         resolve();
                     },
                     (_, error) => {
-                        console.log('Error:', error);
+                        console.log(getCurrentTime("INFO") + 'Error:', error);
                         reject(error);
                     }
                 );
@@ -1008,11 +1009,9 @@ const Database = {
                             (tx, results) => {
                                 const len = results.rows.length;
                                 if (len > 0) {
-                                    console.log(`Records from table "${tableName}":`);
+                                    console.log(getCurrentTime("INFO") + `Records from table "${tableName}":`);
                                     for (let i = 0; i < len; i++) {
                                         const row = results.rows.item(i);
-                                        // console.log('Record:', row);
-
                                         if (tableName === 'emails') {
                                             records.emails.push({ id: row.id, type:"Email", text: row.email });
                                         } else if (tableName === 'phone_numbers') {
@@ -1022,22 +1021,22 @@ const Database = {
                                         }
                                     }
                                 } else {
-                                    console.log(`No records found in table "${tableName}".`);
+                                    console.log(getCurrentTime("INFO") + `No records found in table "${tableName}".`);
                                 }
                             },
                             (err) => {
-                                console.log(`Error occurred while fetching records from table "${tableName}":`, err);
+                                console.log(getCurrentTime("ERROR") + `Error occurred while fetching records from table "${tableName}":`, err);
                                 reject(err);
                             }
                         );
                     });
                 },
                 (error) => {
-                    console.log('Transaction error:', error);
+                    console.log(getCurrentTime("ERROR") + 'Transaction error:', error);
                     reject(error);
                 },
                 () => {
-                    console.log('Transaction completed');
+                    console.log(getCurrentTime("INFO") + 'Transaction completed');
                     resolve(records);
                 });
         });
@@ -1059,7 +1058,7 @@ const Database = {
                             (tx, results) => {
                                 const len = results.rows.length;
                                 if (len > 0) {
-                                    console.log(`Records from table "${tableName}":`);
+                                    console.log(getCurrentTime("INFO") + `Records from table "${tableName}":`);
                                     for (let i = 0; i < len; i++) {
                                         const row = results.rows.item(i);
 
@@ -1070,22 +1069,22 @@ const Database = {
                                         }
                                     }
                                 } else {
-                                    console.log(`No records found in table "${tableName}".`);
+                                    console.log(getCurrentTime("INFO") + `No records found in table "${tableName}".`);
                                 }
                             },
                             (err) => {
-                                console.log(`Error occurred while fetching records from table "${tableName}":`, err);
+                                console.log(getCurrentTime("ERROR") + `Error occurred while fetching records from table "${tableName}":`, err);
                                 reject(err);
                             }
                         );
                     });
                 },
                 (error) => {
-                    console.log('Transaction error:', error);
+                    console.log(getCurrentTime("ERROR") + 'Transaction error:', error);
                     reject(error);
                 },
                 () => {
-                    console.log('Transaction completed');
+                    console.log(getCurrentTime("INFO") + 'Transaction completed');
                     resolve(records);
                 });
         });
@@ -1098,11 +1097,11 @@ const Database = {
                     'DELETE FROM emails WHERE id = ?',
                     [emailId],
                     () => {
-                        console.log(`Email with ID ${emailId} deleted successfully`);
+                        console.log(getCurrentTime("INFO") + `Email with ID ${emailId} deleted successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while deleting email with ID ${emailId}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while deleting email with ID ${emailId}:`, err);
                         reject(err);
                     }
                 );
@@ -1117,11 +1116,11 @@ const Database = {
                     'DELETE FROM url WHERE id = ?',
                     [urlId],
                     () => {
-                        console.log(`URL with ID ${urlId} deleted successfully`);
+                        console.log(getCurrentTime("INFO") + `URL with ID ${urlId} deleted successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while deleting URL with ID ${urlId}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while deleting URL with ID ${urlId}:`, err);
                         reject(err);
                     }
                 );
@@ -1136,11 +1135,11 @@ const Database = {
                     'DELETE FROM phone_numbers WHERE id = ?',
                     [phoneNumberId],
                     () => {
-                        console.log(`Phone number with ID ${phoneNumberId} deleted successfully`);
+                        console.log(getCurrentTime("INFO") + `Phone number with ID ${phoneNumberId} deleted successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while deleting phone number with ID ${phoneNumberId}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while deleting phone number with ID ${phoneNumberId}:`, err);
                         reject(err);
                     }
                 );
@@ -1154,11 +1153,11 @@ const Database = {
                     'DELETE FROM filters WHERE id = ?',
                     [id],
                     () => {
-                        console.log(`filter with ID ${id} deleted successfully`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} deleted successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while deleting filter with ID ${id}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while deleting filter with ID ${id}:`, err);
                         reject(err);
                     }
                 );
@@ -1173,11 +1172,11 @@ const Database = {
                     'UPDATE emails SET email = ? WHERE id = ?',
                     [newEmail, emailId],
                     () => {
-                        console.log(`Email with ID ${emailId} updated successfully`);
+                        console.log(getCurrentTime("INFO") + `Email with ID ${emailId} updated successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while updating email with ID ${emailId}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating email with ID ${emailId}:`, err);
                         reject(err);
                     }
                 );
@@ -1192,11 +1191,11 @@ const Database = {
                     'UPDATE phone_numbers SET phone_number = ? WHERE id = ?',
                     [newPhoneNumber, phoneNumberId],
                     () => {
-                        console.log(`Phone number with ID ${phoneNumberId} updated successfully`);
+                        console.log(getCurrentTime("INFO") + `Phone number with ID ${phoneNumberId} updated successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while updating phone number with ID ${phoneNumberId}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating phone number with ID ${phoneNumberId}:`, err);
                         reject(err);
                     }
                 );
@@ -1212,11 +1211,11 @@ const Database = {
                     'UPDATE url SET url = ?, type = ?, key = ? WHERE id = ?',
                     [newUrl, newType, newKey, urlId],
                     () => {
-                        console.log(`URL with ID ${urlId} updated successfully`);
+                        console.log(getCurrentTime("INFO") + `URL with ID ${urlId} updated successfully`);
                         resolve();
                     },
                     (err) => {
-                        console.log(`Error occurred while updating URL with ID ${urlId}:`, err);
+                        console.log(getCurrentTime("ERROR") + `Error occurred while updating URL with ID ${urlId}:`, err);
                         reject(err);
                     }
                 );
@@ -1234,10 +1233,10 @@ const Database = {
       );`,
                 [],
                 () => {
-                    console.log('Table "authSettings" created successfully.');
+                    console.log(getCurrentTime("INFO") + 'Table "authSettings" created successfully.');
                 },
                 (err) => {
-                    console.log('Error creating "authSettings" table:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error creating "authSettings" table:', err);
                 }
             );
         });
@@ -1255,10 +1254,10 @@ const Database = {
                             'UPDATE authSettings SET none = ?, smtp = ?, gmail = ? WHERE id = 1;',
                             [none ? 1 : 0, smtp ? 1 : 0, gmail ? 1 : 0],
                             (txObj, resultSet) => {
-                                console.log('AuthSettings updated successfully.');
+                                console.log(getCurrentTime("INFO") + 'AuthSettings updated successfully.');
                             },
                             (txObj, error) => {
-                                console.log('Error updating AuthSettings:', error);
+                                console.log(getCurrentTime("ERROR") + 'Error updating AuthSettings:', error);
                             }
                         );
                     } else {
@@ -1267,16 +1266,16 @@ const Database = {
                             'INSERT INTO authSettings (id, none, smtp, gmail) VALUES (1, ?, ?, ?);',
                             [none ? 1 : 0, smtp ? 1 : 0, gmail ? 1 : 0],
                             (txObj, resultSet) => {
-                                console.log('AuthSettings inserted successfully.');
+                                console.log(getCurrentTime("INFO") + 'AuthSettings inserted successfully.');
                             },
                             (txObj, error) => {
-                                console.log('Error inserting AuthSettings:', error);
+                                console.log(getCurrentTime("ERROR") + 'Error inserting AuthSettings:', error);
                             }
                         );
                     }
                 },
                 (txObj, error) => {
-                    console.log('Error fetching row count from authSettings:', error);
+                    console.log(getCurrentTime("ERROR") + 'Error fetching row count from authSettings:', error);
                 }
             );
         });
@@ -1284,7 +1283,7 @@ const Database = {
     fetchAuthSettings: (callback) => {
         // Make sure 'db' is accessible within this scope.
         if (!db) {
-            console.log('Error: Database not initialized.');
+            console.log(getCurrentTime("ERROR") + 'Error: Database not initialized.');
             callback(null);
             return;
         }
@@ -1303,7 +1302,7 @@ const Database = {
                     }
                 },
                 (txObj, error) => {
-                    console.log('Error fetching AuthSettings:', error);
+                    console.log(getCurrentTime("ERROR") + 'Error fetching AuthSettings:', error);
                     callback(null);
                 }
             );

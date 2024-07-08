@@ -5,11 +5,12 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {useDispatch} from "react-redux";
 import SimData from 'react-native-sim-data'
 import Database from "../../repository/database";
+import {getCurrentTime} from "../../utils/data";
 const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
     const dispatch = useDispatch();
     useEffect(() => {
         const simInfo = SimData.getSimInfo();
-        console.log("SIM card info:", simInfo);
+        console.log(getCurrentTime("INFO") + "SIM card info:", simInfo);
     }, []);
     const [inputValue, setInputValue] = useState();
     const [inputValueUpdated, setInputValueUpdated] = useState(false);
@@ -24,10 +25,10 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
         if(filterIdForCreate){
             Database.insertFilter(inputValue || `Filter ${filterIdForCreate}`, "active",0)
                 .then((filter) => {
-                    console.log('Inserted filter:', filter.id);
+                    console.log(getCurrentTime("INFO") + 'Inserted filter:', filter.id);
                 })
                 .catch((error) => {
-                    console.log('Error occurred:', error);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred:', error);
                 });
         }
     }
@@ -50,10 +51,10 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
         if (id) {
             Database.updateFilterForName(id, inputValue)
                 .then(() => {
-                    console.log('Filter name updated successfully.');
+                    console.log(getCurrentTime("INFO") + 'Filter name updated successfully.');
                 })
                 .catch((error) => {
-                    console.log('Error occurred:', error);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred:', error);
                 });
         }
         setInputValueUpdated(false);

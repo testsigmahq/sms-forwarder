@@ -15,6 +15,7 @@ import {SetRecipientsInfo} from '../../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
 import Database from "../../repository/database";
 import {useNavigation} from "@react-navigation/native";
+import {getCurrentTime} from "../../utils/data";
 
 
 
@@ -26,7 +27,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
     const [fetch,setFetch]=useState([])
     const [error, setError] = useState();
     const [condition, setCondition] = useState(false);
-    console.log("error Message",error);
+    console.log(getCurrentTime("ERROR") + "error Message ::",error);
 
 
     useEffect(()=>{
@@ -39,24 +40,17 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     const emailsArray = result.emails;
                     const phoneNumbersArray = result.phoneNumbers;
                     const urlsArray = result.urls;
-
-                    // console.log('Emails:', emailsArray);
-                    // console.log('Phone Numbers:', phoneNumbersArray);
-                    // console.log('URLs:', urlsArray);
-
                     const combinedArray = phoneNumbersArray.concat(emailsArray, urlsArray);
-                    // console.log("Combined Array:", combinedArray);
                     setFetch(combinedArray);
                 })
                 .catch((err) => {
-                    console.log('Error occurred:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while fetching recipients:', err);
                 });
         }
     }, []);
 
     useEffect(() => {
         setRecipients(fetch);
-        // console.log("fetch",fetch)
     }, [fetch]) ;
 
     const [showModal, setShowModal] = useState(false);
@@ -97,29 +91,29 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
         if(type==="URL"){
             Database.deleteUrlById(filterIdForCreate||id )
                 .then(() => {
-                    // console.log('URL deleted successfully');
+                    console.log(getCurrentTime("INFO") + 'URL deleted successfully');
                 })
                 .catch((err) => {
-                    // console.log('Error occurred while deleting URL:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while deleting URL:', err);
                 });
         }
         else if (type==="Email"){
             Database.deleteEmailById(filterIdForCreate||id)
                 .then(() => {
-                    // console.log('Email deleted successfully');
+                    console.log(getCurrentTime("INFO") + 'Email deleted successfully');
                 })
                 .catch((err) => {
-                    // console.log('Error occurred while deleting email:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while deleting email:', err);
                 });
         }
         else
         {
             Database.deletePhoneNumberById(filterIdForCreate||id)
                 .then(() => {
-                    // console.log('Phone number deleted successfully');
+                    console.log(getCurrentTime("INFO") + 'Phone number deleted successfully');
                 })
                 .catch((err) => {
-                    // console.log('Error occurred while deleting phone number:', err);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while deleting phone number:', err);
                 });
         }
         updatedRecipients.splice(index, 1);
@@ -208,11 +202,6 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     url: urlObj.url,
                 })) ?? [],
         };
-        // console.log("emailsDefined",emailsDefined)
-        // console.log("phoneNumbersDefined",phoneNumbersDefined)
-        // console.log("urlsDefined",urlsDefined)
-        //  console.log("filterIdForCreate",filterIdForCreate);
-        // console.log("id",id);
         if(emailsUndefined){
             Database.insertEmails(emailsUndefined, filterIdForCreate || id);
         }
@@ -228,10 +217,10 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
             const { id, url, requestMethod, key } = urlInfo;
             Database.updateUrlById(id, url, requestMethod, key,filterIdForCreate || id)
                 .then(() => {
-                    // console.log(`URL with ID ${id} updated successfully`);
+                    console.log(getCurrentTime("INFO") + `URL with ID ${id} updated successfully`);
                 })
                 .catch((error) => {
-                    // console.log(`Error occurred while updating URL with ID ${id}:`, error);
+                    console.log(getCurrentTime("ERROR") + `Error occurred while updating URL with ID ${id}:`, error);
                 });
         });
 
@@ -242,7 +231,7 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
           emailsDefined.forEach((emailInfo)=>{
               const {id,text}=emailInfo;
               Database.updateEmailById(id,text,filterIdForCreate || id).
-              then(()=>console.log(` updating Email with ${id}`));
+              then(()=>console.log(getCurrentTime("INFO") + ` updating Email with ${id}`));
           })
       }
 
@@ -250,11 +239,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
             phoneNumbersDefined.forEach((NumberInfo)=>{
                 const {id,text}=NumberInfo;
                 Database.updatePhoneNumberById(id,text,filterIdForCreate || id).
-                then(()=>console.log(` updating phoneNumbers with ${id}`));
+                then(()=>console.log(getCurrentTime("INFO") + ` updating phoneNumbers with ${id}`));
             })
         }
 
-        console.log("recipient info ==// ", recipientsInfo.phoneNumber, recipientsInfo.email, recipientsInfo.url)
+        console.log(getCurrentTime("INFO") + "recipient info::", recipientsInfo.phoneNumber, recipientsInfo.email, recipientsInfo.url)
         if (recipientsInfo.phoneNumber || recipientsInfo.email || recipientsInfo.url){
             navigation.navigate("Filters");
         } else {

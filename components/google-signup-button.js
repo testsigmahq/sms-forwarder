@@ -3,6 +3,8 @@ import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-googl
 import { Dimensions, View} from "react-native";
 import {googleInfo} from '../redux/actions/setUpRecipients';
 import {useDispatch} from "react-redux";
+import axios from "axios";
+import {getCurrentTime} from "../utils/data";
 
 const GoogleSignupButton = ({ onSignup }) => {
     const dispatch = useDispatch();
@@ -14,21 +16,19 @@ const GoogleSignupButton = ({ onSignup }) => {
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
             onSignup(userInfo);
-            console.log('userInfo', userInfo);
+            console.log(getCurrentTime("INFO") + 'Signed in userInfo::', userInfo);
             if (userInfo) {
                 dispatch(googleInfo(userInfo));
             }
-            const { serverAuthCode } = await GoogleSignin.getTokens();
-            // console.log('Authorization Code:', serverAuthCode);
         } catch (error) {
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                // console.log('Sign-in cancelled');
+                console.log(getCurrentTime("ERROR") + 'Sign-in cancelled');
             } else if (error.code === statusCodes.IN_PROGRESS) {
-                // console.log('Sign-in in progress');
+                console.log(getCurrentTime("ERROR") + 'Sign-in in progress');
             } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                // console.log('Play services not available');
+                console.log(getCurrentTime("ERROR") + 'Play services not available');
             } else {
-                // console.log('Error signing in:', error);
+                console.log(getCurrentTime("ERROR") + 'Error signing in:', error);
             }
         }
     };

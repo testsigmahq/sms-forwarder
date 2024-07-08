@@ -3,13 +3,13 @@ import { FlatList, View, Text, StyleSheet } from 'react-native';
 import Contacts from 'react-native-contacts';
 import Contact from '../components/contact';
 import Database from "../repository/database";
+import {getCurrentTime} from "../utils/data";
 
 const ContactPicker = ({ onCloseModal }) => {
     const [contacts, setContacts] = useState([]);
 
     useEffect(() => {
         Contacts.getAll().then((contacts) => {
-            // console.log(contacts);
             setContacts(contacts);
         });
     }, []);
@@ -21,15 +21,13 @@ const ContactPicker = ({ onCloseModal }) => {
     const handleContactPress = (contact) => {
         const cleanedPhoneNumber = contact.phoneNumbers[0].number.replace("+91 ", "");
         Database.insertContact(cleanedPhoneNumber);
-        console.log('Contact pressed:', contact.phoneNumbers[0].number.replace("+91 ", ""));
+        console.log(getCurrentTime("INFO") + 'Contact pressed:', contact.phoneNumbers[0].number.replace("+91 ", ""));
         onCloseModal();
     };
 
     const renderItem = ({ item, index }) => {
         return <Contact contact={item} onPress={handleContactPress} />;
     };
-
-    // console.log('Contacts:', contacts);
 
     return (
         <FlatList

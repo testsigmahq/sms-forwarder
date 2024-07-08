@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CheckBox from "../../components/checkbox";
 import BorderBox from "../border-box";
 import Database from "../../repository/database";
+import {getCurrentTime} from "../../utils/data";
 
 const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
     const [forwardCondition, setForwardCondition] = useState(false);
@@ -19,7 +20,7 @@ const ForwardConditions = ({saveClicked,id,filterIdForCreate}) => {
     useEffect(() => {
        async function fetchFilter(){
           let filter = await Database.fetchFilters(id);
-          // console.log("filters ==> //", filter)
+          console.log(getCurrentTime("INFO") + "filters::", filter)
           setForwardCondition(filter[0]?.forward_all === 1 )
        }
        fetchFilter();

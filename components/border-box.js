@@ -14,6 +14,7 @@ import ContactPicker from "./contact-picker";
 import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
 import Database from "../repository/database";
+import {getCurrentTime} from "../utils/data";
 
 const BorderBox = props => {
    const [ruleModel,setRuleModel]=useState(false)
@@ -39,11 +40,9 @@ const BorderBox = props => {
                 .then((records) => {
                     setRuleNumber(records.senderNumbers);
                     setRuleTextTemplate(records.texts)
-                    // console.log('Sender Numbers:', records.senderNumbers);
-                    // console.log('Texts:', records.texts);
                 })
                 .catch((error) => {
-                    // console.log('Error occurred while fetching records:', error);
+                    console.log(getCurrentTime("ERROR") + 'Error occurred while fetching records::', error);
                 });
         }
     }, []);
@@ -65,10 +64,8 @@ const BorderBox = props => {
         setRuleModel(false);
         if(!editText && ruleText){
             const sendStatus = value1.toLowerCase() === "have";
-            // console.log("without edit check",sendStatus)
             const newData = { ruleText, sendStatus };
             setRuleTextTemplate((prevMessages) => [...prevMessages, newData]);
-            // console.log("\n\n rule texts \n\n", ruleTextTemplate)
         }
         if (editText && ruleText) {
             const updatedPairs = [...ruleTextTemplate];
@@ -80,7 +77,6 @@ const BorderBox = props => {
                 updatedPairs[editId].ruleText = ruleText;
             }
             setRuleTextTemplate(updatedPairs);
-            // console.log("\n\n rule texts \n\n", ruleTextTemplate)
         }
         setRuleText('')
     }
@@ -90,7 +86,6 @@ const BorderBox = props => {
         if (!editSender && number) {
             const sendStatus = value2.toLowerCase() === "send";
             Database.fetchContactById(1).then((fetchedContact) => {
-                console.log("fetchedContact",fetchedContact);
                 setContact(fetchedContact); // Update the contact state
             });
 
@@ -112,35 +107,24 @@ const BorderBox = props => {
     }
 
     async function onSave() {
-        // console.log("rulenumber s \n\n check this \n\n", ruleNumber);
         for (const rule of ruleNumber) {
             if (!rule.id) {
-                // console.log("\n\n if check ruleNumber : \n\n", rule);
                 await Database.insertSenderNumber(rule.number, rule.sendStatus, props.filterIdForCreate || props.id);
             } else if (rule.id) {
-                // console.log("\n\n if check iiiddd ruleNumber : \n\n ", rule);
                 await Database.updateSenderNumber(rule.id, rule.sender, rule.sendStatus);
-                // let sendNumbers = await Database.fetchAllSender();
-                // console.log("\n\n all senders details : \n\n", sendNumbers)
             }
         }
 
         for (const rule of ruleTextTemplate) {
             if (!rule.id) {
-                // console.log("\n\n if check ruleTextTemplate : \n\n", rule);
                 await Database.insertText(rule.ruleText, rule.sendStatus, props.filterIdForCreate || props.id);
             } else if (rule.id) {
-                // console.log("\n\n if check iiddd ruleTextTemplate : \n\n", rule);
                 await Database.updateTextTable(rule.id, rule.messageText, rule.sendStatus);
-                // let text = await Database.fetchAllText();
-                // console.log("\n\n all senders details : \n\n", text)
             }
         }
-        // console.log("sender ids :\t" , senderId)
         for (const id of senderId) {
             await Database.deleteSenderById(id);
         }
-        // console.log("sender ids :\t" , textId)
         for (const id of textId) {
             await Database.deleteTextById(id);
         }
@@ -199,7 +183,6 @@ const BorderBox = props => {
         setOpenContact(false);
         Database.fetchContactById(1).then((e)=>{
             setNumber(e);
-            console.log("w",e);
         })
     };
 
