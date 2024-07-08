@@ -67,6 +67,7 @@ const Result = () => {
         while (BackgroundService.isRunning()) {
             console.log(getCurrentTime("INFO") + 'Running task');
             await fetchLatestMessage();
+            setIsBackgroundServiceRunning(BackgroundService.isRunning());
             await sleep(delay);
         }
     };
@@ -546,7 +547,7 @@ const Result = () => {
             .catch((error) => {
                 console.log(getCurrentTime("ERROR") + 'Error occurred while fetching data, Error::', error);
             });
-    }, [model])
+    }, [model, isBackgroundServiceRunning])
 
     async function deleteById(id) {
         try {
