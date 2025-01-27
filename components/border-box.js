@@ -42,6 +42,11 @@ const BorderBox = props => {
                     setRuleTextTemplate(records.texts)
                 })
                 .catch((error) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while fetching records:: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error occurred while fetching records::', error);
                 });
         }

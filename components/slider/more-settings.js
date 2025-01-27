@@ -28,7 +28,12 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
                     console.log(getCurrentTime("INFO") + 'Inserted filter:', filter.id);
                 })
                 .catch((error) => {
-                    console.log(getCurrentTime("ERROR") + 'Error occurred:', error);
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred on saving: ${error?.message}`,
+                        type: "danger",
+                      });
+                    console.log(getCurrentTime("ERROR") + 'Error occurred on saving:', error);
                 });
         }
     }
@@ -54,6 +59,11 @@ const MoreSettings = ({saveClicked,id,filterIdForCreate}) => {
                     console.log(getCurrentTime("INFO") + 'Filter name updated successfully.');
                 })
                 .catch((error) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred on updating database: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error occurred:', error);
                 });
         }

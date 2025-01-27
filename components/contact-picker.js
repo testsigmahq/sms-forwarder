@@ -26,6 +26,7 @@ const ContactPicker = ({ onCloseModal }) => {
     };
 
     const renderItem = ({ item, index }) => {
+        if (!item.phoneNumbers[0]) return;
         return <Contact contact={item} onPress={handleContactPress} />;
     };
 

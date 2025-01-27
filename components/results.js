@@ -21,11 +21,11 @@ import RNSmtpMailer from "react-native-smtp-mailer";
 import {useSelector} from "react-redux";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {getCurrentTime} from "../utils/date";
+import { showMessage } from "react-native-flash-message";
 
 const DirectSms = NativeModules.DirectSms;
 
 const Result = () => {
-    const smsResultRef = useRef([]);
     const [results, setResults] = useState([]);
     const [model, setModel] = useState(false)
     const [modelResult, setModelResult] = useState([]);
@@ -102,6 +102,11 @@ const Result = () => {
             await BackgroundService.start(veryIntensiveTask, {...options});
             console.log(getCurrentTime("INFO") + 'Background task started.');
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description: `Error starting background task, Error:: ${error?.message}`,
+                type: "danger",
+              });
             console.error(getCurrentTime("ERROR") + 'Error starting background task, Error::', error);
         }
     };
@@ -122,6 +127,11 @@ const Result = () => {
             await BackgroundService.stop();
             console.log(getCurrentTime("INFO") + 'Background task stopped.');
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description: `Error stopping background task, Error:: ${error?.message}`,
+                type: "danger",
+              });
             console.error(getCurrentTime("ERROR") + 'Error stopping background task, Error::', error);
         }
     };
@@ -144,25 +154,27 @@ const Result = () => {
             (fail) => {
                 console.log(getCurrentTime("ERROR") + 'Failed to fetch SMS list, Error::', fail);
             },
-            (count, smsList) => {
+            async (count, smsList) => {
                 let arr = JSON.parse(smsList);
 
                 if (arr.length > 0) {
                     const latestObject = arr[0];
-                    if (latestObject._id > (smsResultRef.current[smsResultRef.current.length - 1]?.date || 0)) {
+                    const lastMessage = await Database.readLastResult();
+                    // console.log(getCurrentTime("INFO") + "latestObject:: ", latestObject)
+                    // console.log(getCurrentTime("INFO") + "lastMessage:: ", lastMessage?.date)
+                    if (latestObject._id > (lastMessage?.date || 0)) {
                         forwardMessage(latestObject);
-                        fetchResult(setResults, smsResultRef).then(() => console.log(getCurrentTime("INFO") + "Fetched result"));
+                        fetchResult().then(() => console.log(getCurrentTime("INFO") + "Fetched result"));
                     }
                 }
             }
         );
     }
 
-    const fetchResult = async (setResults, smsResultRef) => {
+    const fetchResult = async () => {
         Database.readResults()
             .then((resultRows) => {
                 if (resultRows) {
-                    smsResultRef.current = resultRows;
                     setResults(resultRows);
                 }
             })
@@ -183,6 +195,11 @@ const Result = () => {
                 fetchRecipients(item.id, latestObject)
             })
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description: `Error occurred while fetching filters, Error:: ${error?.message}`,
+                type: "danger",
+              });
             console.error(getCurrentTime("ERROR") + "Error occurred while fetching filters, Error::", error);
         }
     }
@@ -220,6 +237,11 @@ const Result = () => {
 
             return mailMethod;
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description: `Error occurred while fetching auth settings, Error:: ${error}`,
+                type: "danger",
+              });
             console.error(getCurrentTime("ERROR") + 'Error occurred while fetching auth settings, Error::', error);
             return undefined;
         }
@@ -247,6 +269,11 @@ const Result = () => {
 
             return access_token;
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description: `Error retrieving access token:, Error:: ${error}`,
+                type: "danger",
+              });
             if (error.response) {
                 console.error(getCurrentTime("ERROR") + 'Error retrieving access token:', error.response.status, error.response.data);
             } else if (error.request) {
@@ -274,6 +301,11 @@ const Result = () => {
                     }
                 })
                 .catch((error) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error fetching user data: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error fetching user data:', error);
                 });
             return smtpRef;
@@ -300,6 +332,11 @@ const Result = () => {
                             await Database.insertResults(newMessage, latestObject?.address, phoneNumber, formatDateTime(moment()), "Success", latestObject?._id);
                         }
                     } catch (error) {
+                        showMessage({
+                            message: "Error",
+                            description:`Error occurred while sending SMS: ${error?.message}`,
+                            type: "danger",
+                          });
                         console.error(getCurrentTime("ERROR") + "Error occurred while sending SMS:", error);
                     }
                 }
@@ -333,7 +370,7 @@ const Result = () => {
                             }
                         } else if (mailMethod === "Via SMTP") {
                             if (smtpRef.current) {
-                                const isForwarded = sendEmailSmtp(email.text, newMessage);
+                                const isForwarded = sendEmailSmtp(email.text, latestObject?.address, newMessage);
                                 if (isForwarded) {
                                     await Database.insertResults(newMessage, latestObject?.address, email.text, formatDateTime(moment()), "Success", latestObject?._id);
                                 } else {
@@ -402,6 +439,11 @@ const Result = () => {
                         console.log(getCurrentTime("INFO") + 'SMS forwarded successfully:', response.data);
                     })
                     .catch(error => {
+                        showMessage({
+                            message: "Error",
+                            description:`Failed to forward SMS, Error:: ${error?.message}`,
+                            type: "danger",
+                          });
                         console.error(getCurrentTime("ERROR") + 'Failed to forward SMS, Error::', error);
                     });
             } else if (method === 'get') {
@@ -411,6 +453,11 @@ const Result = () => {
                         console.log(getCurrentTime("INFO") + 'SMS forwarded successfully:', response.data);
                     })
                     .catch(error => {
+                        showMessage({
+                            message: "Error",
+                            description:`Failed to forward SMS, Error:: ${error?.message}`,
+                            type: "danger",
+                          });
                         console.error(getCurrentTime("ERROR") + 'Failed to forward SMS:', error);
                     });
             }
@@ -438,8 +485,18 @@ const Result = () => {
                 raw: createRawMessage(email),
             }, config);
             console.log(getCurrentTime("INFO") + 'Email sent::', response.data);
-            Alert.alert('Email sent via Gmail API:\n\n', JSON.stringify(response.data));
+            showMessage({
+                message: "Success",
+                description:`Email sent via Gmail API:\n\n ${JSON.stringify(response.data)}`,
+                type: "success",
+              });
+            // Alert.alert('Email sent via Gmail API:\n\n', JSON.stringify(response.data));
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description:`Error sending email: ${error?.message}`,
+                type: "danger",
+              });
             console.error(getCurrentTime("ERROR") + 'Error sending email:', error);
             return false;
         }
@@ -458,53 +515,95 @@ const Result = () => {
         return encode(message);
     };
 
-    const sendEmailSmtp = (receiver, message) => {
-        try {
-            const jsonStringMessage = JSON.stringify(message);
-            console.log(getCurrentTime("INFO") + "sendEmailSmtp smtpRef::\t", smtpRef)
+    const sendEmailSmtp = async (receiver, from, message) => {
+      try {
+        const jsonStringMessage = JSON.stringify(message);
+        const user = await Database.fetchLatestUser();
 
-            if (smtpRef) {
-                console.log(getCurrentTime("INFO") + "sendEmailSmtp smtRef current::\t", smtpRef.current)
+        console.log(getCurrentTime("INFO") + "users from database::\t", user);
+        if (!user) return;
 
-                RNSmtpMailer.sendMail({
-                    mailhost: smtpRef.current.host,
-                    port: smtpRef.current.port.toString(),
-                    ssl: true,
-                    username: smtpRef.current.loginId,
-                    password: smtpRef.current.password,
-                    from: smtpRef.current.emailAddress,
-                    recipients: receiver,
-                    subject: 'from STMP',
-                    htmlBody: `<h1>${jsonStringMessage}</h1>`,
-                }).then((success) => {
-                    console.log(getCurrentTime("INFO") + 'Email sent successfully::', success)
-                    Alert.alert("Email sent via smtp", JSON.stringify(success));
+        RNSmtpMailer.sendMail({
+          mailhost: user.host,
+          port: user.port.toString(),
+          ssl: true,
+          username: user.loginId,
+          password: user.password,
+          from: user.emailAddress,
+          recipients: receiver,
+          subject: `Automated SMS Forward - Message Received on Your Device`,
+          htmlBody: `
+              <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+                <h2 style="color: #0073e6;">SMS Forwarding Notification</h2>
+                <p>Hello,</p>
+                <p>You have received a forwarded message from your Android device.</p>
+                <hr/>
+                <p><strong>Sender:</strong> ${from}</p>
+                <p><strong>Message Content:</strong></p>
+                <div style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;">
+                  <p>${jsonStringMessage}</p>
+                </div>
+                <hr/>
+                <p>This automated service is provided by <strong>Testsigma</strong>.</p>
+                <p>For any queries or support, please contact us at <a href="mailto:support@testsigma.com">support@testsigma.com</a>.</p>
+                <p style="color: #777; font-size: 12px;">This is an automated email. Please do not reply.</p>
+              </div>
+            `,
+        })
+          .then((success) => {
+            showMessage({
+                message: "Success",
+                description:`Email sent via SMTP:\n\n ${JSON.stringify(success)}`,
+                type: "success",
+              });
+            console.log(
+              getCurrentTime("INFO") + "Email sent successfully::",
+              success
+            );
+            // Alert.alert("Email sent via smtp", JSON.stringify(success));
 
-                    if (typeof message !== 'string') {
-                        console.log(getCurrentTime("INFO") + "message is not a string");
-                    }
-                })
-                    .catch((error) => {
-                        console.log(getCurrentTime("ERROR") + 'Error sending email, Error::', error)
-                        Alert.alert("Error while sending email through smtp\n\n", JSON.stringify(error));
-                        throw error;
-                    });
+            if (typeof message !== "string") {
+              console.log(getCurrentTime("INFO") + "message is not a string");
             }
-        } catch (e) {
-            return false;
-        }
-        return true;
+          })
+          .catch((error) => {
+            showMessage({
+                message: "Error",
+                description:`Error sending email, Error:: ${error?.message}`,
+                type: "danger",
+              });
+            console.log(
+              getCurrentTime("ERROR") + "Error sending email, Error::",
+              error
+            );
+            // Alert.alert(
+            //   "Error while sending email through smtp\n\n",
+            //   JSON.stringify(error)
+            // );
+            throw error;
+          });
+      } catch (e) {
+        console.error(
+          getCurrentTime("ERROR") +
+            "Encountered error during sending mail via SMTP, Error:: ",
+          e
+        );
+        return false;
+      }
+      return true;
     };
 
 
     // ---------------------------------------------------------------------------------------------------------------
 
 
-    const requestSMSPermissions = async () => {
+    const requestSMSPermissions = async (retryCount = 0) => {
         const permissions = [
             PermissionsAndroid.PERMISSIONS.READ_SMS,
             PermissionsAndroid.PERMISSIONS.SEND_SMS,
         ];
+
+        const maxRetries = 3;
 
         try {
             const granted = await PermissionsAndroid.requestMultiple(permissions, {
@@ -519,15 +618,22 @@ const Result = () => {
 
             if (readSmsGranted && sendSmsGranted) {
                 if (!BackgroundService.isRunning()) {
-                    await startBackgroundTask(smsResultRef, setResults);
+                    await startBackgroundTask();
                     await updateBackgroundNotification();
                 }
                 console.log(getCurrentTime("INFO") + 'SMS permissions granted');
+            } else if (retryCount < maxRetries) {
+                console.log(getCurrentTime("INFO") + 'SMS permissions denied. Retrying...');
+                await requestSMSPermissions(retryCount + 1);
             } else {
-                console.log(getCurrentTime("INFO") + 'SMS permissions denied. Requesting again...');
-                await requestSMSPermissions(); // Recursively request permissions if denied
+                console.log(getCurrentTime("INFO") + 'SMS permissions denied after multiple attempts.');
             }
         } catch (err) {
+            showMessage({
+                message: "Error",
+                description:`Error while requesting permissions, Error:: ${err?.message}`,
+                type: "danger",
+              });
             console.error(getCurrentTime("ERROR") + 'Error while requesting permissions:', err);
         }
     };
@@ -540,7 +646,6 @@ const Result = () => {
         Database.readResults()
             .then((resultRows) => {
                 if (resultRows) {
-                    smsResultRef.current = resultRows;
                     setResults(resultRows);
                 }
             })
@@ -552,8 +657,16 @@ const Result = () => {
     async function deleteById(id) {
         try {
             await Database.deleteResultById(id);
-            // Update smsResultRef to remove the deleted result
-            smsResultRef.current = smsResultRef.current.filter(result => result.id !== id);
+            // Update resultRows to remove the deleted result
+            Database.readResults()
+            .then((resultRows) => {
+                if (resultRows) {
+                    setResults(resultRows);
+                }
+            })
+            .catch((error) => {
+                console.log(getCurrentTime("ERROR") + 'Error occurred while fetching data, Error::', error);
+            });
             setModel(false);
         } catch (error) {
             console.error(getCurrentTime("ERROR") + 'Error deleting result, Error:', error);

@@ -11,7 +11,7 @@ const Contact = ({ contact, onPress }) => {
             <View style={styles.contactCon}>
                 <View style={styles.imgCon}>
                     <View style={styles.placeholder}>
-                        <Text style={styles.txt}>{contact?.givenName[0]}</Text>
+                        <Text style={styles.txt}>{contact?.givenName ? contact.givenName[0] : "?"}</Text>
                     </View>
                 </View>
                 <View style={styles.contactDat}>

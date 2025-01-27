@@ -21,6 +21,11 @@ const GoogleSignupButton = ({ onSignup }) => {
                 dispatch(googleInfo(userInfo));
             }
         } catch (error) {
+            showMessage({
+                message: "Error",
+                description: `Error while google signup, error status code:: ${statusCodes.SIGN_IN_CANCELLED}`,
+                type: "danger",
+              });
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
                 console.log(getCurrentTime("ERROR") + 'Sign-in cancelled');
             } else if (error.code === statusCodes.IN_PROGRESS) {

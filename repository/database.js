@@ -316,30 +316,29 @@ const Database = {
             });
         });
     },
-    fetchUserById: (id) => {
+    fetchLatestUser: () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    'SELECT * FROM Users WHERE id = ?',
-                    [id],
+                    'SELECT * FROM Users ORDER BY id DESC LIMIT 1', // Fetch the latest row
+                    [],
                     (_, { rows }) => {
                         const user = rows.item(0);
                         if (user) {
-                            console.log(getCurrentTime("INFO") + 'User fetched successfully:');
-                            console.log(getCurrentTime("INFO") + 'User:', user);
+                            console.log(getCurrentTime("INFO") + ' Latest user fetched successfully:', user);
                             resolve(user);
                         } else {
-                            reject(getCurrentTime("ERROR") + 'User not found');
+                            reject(getCurrentTime("ERROR") + ' No users found');
                         }
                     },
                     (err) => {
-                        console.log(getCurrentTime("ERROR") + 'Error occurred while fetching user:', err);
+                        console.log(getCurrentTime("ERROR") + ' Error occurred while fetching the latest user:', err);
                         reject(err);
                     }
                 );
             });
         });
-    },
+    },    
 
     updateUserById: (id, loginId, password, emailAddress, host, port, showAuth, showSSL, showTLS) => {
         return new Promise((resolve, reject) => {
@@ -379,6 +378,24 @@ const Database = {
             });
         });
     },
+
+    readLastResult: () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM results ORDER BY id DESC LIMIT 1', // Fetch last row based on ID
+                    [],
+                    (_, { rows }) => {
+                        const lastResult = rows.length > 0 ? rows.item(0) : null;
+                        resolve(lastResult);
+                    },
+                    (_, error) => {
+                        reject(error);
+                    }
+                );
+            });
+        });
+    },    
 
     deleteResultById: (id) => {
         return new Promise((resolve, reject) => {

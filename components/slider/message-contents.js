@@ -42,6 +42,11 @@ const MessageContents = ({saveClicked,id,filterIdForCreate}) => {
                     setWordPairs(changeContents);
                 })
                 .catch((error) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while fetching change_contents: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("INFO") + 'Error occurred while fetching change_contents:', error);
                 });
         }

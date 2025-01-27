@@ -23,7 +23,7 @@ function SmsRelay({ navigation }) {
                 // console.log('Send SMS permission denied');
             }
         } catch (err) {
-            console.warn(err);
+            console.error(getCurrentTime("ERROR") + err);
         }
     }
 
@@ -44,7 +44,7 @@ function SmsRelay({ navigation }) {
                 // console.log('Storage permission denied');
             }
         } catch (err) {
-            console.warn(err);
+            console.error(getCurrentTime("ERROR") + err);
         }
     }
     async function requestReadSMSPermission() {
@@ -64,7 +64,7 @@ function SmsRelay({ navigation }) {
                 // console.log('Read SMS permission denied');
             }
         } catch (err) {
-            console.warn(err);
+            console.error(getCurrentTime("ERROR") + err);
         }
     }
 
@@ -85,7 +85,7 @@ function SmsRelay({ navigation }) {
                 // console.log('Contacts permission denied');
             }
         } catch (err) {
-            console.warn(err);
+            console.error(getCurrentTime("ERROR") + err);
         }
     }
 
@@ -106,7 +106,7 @@ function SmsRelay({ navigation }) {
                 // console.log('Telephone permission denied');
             }
         } catch (err) {
-            console.warn(err);
+            console.error(getCurrentTime("ERROR") + err);
         }
     }
 
@@ -121,7 +121,7 @@ function SmsRelay({ navigation }) {
                     requestReadSMSPermission(),
                 ]);
             } catch (err) {
-                console.warn(err);
+                console.error(getCurrentTime("ERROR") + err);
             }
         };
 

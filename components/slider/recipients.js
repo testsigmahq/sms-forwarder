@@ -44,6 +44,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     setFetch(combinedArray);
                 })
                 .catch((err) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while fetching recipients: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error occurred while fetching recipients:', err);
                 });
         }
@@ -94,6 +99,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     console.log(getCurrentTime("INFO") + 'URL deleted successfully');
                 })
                 .catch((err) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while deleting URL: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error occurred while deleting URL:', err);
                 });
         }
@@ -103,6 +113,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     console.log(getCurrentTime("INFO") + 'Email deleted successfully');
                 })
                 .catch((err) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while deleting email: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error occurred while deleting email:', err);
                 });
         }
@@ -113,6 +128,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     console.log(getCurrentTime("INFO") + 'Phone number deleted successfully');
                 })
                 .catch((err) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while deleting phone number: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + 'Error occurred while deleting phone number:', err);
                 });
         }
@@ -220,6 +240,11 @@ const Recipients = ({saveClicked,id,filterIdForCreate,errorMessage}) => {
                     console.log(getCurrentTime("INFO") + `URL with ID ${id} updated successfully`);
                 })
                 .catch((error) => {
+                    showMessage({
+                        message: "Error",
+                        description:`Error occurred while updating URL with ID ${id}, Error:: ${error?.message}`,
+                        type: "danger",
+                      });
                     console.log(getCurrentTime("ERROR") + `Error occurred while updating URL with ID ${id}:`, error);
                 });
         });

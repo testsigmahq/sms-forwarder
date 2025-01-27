@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import Database from './repository/database';
 import HomeStack from './routes/homeStack';
+import FlashMessage from "react-native-flash-message";
 
 
 export default function App() {
@@ -51,6 +51,7 @@ export default function App() {
             <Provider store={store}>
                 <HomeStack />
             </Provider>
+            <FlashMessage position="top" />
         </View>
     );
 }

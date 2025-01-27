@@ -25,6 +25,11 @@ const Filters = ({ navigation }) => {
                 setFilter(filters);
             })
             .catch((err) => {
+                showMessage({
+                    message: "Error",
+                    description:`Error occurred while fetching all filters, Error:: ${error?.message}`,
+                    type: "danger",
+                  });
                 console.log(getCurrentTime("ERROR") + 'Error occurred while fetching all filters, Error::', err);
             });
     }, []);
@@ -79,6 +84,11 @@ const Filters = ({ navigation }) => {
                 setFilter(updatedFilters);
             })
             .catch((error) => {
+                showMessage({
+                    message: "Error",
+                    description:`Error updating filter status, Error:: ${error?.message}`,
+                    type: "danger",
+                  });
                 console.log(getCurrentTime("ERROR") +'Error updating filter status, Error::', error);
             });
     };

@@ -42,3 +42,7 @@ db
 sqlite3 SMSPoint.db
 
 .tables
+
+// To see device logs
+
+example command : adb -s emulator-5554 logcat

@@ -23,6 +23,7 @@ import {useDispatch} from "react-redux";
 import smtp from "../redux/reducers/smtp";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import {getCurrentTime} from "../utils/date";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const Setting = () => {
     const dispatch = useDispatch();
@@ -92,58 +93,66 @@ const Setting = () => {
         setShowTLS(!showTLS);
     };
 
+    const validateSMTP = () => {
+      if (!loginId.trim()) {
+        Alert.alert("Invalid Input", "Please enter a valid login ID.");
+        return false;
+      }
+      if (!password.trim()) {
+        Alert.alert("Invalid Input", "Please enter a valid password.");
+        return false;
+      }
+      if (!emailAddress.trim() || !validateEmail(emailAddress)) {
+        Alert.alert("Invalid Input", "Please enter a valid email address.");
+        return false;
+      }
+      if (!host.trim()) {
+        Alert.alert("Invalid Input", "Please enter a valid host.");
+        return false;
+      }
+      if (!port.toString().trim()) {
+        Alert.alert("Invalid Input", "Please enter a valid port number.");
+        return false;
+      }
+      return true;
+    };
+
     const handleValidation = () => {
-        let isValid = true;
+      if (selectedValue === "Via SMTP") {
+        if (!validateSMTP()) return;
 
-
-        if (selectedValue === "Via SMTP") {
-
-            if (loginId.trim() === '') {
-                isValid = false;
-                Alert.alert('Invalid Input', 'Please enter a valid login ID.');
-            } else if (password.trim() === '') {
-                isValid = false;
-                Alert.alert('Invalid Input', 'Please enter a valid password.');
-            } else if (emailAddress.trim() === '' || !validateEmail(emailAddress)) {
-                isValid = false;
-                Alert.alert('Invalid Input', 'Please enter a valid email address.');
-            } else if (host.trim() === '') {
-                isValid = false;
-                Alert.alert('Invalid Input', 'Please enter a valid host.');
-            } else if (port.toString().trim() === '') {
-                isValid = false;
-                Alert.alert('Invalid Input', 'Please enter a valid port number.');
-            }
-
-            if (isValid && (selectedValue === "Via SMTP")) {
-                Database.insertUser(
-                    loginId,
-                    password,
-                    emailAddress,
-                    host,
-                    port,
-                    showAuth,
-                    showSSL,
-                    showTLS
-                ).then(r => console.log(getCurrentTime("INFO") + "User inserted successfully", r));
-                dispatch(setSmtp('smtp'));
-                Database.insertAuthSettings(0, 1, 0)
-                navigation.goBack();
-            }
-        }
-        if (selectedValue === "Via Gmail API") {
-            console.log(getCurrentTime("INFO") + "serverAuthCode::", userInfo.serverAuthCode);
-            Database.insertAuthCode(userInfo.serverAuthCode);
-            Database.insertGmail(userInfo?.user?.email)
-            dispatch(setSmtp('gmail'));
-            Database.insertAuthSettings(0, 0, 1)
-            navigation.goBack();
-        }
-        if (selectedValue === "None") {
-            Database.insertAuthSettings(1, 0, 0)
-            dispatch(setSmtp('none'));
-            navigation.goBack();
-        }
+        Database.insertUser(
+          loginId,
+          password,
+          emailAddress,
+          host,
+          port,
+          showAuth,
+          showSSL,
+          showTLS
+        ).then((r) =>
+          console.log(getCurrentTime("INFO") + "User inserted successfully for SMTP", r)
+        );
+        dispatch(setSmtp("smtp"));
+        Database.insertAuthSettings(0, 1, 0);
+        navigation.goBack();
+      }
+      if (selectedValue === "Via Gmail API") {
+        console.log(
+          getCurrentTime("INFO") + "serverAuthCode::",
+          userInfo.serverAuthCode
+        );
+        Database.insertAuthCode(userInfo.serverAuthCode);
+        Database.insertGmail(userInfo?.user?.email);
+        dispatch(setSmtp("gmail"));
+        Database.insertAuthSettings(0, 0, 1);
+        navigation.goBack();
+      }
+      if (selectedValue === "None") {
+        Database.insertAuthSettings(1, 0, 0);
+        dispatch(setSmtp("none"));
+        navigation.goBack();
+      }
     };
 
     const validateEmail = (email) => {
@@ -167,7 +176,7 @@ const Setting = () => {
             }
         });
 
-        Database.fetchUserById(1)
+        Database.fetchLatestUser()
             .then((e) => {
                 if (e) {
                     setLoginId(e.loginId);
@@ -186,26 +195,85 @@ const Setting = () => {
                 console.log(getCurrentTime("ERROR") + 'Error fetching user data:', error);
             });
 
-        GoogleSignin.getCurrentUser().then(res => {
-            setEmail(res.user.email)
-        });
-
+            GoogleSignin.getCurrentUser().then(res => {
+                if (res && res.user) {
+                    setEmail(res.user.email);
+                } else {
+                    console.log(getCurrentTime("INFO") + "No user is currently signed in.");
+                }
+            }).catch(error => {
+                showMessage({
+                    message: "Error",
+                    description:`Error getting current user: ${error?.message}`,
+                    type: "danger",
+                  });
+                console.error(getCurrentTime("ERROR") + "Error getting current user: ", error);
+            });
+            
     }, []);
 
     const sendEmail = () => {
-        RNSmtpMailer.sendMail({
-            mailhost: 'smtp.gmail.com',
-            port: '465',
-            ssl: true,
-            username: 'ragulrahul973@gmail.com',
-            password: 'nogexfdjohihshgd',
-            from: 'ragulrahul973@gmail.com',
-            recipients: 'as17112001@gmail.com',
-            subject: 'Test Email',
-            htmlBody: '<h1>Hello, this is a test email from sms forwarder</h1>',
+      if (!validateSMTP()) {
+        return;
+      }
+
+      // For gmail verification
+
+      // RNSmtpMailer.sendMail({
+      //     mailhost: "smtp.gmail.com",
+      //     port: "465",
+      //     ssl: true,
+      //     username: "seenivasan.a@testsigma.com",
+      //     password: "mphoyuwlvrekqjwd",
+      //     replyTo: "seenivasan.a@testsigma.com",
+      //     recipients: "as17112001@gmail.com",
+      //     subject: "subject",
+      //     htmlBody: "<h1>header</h1><p>body</p>"
+      //   })
+
+      RNSmtpMailer.sendMail({
+        mailhost: host,
+        port: port?.toString(),
+        ssl: showSSL,
+        username: loginId,
+        password: password,
+        replyTo: "no_reply@testsigma.com",
+        recipients: loginId,
+        subject: "[SMTP Test] Email Delivery Verification from Testsigma App",
+        htmlBody: `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #007BFF;">SMTP Configuration Test</h2>
+                <p>Dear User,</p>
+                <p>This is a test email to verify the SMTP configuration from the <strong>Testsigma</strong> app.</p>
+                <p>If you received this email, it confirms that your SMTP settings are correctly configured and working as expected.</p>
+                <hr style="border: none; border-top: 1px solid #ddd;">
+                <p style="color: #666;">If you did not initiate this test or need assistance, please contact <a href="mailto:support@testsigma.com">support@testsigma.com</a>.</p>
+                <p>Best Regards,<br><strong>Testsigma Team</strong></p>
+            </div>
+        `,
+      })
+        .then((success) => {
+          showMessage({
+            message: "Success",
+            description: "Test email sent successfully",
+            type: "success",
+          });
+          console.log(
+            getCurrentTime("INFO") + "Test email sent successfully:",
+            success
+          );
         })
-            .then(success => console.log(getCurrentTime("INFO") + 'Email sent successfully:', success))
-            .catch(error => console.log(getCurrentTime("ERROR") + 'Error sending email:', error));
+        .catch((error) => {
+          showMessage({
+            message: "Error",
+            description:`Error sending test email: ${error?.message}`,
+            type: "danger",
+          });
+          console.log(
+            getCurrentTime("ERROR") + "Error sending test email:",
+            error
+          );
+        });
     };
 
 
@@ -300,7 +368,7 @@ const Setting = () => {
                                         <View style={[styles.toggleKnob, showTLS && styles.toggleKnobActive]}/>
                                     </View>
                                 </TouchableOpacity>
-                                <View style={{top: 10}}>
+                                <View style={{top: 10, bottom: 30}}>
                                     <TouchableHighlight onPress={sendEmail}>
                                         <Button title="Send Test Mail" onPress={sendEmail}/>
                                     </TouchableHighlight>
