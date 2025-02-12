@@ -15,6 +15,7 @@ import {Input} from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
 import Database from "../repository/database";
 import {getCurrentTime} from "../utils/date";
+import { showMessage } from "react-native-flash-message";
 
 const BorderBox = props => {
    const [ruleModel,setRuleModel]=useState(false)
@@ -462,7 +463,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         borderWidth: 0.5,
         borderRadius: 4,
-        width: deviceWidth*0.85,
+        width: deviceWidth*0.75,
         alignSelf:"flex-start",
         margin: 10,
         marginTop: 18,
@@ -528,8 +529,8 @@ const styles = StyleSheet.create({
     },
     cardGreen: {
         flexDirection: 'column',
-        justifyContent: 'flex-start', // Center horizontally
-        alignItems: 'flex-start', // Center vertically
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         padding: 5,
         backgroundColor: '#B1D8B7',
         borderRadius:3,
@@ -542,7 +543,7 @@ const styles = StyleSheet.create({
         margin: 8,
         borderColor:'green',
         borderWidth:0.3,
-        width: deviceWidth * 0.8,
+        width: deviceWidth * 0.65,
     },
     cardText: {
         marginRight: 8,

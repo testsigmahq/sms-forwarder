@@ -5,13 +5,11 @@ import {
   StyleSheet,
   TextInput,
   ScrollView,
-  Button,
   Animated,
   Easing,
   Alert,
   TouchableOpacity,
   Dimensions,
-  TouchableHighlight,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
@@ -29,7 +27,6 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const { height: deviceHeight } = Dimensions.get("window");
-const { width: deviceWidth } = Dimensions.get("window");
 
 const Setting = () => {
   const dispatch = useDispatch();
@@ -46,7 +43,6 @@ const Setting = () => {
   const [email, setEmail] = useState("");
   const [userInfo, setUserInfo] = useState("");
 
-  ////
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
@@ -58,18 +54,6 @@ const Setting = () => {
     });
     setUserInfo(userInfo);
     console.log(getCurrentTime("INFO") + "Signed in userInfo::", userInfo);
-  };
-
-  const handleEmailAddressChange = (value) => {
-    setEmailAddress(value);
-  };
-
-  const handleHostChange = (value) => {
-    setHost(value);
-  };
-
-  const handlePortChange = (value) => {
-    setPort(value);
   };
 
   const [showAuth, setShowAuth] = useState(false);
@@ -109,47 +93,6 @@ const Setting = () => {
       return false;
     }
     return true;
-  };
-
-  const handleValidation = () => {
-    if (selectedValue === "Via SMTP") {
-      if (!validateSMTP()) return;
-
-      Database.insertUser(
-        loginId,
-        password,
-        emailAddress,
-        host,
-        port,
-        showAuth,
-        showSSL,
-        showTLS
-      ).then((r) =>
-        console.log(
-          getCurrentTime("INFO") + "User inserted successfully for SMTP",
-          r
-        )
-      );
-      dispatch(setSmtp("smtp"));
-      Database.insertAuthSettings(0, 1, 0);
-      navigation.goBack();
-    }
-    if (selectedValue === "Via Gmail API") {
-      console.log(
-        getCurrentTime("INFO") + "serverAuthCode::",
-        userInfo.serverAuthCode
-      );
-      Database.insertAuthCode(userInfo.serverAuthCode);
-      Database.insertGmail(userInfo?.user?.email);
-      dispatch(setSmtp("gmail"));
-      Database.insertAuthSettings(0, 0, 1);
-      navigation.goBack();
-    }
-    if (selectedValue === "None") {
-      Database.insertAuthSettings(1, 0, 0);
-      dispatch(setSmtp("none"));
-      navigation.goBack();
-    }
   };
 
   const validateEmail = (email) => {
@@ -241,7 +184,7 @@ const Setting = () => {
     RNSmtpMailer.sendMail({
       mailhost: host,
       port: port?.toString(),
-      ssl: showSSL,
+      ssl: !!showSSL,
       username: loginId,
       password: password,
       replyTo: "no_reply@testsigma.com",
@@ -283,11 +226,8 @@ const Setting = () => {
       });
   };
 
-  ///
-
   const onChangeRadio = (value) => {
     setSelectedValue(value);
-    slideAnim.setValue(0);
     Animated.timing(slideAnim, {
       toValue: 1,
       duration: 500,
@@ -547,7 +487,14 @@ const Setting = () => {
             onPress={sendEmail}
           >
             <Icon name="envelope" size={18} color="white" />
-            <Text style={{ fontSize: 16, fontWeight: "bold", color: "white", paddingLeft: 5 }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "bold",
+                color: "white",
+                paddingLeft: 5,
+              }}
+            >
               Send Test Mail
             </Text>
           </TouchableOpacity>
@@ -557,6 +504,42 @@ const Setting = () => {
   };
 
   const handleSave = () => {
+    if (selectedValue === "Via SMTP") {
+      if (!validateSMTP()) return;
+
+      Database.insertUser(
+        loginId,
+        password,
+        emailAddress,
+        host,
+        port,
+        showAuth,
+        showSSL,
+        showTLS
+      ).then((r) =>
+        console.log(
+          getCurrentTime("INFO") + "User inserted successfully for SMTP",
+          r
+        )
+      );
+      Database.insertAuthSettings(0, 1, 0);
+      navigation.goBack();
+    }
+    if (selectedValue === "Via Gmail API") {
+      console.log(
+        getCurrentTime("INFO") + "serverAuthCode::",
+        userInfo.serverAuthCode
+      );
+      Database.insertAuthCode(userInfo.serverAuthCode);
+      Database.insertGmail(userInfo?.user?.email);
+      Database.insertAuthSettings(0, 0, 1);
+      navigation.goBack();
+    }
+    if (selectedValue === "None") {
+      Database.insertAuthSettings(1, 0, 0);
+      navigation.goBack();
+    }
+
     showMessage({
       message: "Settings Saved",
       description: "Your settings have been saved successfully.",

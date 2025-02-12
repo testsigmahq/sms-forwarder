@@ -454,7 +454,7 @@ const Database = {
                     'UPDATE filters SET status = ? WHERE id = ?',
                     [status, id],
                     () => {
-                        console.log(getCurrentTime("INFO") + `filter with ID ${id} updated successfully, with value of ${status}`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} status updated successfully, with value of ${status}`);
                         resolve();
                     },
                     (err) => {
@@ -472,7 +472,7 @@ const Database = {
                     'UPDATE filters SET filter_name = ? WHERE id = ?',
                     [filter_name, id],
                     () => {
-                        console.log(getCurrentTime("INFO") + `filter with ID ${id} updated successfully, with value of ${name}`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} name updated successfully, with value of ${name}`);
                         resolve();
                     },
                     (err) => {
@@ -490,7 +490,7 @@ const Database = {
                     'UPDATE filters SET forward_all = ? WHERE id = ?',
                     [forward, id],
                     () => {
-                        console.log(getCurrentTime("INFO") + `filter with ID ${id} updated successfully, with value of ${forward}`);
+                        console.log(getCurrentTime("INFO") + `filter with ID ${id} condition updated successfully, with value of ${forward}`);
                         resolve();
                     },
                     (err) => {
