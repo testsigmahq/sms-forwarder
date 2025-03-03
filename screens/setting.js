@@ -244,7 +244,7 @@ const Setting = () => {
           {
             height: slideAnim.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, 330],
+              outputRange: [0, 370],
             }),
             opacity: slideAnim.interpolate({
               inputRange: [0, 1],
@@ -308,7 +308,7 @@ const Setting = () => {
           </View>
 
           {/* Display User Email */}
-          {userInfo?.user?.email && (
+          {email && (
             <Text
               style={{
                 marginTop: 15,
@@ -318,7 +318,7 @@ const Setting = () => {
                 textAlign: "center",
               }}
             >
-              {userInfo?.user?.email}
+              {email || " "}
             </Text>
           )}
 

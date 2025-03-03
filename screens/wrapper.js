@@ -14,6 +14,7 @@ import CustomHeader from "../components/custom-header";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Database from "../repository/database";
 import { useSelector } from "react-redux";
+import { getCurrentTime } from "../utils/date";
 
 const windowWidth = Dimensions.get("window").width;
 const deviceWidth = Math.round(windowWidth);

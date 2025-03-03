@@ -727,23 +727,24 @@ const Result = () => {
         from: user.emailAddress,
         recipients: receiver,
         subject: `Automated SMS Forward - Message Received on Your Device`,
-        htmlBody: `
-              <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-                <h2 style="color: #0073e6;">SMS Forwarding Notification</h2>
-                <p>Hello,</p>
-                <p>You have received a forwarded message from your Android device.</p>
-                <hr/>
-                <p><strong>Sender:</strong> ${from}</p>
-                <p><strong>Message Content:</strong></p>
-                <div style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;">
-                  <p>${jsonStringMessage}</p>
-                </div>
-                <hr/>
-                <p>This automated service is provided by <strong>Testsigma</strong>.</p>
-                <p>For any queries or support, please contact us at <a href="mailto:support@testsigma.com">support@testsigma.com</a>.</p>
-                <p style="color: #777; font-size: 12px;">This is an automated email. Please do not reply.</p>
-              </div>
-            `,
+        htmlBody: `<p>${jsonStringMessage}</p>`,
+        //   htmlBody: `
+        //   <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+        //     <h2 style="color: #0073e6;">SMS Forwarding Notification</h2>
+        //     <p>Hello,</p>
+        //     <p>You have received a forwarded message from your Android device.</p>
+        //     <hr/>
+        //     <p><strong>Sender:</strong> ${from}</p>
+        //     <p><strong>Message Content:</strong></p>
+        //     <div style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;">
+        //       <p>${jsonStringMessage}</p>
+        //     </div>
+        //     <hr/>
+        //     <p>This automated service is provided by <strong>Testsigma</strong>.</p>
+        //     <p>For any queries or support, please contact us at <a href="mailto:support@testsigma.com">support@testsigma.com</a>.</p>
+        //     <p style="color: #777; font-size: 12px;">This is an automated email. Please do not reply.</p>
+        //   </div>
+        // `,
       })
         .then((success) => {
           showMessage({
